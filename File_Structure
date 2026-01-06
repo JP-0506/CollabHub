@@ -1,0 +1,60 @@
+frontend/
+│
+├── templates/                     # ALL HTML UI SCREENS
+│   ├── home.html
+│   ├── about.html
+│   └── contact.html
+│
+├── auth/
+│   ├── login.html
+│   ├── register.html
+│   └── forgot_password.html
+│
+├── admin/
+│   ├── dashboard.html
+│   ├── projects.html
+│   ├── assign_leader.html
+│   ├── manage_users.html
+│   └── profile.html
+│
+├── leader/
+│   ├── dashboard.html
+│   ├── project_overview.html
+│   ├── team_members.html
+│   ├── task_management.html
+│   └── profile.html
+│
+├── employee/
+│   ├── dashboard.html
+│   ├── my_tasks.html
+│   ├── task_details.html
+│   ├── activity.html
+│   └── profile.html
+│
+├── components/                # REUSABLE UI PARTS
+│   ├── navbar.html
+│   ├── sidebar.html
+│   └── footer.html
+│
+├── static/                    # FRONTEND ASSETS
+│   ├── css/
+│   │   ├── base.css           # Common styles
+│   │   ├── layout.css         # Sidebar, navbar layout
+│   │   ├── auth.css           
+│   │   ├── admin.css          # Admin specific
+│   │   ├── leader.css         # Leader specific
+│   │   └── employee.css       # Employee specific
+│   │
+│   ├── js/
+│   │   ├── main.js            # Common JS
+│   │   ├── auth.js            # Login/Register logic
+│   │   ├── admin.js           # Admin interactions
+│   │   ├── leader.js          # Leader logic
+│   │   └── employee.js        # Employee logic
+│   │
+│   └── images/
+│       ├── logo/
+│       ├── icons/
+│       └── avatars/
+│
+└── README.mds
