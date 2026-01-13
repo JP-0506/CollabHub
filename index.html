@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CollabHub | Enterprise Management</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="glow-bg"></div>
+
+    <nav class="navbar">
+        <div class="logo">Collab<span>Hub</span></div>
+
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#solutions">Solutions</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <a href="login_signup.html" class="btn-signup">Login</a>
+        </div>
+    </nav>
+    <section class="hero">
+        <div class="hero-content">
+            <span class="badge">V2.0 Now Live</span>
+            <h1>The Bridge Between <br><span class="gradient-text">Vision & Execution.</span></h1>
+            <p>Empower your team to delegate with precision and execute with clarity.</p>
+            <div class="cta-group">
+                <a href="login_signup.html"><button class="btn-primary" onclick="openModal('signup')">Get Started
+                        Free</button></a>
+                <button class="btn-outline" id="workflowBtn">Watch Workflow</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal-overlay" id="authModal">
+        <div class="glass-card auth-card">
+            <a href="index.html" class="back-home">
+                <i class="fa-solid fa-arrow-left"></i> Back to Home
+            </a>
+
+            <div class="auth-header">
+                <h2 id="auth-title">Create an account</h2>
+                <p id="auth-subtitle">Already have an account? <a href="#" onclick="switchMode('signin')">Log in</a></p>
+            </div>
+
+            <form class="auth-form">
+                <div class="input-row" id="name-row">
+                    <div class="input-wrapper">
+                        <input type="text" placeholder="First Name">
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="text" placeholder="Last Name">
+                    </div>
+                </div>
+
+                <div class="input-wrapper">
+                    <input type="email" placeholder="Email Address" required>
+                </div>
+
+                <div class="input-wrapper">
+                    <input type="password" placeholder="Enter your password" required>
+                    <span class="password-toggle">👁️</span>
+                </div>
+
+                <div class="terms-check" id="terms-box">
+                    <input type="checkbox" id="terms" checked>
+                    <label for="terms">I agree to the <a href="#">Terms & Conditions</a></label>
+                </div>
+
+                <button type="submit" class="btn-submit" id="main-auth-btn">Create account</button>
+
+                <div class="divider">
+                    <span>Or register with</span>
+                </div>
+
+                <div class="social-btns">
+                    <button type="button" class="btn-social">
+                        <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google"> Google
+                    </button>
+                    <button type="button" class="btn-social">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple"
+                            style="filter: invert(1);"> Apple
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="static//js/script.js"></script>
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="logo">Collab<span>Hub</span></div>
+                <p class="footer-desc">The bridge between vision and execution. Streamline your team's workflow with
+                    precision.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h3>Product</h3>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#solutions">Solutions</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Terms & Policies</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 CollabHub. All rights reserved. | Crafted with passion in Ahmedabad</p>
+        </div>
+    </footer>
+</body>
+
+</html>
