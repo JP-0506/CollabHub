@@ -1,0 +1,429 @@
+:root {
+    --accent: #6366f1;
+    --accent-glow: rgba(99, 102, 241, 0.4);
+    --bg: #0b0e14;
+    --card-bg: #1e222d;
+    /* Matching your requested image theme */
+    --input-bg: #2a2f3e;
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-main: #f8fafc;
+    --text-dim: #94a3b8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+}
+
+/* Dynamic Background */
+.glow-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 80% 20%, #1e1b4b 0%, transparent 40%),
+        radial-gradient(circle at 10% 80%, #0f172a 0%, transparent 40%);
+    z-index: -1;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 8%;
+    background: rgba(11, 14, 20, 0.95);
+    /* Deep dark background */
+    backdrop-filter: blur(10px);
+    /* Glassmorphism effect */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* logo scaling for professionalism */
+.logo {
+    font-size: 1.8rem;
+    letter-spacing: -1px;
+}
+
+/* Centered Links */
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2.5rem;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-dim);
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+    /* Unit-5 Transitions */
+}
+
+.nav-links a:hover {
+    color: var(--text-main);
+}
+
+/* Action Buttons */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+
+
+.btn-signup {
+    text-decoration: none;
+    background: var(--accent);
+    /* Your purple color #7c5dfa */
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: transform 0.3s ease, 0.3s;
+    /* */
+}
+
+.btn-signup:hover {
+    background: #6d4aff;
+    transform: translateY(-2px);
+    /* Subtle lift effect */
+}
+
+/* Buttons */
+.btn-glass {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-glass:hover {
+    background: var(--glass-border);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px var(--accent-glow);
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    transform: scale(1.02);
+    background: #4f46e5;
+    box-shadow: 0 8px 25px var(--accent-glow);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+    background: var(--glass);
+    border-color: var(--text-main);
+}
+
+/* Hero Section */
+.hero {
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 10%;
+}
+
+.hero-content h1 {
+    font-size: 4.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+}
+
+.gradient-text {
+    background: linear-gradient(to right, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Auth Modal Styles */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.auth-card {
+    background: var(--card-bg);
+    padding: 2.5rem;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.auth-header h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+    color: var(--text-dim);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
+
+.auth-header a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.input-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 1rem;
+}
+
+.input-wrapper {
+    margin-bottom: 1rem;
+    flex: 1;
+    position: relative;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--input-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 0.95rem;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-wrapper input:focus {
+    border-color: var(--accent);
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 12px;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+.terms-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 1rem;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-submit:hover {
+    background: #4f46e5;
+    transform: translateY(-2px);
+}
+
+/* Social Login Divider */
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.divider::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 1;
+}
+
+.divider span {
+    position: relative;
+    background: var(--card-bg);
+    padding: 0 15px;
+    z-index: 2;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+}
+
+.social-btns {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-social {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-social:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.close-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-dim);
+}
+
+/* CollabHub Footer Styling */
+.site-footer {
+    background-color: #0b0e14;
+    /* Matches your --bg color */
+    color: var(--text-main);
+    padding: 80px 10% 30px;
+    border-top: 1px solid var(--glass-border);
+    margin-top: 50px;
+}
+
+.footer-container {
+    display: flex;
+    /* Unit-4 Flexbox */
+    justify-content: space-between;
+    flex-wrap: wrap;
+    /* Standard for responsive design */
+    gap: 40px;
+}
+
+.footer-brand {
+    flex: 2;
+    min-width: 250px;
+}
+
+.footer-desc {
+    color: var(--text-dim);
+    margin: 20px 0;
+    max-width: 300px;
+}
+
+.footer-column {
+    flex: 1;
+    min-width: 150px;
+}
+
+.footer-column h3 {
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+    color: var(--accent);
+    /* Uses your purple brand color */
+}
+
+.footer-column ul {
+    list-style: none;
+    /* Unit-2 requirement */
+}
+
+.footer-column li {
+    margin-bottom: 12px;
+}
+
+.footer-column a {
+    color: var(--text-dim);
+    text-decoration: none;
+    /* Unit-2 Hyperlink tag */
+    transition: 0.3s;
+}
+
+.footer-column a:hover {
+    color: var(--text-main);
+    padding-left: 5px;
+    /* Subtle student-level transition effect */
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--glass-border);
+    color: var(--text-dim);
+    font-size: 0.85rem;
+}

@@ -1,0 +1,202 @@
+        :root {
+            --bg-dark: #1e1e26;
+            --card-dark: #2a2a35;
+            --accent: #7c5dfa;
+            --text-main: #ffffff;
+            --text-dim: #a1a1b5;
+            --input-bg: #353544;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-main);
+        }
+
+        .main-card {
+            display: flex;
+            width: 450px;
+            height: 95%;
+            background: var(--card-dark);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .left-panel {
+            flex: 1;
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1506466010722-395aa2bef877?auto=format&fit=crop&w=1000&q=80');
+            background-size: cover;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        /* Right Panel */
+        .right-panel {
+            flex: 1.2;
+            padding: 50px;
+            overflow-y: auto;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            margin-top: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .subtitle a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            background: var(--input-bg);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            padding: 14px;
+            color: white;
+            width: 100%;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-pass {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            cursor: pointer;
+        }
+
+        .primary-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+
+        }
+
+        .primary-btn:hover {
+            text-decoration: none;
+        }
+
+        .divider {
+            text-align: center;
+            border-bottom: 1px solid #444;
+            line-height: 0.1em;
+            margin: 20px 0;
+        }
+
+        .divider span {
+            background: var(--card-dark);
+            padding: 0 10px;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        .social-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .social-btn {
+            flex: 1;
+            background: transparent;
+            border: 1px solid #444;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .forgot-link,
+        .back-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.8rem;
+            text-align: right;
+        }
+
+        .terms {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 20px;
+        }
+
+        .back-home {
+            position: absolute;
+            top: 20px;
+            left: 25px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+
+        .back-home:hover {
+            color: var(--accent);
+            transform: translateX(-3px);
+        }
+
+        .auth-header {
+            margin-top: 20px;
+        }
