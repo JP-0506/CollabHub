@@ -25,4 +25,5 @@ function switchMode(mode) {
 // Close modal when clicking background
 window.onclick = function (event) {
     if (event.target == document.getElementById('authModal')) closeModal();
+
 }
