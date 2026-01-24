@@ -7,8 +7,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 95vh;
-    padding: 100px 20px 60px;
+    min-height: 100vh;
+
+    /* --- UPDATED PADDING --- */
+    /* Top: 60px (Moves form up) */
+    /* Side: 20px */
+    /* Bottom: 120px (Adds space at bottom) */
+    padding: 120px 20px 120px;
 }
 
 .auth-card {
@@ -140,22 +145,41 @@ input:-webkit-autofill:active {
 }
 
 /* PASSWORD TOGGLE */
-.input-group-text {
+/* =========================================
+   PASSWORD TOGGLE (Clean & Transparent Fix)
+   ========================================= */
+
+/* 1. Main Box: Apply background and border here */
+.input-group {
     background-color: rgba(0, 0, 0, 0.3);
     border: 1px solid var(--glass-border);
-    border-left: none;
-    color: var(--text-dim);
-    cursor: pointer;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
 }
 
-.input-group-text:hover {
+/* 2. Input & Icon: Remove background and border to make them transparent */
+.input-group .form-control,
+.input-group .input-group-text {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: white;
+}
+
+/* 3. Eye Icon Styling */
+.input-group .input-group-text {
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 0 15px;
+}
+
+.input-group .input-group-text:hover {
     color: var(--accent);
 }
 
-.input-group .form-control {
-    border-right: none;
-}
-
-.input-group:focus-within .input-group-text {
+/* 4. Focus State: Glow the main box when input is focused */
+.input-group:focus-within {
     border-color: var(--accent);
+    background-color: rgba(0, 0, 0, 0.5);
 }
