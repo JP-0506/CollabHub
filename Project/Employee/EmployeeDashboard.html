@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee | Dashboard</title>
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../Employee/Employee.css">
+</head>
+
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h1 class="brand-name">CollabHub</h1>
+        <div class="toggle-btn" onclick="toggleSidebar()">
+            <i class="bi bi-layout-sidebar"></i>
+        </div>
+    </div>
+
+    <nav class="mt-3">
+        <a class="nav-item active" onclick="loadPage('dashboard_home.html', this)">
+            <i class="fas fa-th-large"></i><span>Dashboard</span>
+        </a>
+
+        <a class="nav-item" onclick="loadPage('my_tasks.html', this)">
+            <i class="bi bi-check2-square"></i><span>My Tasks</span>
+        </a>
+
+        <a class="nav-item" onclick="loadPage('my_projects.html', this)">
+            <i class="bi bi-folder-fill"></i><span>My Projects</span>
+        </a>
+
+        <!-- Team is inside profile -->
+        <a class="nav-item" onclick="loadPage('team.html', this)">
+            <i class="bi bi-people-fill"></i><span>Team</span>
+        </a>
+
+        <a class="nav-item" onclick="loadPage('profile.html', this)">
+            <i class="bi bi-person-circle"></i><span>Profile</span>
+        </a>
+
+        <a class="nav-item" onclick="logout()">
+            <i class="bi bi-box-arrow-left"></i><span>Logout</span>
+        </a>
+    </nav>
+
+    <div class="user-section">
+        <div class="user-avatar">E</div>
+        <div class="user-details">
+            <p class="user-name">Employee</p>
+            <p class="user-role">Team Member</p>
+        </div>
+    </div>
+</aside>
+
+<!-- ================= MAIN CONTENT ================= -->
+<main class="main-content" id="mainContent">
+    <iframe id="contentFrame" src="dashboard_home.html" frameborder="0"></iframe>
+</main>
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../Employee/Employee.js"></script>
+
+</body>
+</html>

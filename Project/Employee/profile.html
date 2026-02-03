@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="Employee.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body style="background:#f8fafc; padding:30px; font-family: 'Inter', sans-serif;">
+
+    <!-- ================= PROFILE ================= -->
+    <h2 class="fw-bold mb-4">My Profile</h2>
+
+    <div class="table-card mb-4">
+        <p>
+            <b>Name:</b>
+            <span id="profile-name">Employee</span>
+            <input type="text" id="edit-name" class="form-control d-none mt-1">
+        </p>
+
+        <p>
+            <b>Email:</b>
+            <span id="profile-email">employee@collabhub.com</span>
+            <input type="email" id="edit-email" class="form-control d-none mt-1">
+        </p>
+
+        <p>
+            <b>Role:</b>
+            <span id="profile-role">Team Member</span>
+            <input type="text" id="edit-role" class="form-control d-none mt-1">
+        </p>
+
+        <button class="btn btn-primary mt-2" onclick="editProfile()" id="editBtn">
+            Edit Profile
+        </button>
+    </div>
+
+
+    <!-- ================= TEAM SECTION ================= -->
+    <h3 class="fw-bold mb-3">My Team</h3>
+
+    <div class="table-card">
+        <div class="row g-4">
+
+            <!-- Team Member 1 -->
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <div class="team-avatar mb-2">A</div>
+                        <h6 class="fw-bold mb-0">Aarav Sharma</h6>
+                        <small class="text-muted">Project Manager</small>
+                        <div class="mt-2">
+                            <i class="fas fa-envelope text-primary"></i>
+                            <small class="text-muted">aarav@collabhub.com</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Member 2 -->
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <div class="team-avatar mb-2">S</div>
+                        <h6 class="fw-bold mb-0">Sneha Patel</h6>
+                        <small class="text-muted">UI/UX Designer</small>
+                        <div class="mt-2">
+                            <i class="fas fa-envelope text-primary"></i>
+                            <small class="text-muted">sneha@collabhub.com</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Member 3 -->
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <div class="team-avatar mb-2">R</div>
+                        <h6 class="fw-bold mb-0">Rahul Verma</h6>
+                        <small class="text-muted">Backend Developer</small>
+                        <div class="mt-2">
+                            <i class="fas fa-envelope text-primary"></i>
+                            <small class="text-muted">rahul@collabhub.com</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <script src="Employee.js"></script>
+</body>
+</html>
