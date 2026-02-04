@@ -29,9 +29,11 @@ ENV/
 instance/
 *.db
 *.sqlite3
+uploads/
+logs/
 
 ############################
-# Migrations (if using Flask-Migrate)
+# Migrations
 ############################
 migrations/
 
@@ -50,7 +52,7 @@ dist/
 *.egg-info/
 
 ############################
-# Frontend (JS tools – optional)
+# Frontend
 ############################
 node_modules/
 npm-debug.log*
@@ -63,9 +65,19 @@ yarn-error.log*
 .idea/
 *.swp
 *.swo
+*.bak
+*.tmp
 
 ############################
-# OS Files
+# Jupyter
+############################
+.ipynb_checkpoints/
+*.ipynb
+
+############################
+# OS / System
 ############################
 .DS_Store
 Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
