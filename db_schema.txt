@@ -1,0 +1,89 @@
+users {
+    
+	user_id
+	name
+	username
+	email
+	role
+	designation
+	avatar
+	is_active
+	is_registerd
+	created_at
+}
+
+auth{
+
+    user_id
+    password_hash
+    updated_at
+}
+
+projects{
+
+    project_id
+    leader_id
+    project_name
+    features
+    status ( planning / ongoing / completed / on_hold)
+    progress
+    start_date
+    end_date
+    created_by
+    created_at
+    updated_at
+}
+
+project_members{
+
+    project_id
+    user_id
+    role_in_project
+    joined_at
+}
+
+tasks {
+
+    task_id
+    project_id
+    title
+    description
+    status ('todo','in_progress','completed')
+    priority ('low','medium','high')
+    assigned_to
+    assigned_by
+    due_date
+    completed_at
+    created_at
+    updated_at
+}
+
+task_activity {
+
+    activity_id
+    task_id
+    user_id
+    action('created','assigned','updated','completed')
+    message
+    created_at
+}
+
+notifications {
+
+    notification_id
+    sender_id
+    receiver_id
+    title
+    message
+    type('task','project','system')
+    is_read
+    sent_at
+}
+
+login_logs {
+
+    log_id
+    user_id
+    login_time
+    ip_address
+}
