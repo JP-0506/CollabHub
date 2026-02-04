@@ -1,0 +1,257 @@
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Employees</h2>
+            <p class="text-muted mb-0">Manage your team members and roles</p>
+        </div>
+        <button class="btn btn-primary px-4 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#addEmpModal">
+            <i class="fas fa-user-plus me-2"></i>Add Employee
+        </button>
+    </div>
+
+    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <span class="stat-value">48</span>
+                <span class="stat-label">Total Employees</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <span class="stat-value">36</span>
+                <span class="stat-label">Active Now</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <span class="stat-value">4</span>
+                <span class="stat-label">New This Month</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0">All Employees</h5>
+            <div class="d-flex gap-2">
+                <input type="text" class="form-control form-control-sm employee-search" placeholder="Search employees..." style="max-width: 200px;">
+                <select class="form-select form-select-sm employee-filter" style="max-width: 150px;">
+                    <option value="">All Departments</option>
+                    <option>Development</option>
+                    <option>Design</option>
+                    <option>Marketing</option>
+                </select>
+            </div>
+        </div>
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Last Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="user-avatar me-3">D</div>
+                            <div>
+                                <div class="fw-bold">Dev Patel</div>
+                                <small class="text-muted">dev@collab.com</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>Senior Developer</td>
+                    <td>Engineering</td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>2 hours ago</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="user-avatar me-3" style="background: #f59e0b;">S</div>
+                            <div>
+                                <div class="fw-bold">Sarah Chen</div>
+                                <small class="text-muted">sarah@collab.com</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>UI/UX Designer</td>
+                    <td>Design</td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>30 minutes ago</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Add Employee Modal -->
+<div class="modal fade" id="addEmpModal" tabindex="-1" aria-labelledby="addEmpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="addEmpModalLabel">Add New Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addEmployeeForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="firstName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="lastName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" required>
+                            <small class="text-muted">Employee will use this to login</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="position" class="form-label">Position <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="position" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="department" class="form-label">Department <span class="text-danger">*</span></label>
+                            <select class="form-select" id="department" required>
+                                <option value="">Select Department</option>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Design">Design</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Sales">Sales</option>
+                                <option value="HR">Human Resources</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Operations">Operations</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="hireDate" class="form-label">Hire Date</label>
+                            <input type="date" class="form-control" id="hireDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status">
+                                <option value="active" selected>Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="on-leave">On Leave</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control" id="address" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">Initial Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="password" required>
+                            <small class="text-muted">Employee can change this after first login</small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveEmployeeBtn">Add Employee</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+// Employee specific JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Employee search
+    const searchInput = document.querySelector('.employee-search');
+    const filterSelect = document.querySelector('.employee-filter');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            filterEmployees();
+        });
+    }
+    
+    if (filterSelect) {
+        filterSelect.addEventListener('change', function() {
+            filterEmployees();
+        });
+    }
+    
+    // Add Employee Modal functionality (NEW)
+    const saveEmployeeBtn = document.getElementById('saveEmployeeBtn');
+    
+    if (saveEmployeeBtn) {
+        saveEmployeeBtn.addEventListener('click', function() {
+            const form = document.getElementById('addEmployeeForm');
+            if (form.checkValidity()) {
+                // Here you would typically send data to your backend
+                // For now, just close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addEmpModal'));
+                modal.hide();
+                
+                // Show success message
+                alert('Employee added successfully!');
+                
+                // Reset form
+                form.reset();
+            } else {
+                // Trigger HTML5 validation
+                form.reportValidity();
+            }
+        });
+    }
+    
+    // Password confirmation validation (NEW)
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirmPassword');
+    
+    if (password && confirmPassword) {
+        function validatePasswords() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('Passwords do not match');
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        }
+        
+        password.addEventListener('input', validatePasswords);
+        confirmPassword.addEventListener('input', validatePasswords);
+    }
+});
+
+function filterEmployees() {
+    const searchTerm = document.querySelector('.employee-search')?.value.toLowerCase() || '';
+    const deptFilter = document.querySelector('.employee-filter')?.value || '';
+    
+    const rows = document.querySelectorAll('.custom-table tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const deptCell = row.children[2]?.textContent || '';
+        
+        const matchesSearch = text.includes(searchTerm);
+        const matchesDept = !deptFilter || deptCell.includes(deptFilter);
+        
+        row.style.display = (matchesSearch && matchesDept) ? '' : 'none';
+    });
+}
+</script>

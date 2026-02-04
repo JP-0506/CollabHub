@@ -25,7 +25,7 @@ def home():
 # -----------------------------
 # ADMIN DASHBOARD
 # -----------------------------
-@app.route("/admin/dashboard")
+@app.route("/admin/section/dashboard")
 def admin_dashboard():
 
     if "user_id" not in session:
@@ -34,7 +34,7 @@ def admin_dashboard():
     if session.get("role") != "admin":
         return "Access Denied ❌"
 
-    return render_template("admin/dashboard.html")
+    return render_template("admin/admin.html")
 
 
 # -----------------------------

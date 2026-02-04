@@ -1,0 +1,160 @@
+<div class="fade-in">
+    <div class="row">
+        <div class="col-lg-8">
+            <h2 class="fw-bold mb-4">Admin Profile</h2>
+            <div class="table-card">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <div class="user-avatar mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                            A
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm mb-4">Change Photo</button>
+                        <div class="text-center">
+                            <h6 class="fw-bold">Admin User</h6>
+                            <p class="text-muted small">Super Administrator</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <span class="status-badge status-active">Verified</span>
+                                <span class="status-badge" style="background: #f3f4f6; color: #6b7280;">Last login: 2h ago</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h5 class="fw-bold mb-4">Personal Information</h5>
+                        <form id="profileForm" onsubmit="return updateProfile()">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-600 small text-muted">FULL NAME *</label>
+                                    <input type="text" class="form-control" id="fullName" value="Admin User" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-600 small text-muted">EMAIL *</label>
+                                    <input type="email" class="form-control" id="email" value="admin@collabhub.com" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-600 small text-muted">PHONE NUMBER</label>
+                                    <input type="tel" class="form-control" id="phone" value="+1 (555) 123-4567">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-600 small text-muted">ROLE</label>
+                                    <input type="text" class="form-control" value="Super Admin" readonly>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-600 small text-muted">BIO</label>
+                                    <textarea class="form-control" id="bio" rows="3">System administrator with full access to all platform features and settings.</textarea>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <h2 class="fw-bold mb-4">Security</h2>
+            <div class="table-card mb-4">
+                <h6 class="fw-bold mb-3">Change Password</h6>
+                <form id="passwordForm" onsubmit="return changePassword()">
+                    <div class="mb-3">
+                        <label class="form-label small">Current Password *</label>
+                        <input type="password" class="form-control" id="currentPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">New Password *</label>
+                        <input type="password" class="form-control" id="newPassword" required>
+                        <small class="text-muted">Must be 6-12 characters</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Confirm Password *</label>
+                        <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Update Password</button>
+                </form>
+            </div>
+            <div class="table-card">
+                <h6 class="fw-bold mb-3">Login Activity</h6>
+                <div class="activity-timeline">
+                    <div class="activity-item">
+                        <div class="activity-dot user"></div>
+                        <div>
+                            <p class="mb-1"><strong>Login successful</strong></p>
+                            <small class="text-muted">Chrome • 2 hours ago</small>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-dot user"></div>
+                        <div>
+                            <p class="mb-1"><strong>Password changed</strong></p>
+                            <small class="text-muted">1 week ago</small>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-dot user"></div>
+                        <div>
+                            <p class="mb-1"><strong>Login from new device</strong></p>
+                            <small class="text-muted">Mobile • 2 weeks ago</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateProfile() {
+    const fullName = document.getElementById('fullName').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const bio = document.getElementById('bio').value;
+    
+    // Save to localStorage (from syllabus Unit-10)
+    localStorage.setItem('adminProfile', JSON.stringify({
+        fullName: fullName,
+        email: email,
+        phone: phone,
+        bio: bio,
+        lastUpdated: new Date().toISOString()
+    }));
+    
+    alert('Profile updated successfully!');
+    return false; // Prevent form submission for demo
+}
+
+function changePassword() {
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    // Validation from syllabus Unit-10
+    if (newPassword.length < 6 || newPassword.length > 12) {
+        alert('Password must be 6 to 12 characters');
+        return false;
+    }
+    
+    if (newPassword !== confirmPassword) {
+        alert('New password and confirm password do not match');
+        return false;
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('adminPassword', btoa(newPassword));
+    
+    alert('Password changed successfully!');
+    document.getElementById('passwordForm').reset();
+    return false;
+}
+
+// Load saved profile on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const savedProfile = localStorage.getItem('adminProfile');
+    if (savedProfile) {
+        const profile = JSON.parse(savedProfile);
+        document.getElementById('fullName').value = profile.fullName || 'Admin User';
+        document.getElementById('email').value = profile.email || 'admin@collabhub.com';
+        document.getElementById('phone').value = profile.phone || '+1 (555) 123-4567';
+        document.getElementById('bio').value = profile.bio || '';
+    }
+});
+</script>

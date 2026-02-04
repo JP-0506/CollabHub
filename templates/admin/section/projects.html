@@ -1,0 +1,298 @@
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Projects</h2>
+            <p class="text-muted mb-0">Manage all your projects and teams</p>
+        </div>
+        <button class="btn btn-primary px-4 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+            <i class="fas fa-plus me-2"></i>New Project
+        </button>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="stat-label">In Progress</span>
+                        <span class="stat-value">42</span>
+                    </div>
+                    <span class="status-badge status-active">Active</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="stat-label">On Hold</span>
+                        <span class="stat-value">12</span>
+                    </div>
+                    <span class="status-badge status-pending">Pending</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="stat-label">Completed</span>
+                        <span class="stat-value">96</span>
+                    </div>
+                    <span class="status-badge status-inactive">Done</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0">All Projects</h5>
+            <div class="d-flex gap-2">
+                <input type="text" class="form-control form-control-sm project-search" placeholder="Search projects..." style="max-width: 200px;">
+                <select class="form-select form-select-sm project-filter" style="max-width: 150px;">
+                    <option value="">All Status</option>
+                    <option>Active</option>
+                    <option>Pending</option>
+                    <option>Completed</option>
+                </select>
+            </div>
+        </div>
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Team</th>
+                    <th>Progress</th>
+                    <th>Status</th>
+                    <th>Due Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #3b82f6;">W</div>
+                            <div>
+                                <div class="fw-bold">Website Redesign</div>
+                                <small class="text-muted">Frontend Team</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>8 members</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="progress-container me-2" style="flex: 1;">
+                                <div class="progress-bar" style="width: 85%"></div>
+                            </div>
+                            <small>85%</small>
+                        </div>
+                    </td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>Jun 15, 2023</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #8b5cf6;">M</div>
+                            <div>
+                                <div class="fw-bold">Mobile App</div>
+                                <small class="text-muted">Mobile Team</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>6 members</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="progress-container me-2" style="flex: 1;">
+                                <div class="progress-bar" style="width: 45%"></div>
+                            </div>
+                            <small>45%</small>
+                        </div>
+                    </td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>Aug 30, 2023</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Add Project Modal -->
+<div class="modal fade" id="addProjectModal" tabindex="-1" aria-labelledby="addProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="addProjectModalLabel">Create New Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addProjectForm">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="projectName" class="form-label">Project Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="projectName" placeholder="e.g., Website Redesign" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="projectCode" class="form-label">Project Code</label>
+                            <input type="text" class="form-control" id="projectCode" placeholder="e.g., PROJ-001">
+                        </div>
+                        <div class="col-md-12">
+                            <label for="projectDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="projectDescription" rows="3" placeholder="Brief description of the project..."></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="projectManager" class="form-label">Project Manager <span class="text-danger">*</span></label>
+                            <select class="form-select" id="projectManager" required>
+                                <option value="">Select Manager</option>
+                                <option value="1">John Smith</option>
+                                <option value="2">Sarah Chen</option>
+                                <option value="3">Dev Patel</option>
+                                <option value="4">Maria Garcia</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="projectTeam" class="form-label">Team Members</label>
+                            <select class="form-select" id="projectTeam" multiple>
+                                <option value="1">John Smith</option>
+                                <option value="2">Sarah Chen</option>
+                                <option value="3">Dev Patel</option>
+                                <option value="4">Maria Garcia</option>
+                                <option value="5">Alex Johnson</option>
+                                <option value="6">Lisa Wong</option>
+                            </select>
+                            <small class="text-muted">Hold Ctrl/Cmd to select multiple members</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="startDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="dueDate" class="form-label">Due Date</label>
+                            <input type="date" class="form-control" id="dueDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="projectStatus" class="form-label">Status</label>
+                            <select class="form-select" id="projectStatus">
+                                <option value="planning">Planning</option>
+                                <option value="active" selected>Active</option>
+                                <option value="on-hold">On Hold</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="projectPriority" class="form-label">Priority</label>
+                            <select class="form-select" id="projectPriority">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="projectBudget" class="form-label">Budget ($)</label>
+                            <input type="number" class="form-control" id="projectBudget" min="0" step="100">
+                        </div>
+                        
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveProjectBtn">Create Project</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+// Project specific JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Project search
+    const searchInput = document.querySelector('.project-search');
+    const filterSelect = document.querySelector('.project-filter');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            filterProjects();
+        });
+    }
+    
+    if (filterSelect) {
+        filterSelect.addEventListener('change', function() {
+            filterProjects();
+        });
+    }
+    
+    // Add Project Modal functionality (NEW)
+    const saveProjectBtn = document.getElementById('saveProjectBtn');
+    
+    if (saveProjectBtn) {
+        saveProjectBtn.addEventListener('click', function() {
+            const form = document.getElementById('addProjectForm');
+            if (form.checkValidity()) {
+                // Here you would typically send data to your backend
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addProjectModal'));
+                modal.hide();
+                
+                alert('Project created successfully!');
+                form.reset();
+                document.getElementById('progressValue').textContent = '0%';
+            } else {
+                form.reportValidity();
+            }
+        });
+    }
+    
+    // Progress slider update (NEW)
+    const progressSlider = document.getElementById('projectProgress');
+    const progressValue = document.getElementById('progressValue');
+    
+    if (progressSlider && progressValue) {
+        progressSlider.addEventListener('input', function() {
+            progressValue.textContent = this.value + '%';
+        });
+    }
+    
+    // Set default dates (NEW)
+    const startDate = document.getElementById('startDate');
+    const dueDate = document.getElementById('dueDate');
+    
+    if (startDate) {
+        startDate.valueAsDate = new Date();
+    }
+    
+    if (dueDate) {
+        const nextMonth = new Date();
+        nextMonth.setMonth(nextMonth.getMonth() + 1);
+        dueDate.valueAsDate = nextMonth;
+    }
+});
+
+function filterProjects() {
+    const searchTerm = document.querySelector('.project-search')?.value.toLowerCase() || '';
+    const statusFilter = document.querySelector('.project-filter')?.value || '';
+    
+    const rows = document.querySelectorAll('.custom-table tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const status = row.querySelector('.status-badge')?.textContent || '';
+        
+        const matchesSearch = text.includes(searchTerm);
+        const matchesStatus = !statusFilter || status.includes(statusFilter);
+        
+        row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+    });
+}
+</script>

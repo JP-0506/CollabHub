@@ -1,0 +1,230 @@
+<div class="fade-in">
+    <h2 class="fw-bold mb-4">Welcome back, Admin 👋</h2>
+    <p class="text-muted mb-4">Here's what's happening with your platform today.</p>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #93c5fd 0%, #3b82f6 100%); color: white;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <span class="stat-label">Total Users</span>
+                <span class="stat-value">2,847</span>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>12% from last month</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #86efac 0%, #10b981 100%); color: white;">
+                    <i class="fas fa-folder"></i>
+                </div>
+                <span class="stat-label">Active Projects</span>
+                <span class="stat-value">184</span>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>8% from last week</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white;">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <span class="stat-label">Tasks Completed</span>
+                <span class="stat-value">1,524</span>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>23% from yesterday</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #c7d2fe 0%, #8b5cf6 100%); color: white;">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <span class="stat-label">Avg. Response Time</span>
+                <span class="stat-value">2.4h</span>
+                <div class="stat-change negative">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>5% from last week</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-5">
+        <h5 class="fw-bold mb-3">Quick Actions</h5>
+        <div class="quick-actions">
+            <div class="action-card" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                <div class="action-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <h6 class="fw-bold mb-1">New Project</h6>
+                <p class="text-muted small mb-0">Create a new project</p>
+            </div>
+            <div class="action-card" data-bs-toggle="modal" data-bs-target="#addEmpModal">
+                <div class="action-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Add Employee</h6>
+                <p class="text-muted small mb-0">Invite team member</p>
+            </div>
+            <div class="action-card" data-section="projects.html" onclick="loadSection('section/projects.html')">
+                <div class="action-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h6 class="fw-bold mb-1">View Reports</h6>
+                <p class="text-muted small mb-0">See analytics</p>
+            </div>
+            <div class="action-card" data-bs-toggle="modal" data-bs-target="#sendAnnouncementModal">
+                <div class="action-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Announcement</h6>
+                <p class="text-muted small mb-0">Send to all users</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals for Dashboard -->
+<div class="modal fade" id="addProjectModal" tabindex="-1" aria-labelledby="addProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="addProjectModalLabel">Create New Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addProjectForm">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="projectName" class="form-label">Project Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="projectName" placeholder="e.g., Website Redesign" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="projectCode" class="form-label">Project Code</label>
+                            <input type="text" class="form-control" id="projectCode" placeholder="e.g., PROJ-001">
+                        </div>
+                        <div class="col-md-12">
+                            <label for="projectDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="projectDescription" rows="3" placeholder="Brief description of the project..."></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="projectManager" class="form-label">Project Manager <span class="text-danger">*</span></label>
+                            <select class="form-select" id="projectManager" required>
+                                <option value="">Select Manager</option>
+                                <option value="1">John Smith</option>
+                                <option value="2">Sarah Chen</option>
+                                <option value="3">Dev Patel</option>
+                                <option value="4">Maria Garcia</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="projectTeam" class="form-label">Team Members</label>
+                            <select class="form-select" id="projectTeam" multiple>
+                                <option value="1">John Smith</option>
+                                <option value="2">Sarah Chen</option>
+                                <option value="3">Dev Patel</option>
+                                <option value="4">Maria Garcia</option>
+                                <option value="5">Alex Johnson</option>
+                                <option value="6">Lisa Wong</option>
+                            </select>
+                            <small class="text-muted">Hold Ctrl/Cmd to select multiple members</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="startDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="dueDate" class="form-label">Due Date</label>
+                            <input type="date" class="form-control" id="dueDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="projectStatus" class="form-label">Status</label>
+                            <select class="form-select" id="projectStatus">
+                                <option value="planning">Planning</option>
+                                <option value="active" selected>Active</option>
+                                <option value="on-hold">On Hold</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="projectPriority" class="form-label">Priority</label>
+                            <select class="form-select" id="projectPriority">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="projectBudget" class="form-label">Budget ($)</label>
+                            <input type="number" class="form-control" id="projectBudget" min="0" step="100">
+                        </div>
+                        
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveProjectBtn">Create Project</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addEmpModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Add New Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="employeeForm" onsubmit="return validateEmployeeForm()">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" class="form-control" name="fullName" placeholder="Enter full name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email Address *</label>
+                        <input type="email" class="form-control" name="email" placeholder="Enter email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Username *</label>
+                        <input type="text" class="form-control" name="username" placeholder="Enter username" required>
+                        <small class="text-muted">Should not start with _, @ or number</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password *</label>
+                        <input type="password" class="form-control" name="password" placeholder="Enter password" required>
+                        <small class="text-muted">Must be 6-12 characters</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Position *</label>
+                        <input type="text" class="form-control" name="position" placeholder="Enter position" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Department *</label>
+                        <select class="form-select" name="department" required>
+                            <option value="">Select department</option>
+                            <option>Engineering</option>
+                            <option>Design</option>
+                            <option>Marketing</option>
+                            <option>Sales</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2">Add Employee</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
