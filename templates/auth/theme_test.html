@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CollabHub - Aesthetic Workspace</title>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Grotesk:wght@300;500;700&display=swap"
+            rel="stylesheet">
+
+        <style>
+            /* =========================================
+           1. CORE VARIABLES (BEIGE AESTHETIC)
+           ========================================= */
+            :root {
+                /* THEME: WARM SAND & CHAMPAGNE */
+                --bg-color: #fdfcf8;
+                /* Creamy White Base */
+
+                /* GLASS VARIABLES */
+                --card-glass: rgba(255, 255, 255, 0.45);
+                /* Milky white glass */
+                --card-border: rgba(255, 255, 255, 0.8);
+                /* Strong white border */
+                --card-shadow: 0 8px 32px 0 rgba(186, 174, 160, 0.25);
+                /* Soft brownish shadow */
+
+                /* GRADIENTS */
+                /* Gradient for Buttons/Accents: Mocha to Warm Taupe */
+                --gradient-primary: linear-gradient(135deg, #a68a76 0%, #8a705e 100%);
+                /* Text Gradient: Espresso to Bronze */
+                --gradient-text: linear-gradient(to right, #4a403a, #7d6b5d);
+
+                /* TEXT COLORS */
+                --text-main: #4a403a;
+                /* Deep Espresso */
+                --text-muted: #8c8177;
+                /* Muted Taupe */
+                --text-light: #ffffff;
+                /* For buttons */
+
+                /* ALERTS */
+                --error-bg: rgba(185, 28, 28, 0.1);
+                --error-text: #991b1b;
+                --success-bg: rgba(21, 128, 61, 0.1);
+                --success-text: #166534;
+            }
+
+            /* RESET & BASE */
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+                overflow-x: hidden;
+                background-color: var(--bg-color);
+                color: var(--text-main);
+                font-family: 'Outfit', sans-serif;
+            }
+
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6,
+            .navbar-brand {
+                font-family: 'Space Grotesk', sans-serif;
+                letter-spacing: -0.02em;
+                color: var(--text-main);
+            }
+
+            /* =========================================
+           2. ANIMATED BEIGE MESH BACKGROUND
+           ========================================= */
+            #ambient-bg {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                z-index: -1;
+                overflow: hidden;
+                background: #fdfcf8;
+            }
+
+            .orb {
+                position: absolute;
+                border-radius: 50%;
+                filter: blur(80px);
+                /* Slightly less blur for watercolor effect */
+                opacity: 0.6;
+                animation: drift 20s infinite alternate ease-in-out;
+            }
+
+            /* Orb 1: Warm Champagne */
+            .orb-1 {
+                width: 65vw;
+                height: 65vw;
+                top: -20%;
+                left: -15%;
+                background: #f0e6dd;
+                animation-duration: 25s;
+            }
+
+            /* Orb 2: Soft Peach/Sand */
+            .orb-2 {
+                width: 55vw;
+                height: 55vw;
+                bottom: -15%;
+                right: -10%;
+                background: #e6dace;
+                animation-duration: 30s;
+                animation-delay: -5s;
+            }
+
+            /* Orb 3: Subtle Rose Gold accent */
+            .orb-3 {
+                width: 35vw;
+                height: 35vw;
+                top: 40%;
+                left: 30%;
+                background: #ebd8cf;
+                opacity: 0.4;
+                animation-duration: 18s;
+                animation-delay: -10s;
+            }
+
+            @keyframes drift {
+                0% {
+                    transform: translate(0, 0) scale(1);
+                }
+
+                100% {
+                    transform: translate(40px, 40px) scale(1.05);
+                }
+            }
+
+            /* =========================================
+           3. GLASSMORPHIC NAVBAR (LIGHT)
+           ========================================= */
+            .navbar {
+                background: rgba(253, 252, 248, 0.7) !important;
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+                padding: 1.2rem 0;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            }
+
+            .navbar-brand {
+                font-size: 1.6rem;
+                font-weight: 700;
+            }
+
+            .navbar-brand span {
+                background: var(--gradient-text);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .nav-link {
+                color: var(--text-muted) !important;
+                font-size: 0.95rem;
+                font-weight: 500;
+                transition: 0.3s;
+            }
+
+            .nav-link:hover {
+                color: var(--text-main) !important;
+            }
+
+            @media (max-width: 991px) {
+                .navbar-collapse {
+                    background: rgba(253, 252, 248, 0.95);
+                    backdrop-filter: blur(30px);
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    width: 100%;
+                    padding: 2rem;
+                    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+                }
+            }
+
+            /* =========================================
+           4. UI COMPONENTS (BUTTONS & CARDS)
+           ========================================= */
+
+            /* Gradient Button - Mocha Theme */
+            .btn-primary {
+                background: var(--gradient-primary);
+                border: none;
+                color: white;
+                padding: 12px 35px;
+                border-radius: 50px;
+                font-weight: 500;
+                letter-spacing: 0.5px;
+                box-shadow: 0 4px 15px rgba(138, 112, 94, 0.3);
+                transition: all 0.3s ease;
+            }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(138, 112, 94, 0.4);
+                background: linear-gradient(135deg, #8a705e 0%, #6d5849 100%);
+            }
+
+            /* Outline Button */
+            .btn-outline-light {
+                border: 1px solid var(--text-muted);
+                color: var(--text-main);
+                border-radius: 50px;
+                padding: 12px 35px;
+                background: transparent;
+                transition: 0.3s;
+            }
+
+            .btn-outline-light:hover {
+                background: var(--text-main);
+                color: white !important;
+                border-color: var(--text-main);
+            }
+
+            /* Glass Cards - The "Milky" Look */
+            .glass-card {
+                background: var(--card-glass);
+                border: 1px solid var(--card-border);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-radius: 24px;
+                transition: transform 0.4s ease;
+                box-shadow: var(--card-shadow);
+            }
+
+            .glass-card:hover {
+                transform: translateY(-5px);
+                background: rgba(255, 255, 255, 0.65);
+                box-shadow: 0 15px 40px 0 rgba(186, 174, 160, 0.35);
+            }
+
+            /* Inputs - Clean Beige */
+            .form-control {
+                background: rgba(255, 255, 255, 0.5);
+                border: 1px solid rgba(140, 129, 119, 0.2);
+                border-radius: 12px;
+                color: var(--text-main);
+                padding: 14px;
+            }
+
+            .form-control:focus {
+                background: #ffffff;
+                border-color: #a68a76;
+                /* Mocha accent */
+                box-shadow: 0 0 0 4px rgba(166, 138, 118, 0.1);
+                color: var(--text-main);
+            }
+
+            .form-control::placeholder {
+                color: var(--text-muted);
+                opacity: 0.7;
+            }
+
+            /* Autofill Fix for Light Theme */
+            input:-webkit-autofill,
+            input:-webkit-autofill:hover,
+            input:-webkit-autofill:focus {
+                -webkit-text-fill-color: var(--text-main);
+                -webkit-box-shadow: 0 0 0px 1000px #fbf8f5 inset;
+                transition: background-color 5000s ease-in-out 0s;
+            }
+
+            /* =========================================
+           5. SECTIONS
+           ========================================= */
+            .hero-section {
+                padding: 180px 0 100px;
+                position: relative;
+            }
+
+            .hero-title {
+                font-size: 4.5rem;
+                font-weight: 700;
+                line-height: 1.1;
+                margin-bottom: 1.5rem;
+                /* Gradient Text */
+                background: var(--gradient-text);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            @media(max-width: 768px) {
+                .hero-title {
+                    font-size: 3rem;
+                }
+            }
+
+            .img-glow {
+                border-radius: 24px;
+                border: 4px solid rgba(255, 255, 255, 0.8);
+                box-shadow: 0 20px 60px -10px rgba(166, 138, 118, 0.3);
+            }
+
+            .feature-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 16px;
+                background: rgba(255, 255, 255, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                color: #a68a76;
+                /* Mocha */
+                margin-bottom: 1.5rem;
+                box-shadow: 0 4px 10px rgba(166, 138, 118, 0.1);
+            }
+
+            /* Footer */
+            .site-footer {
+                background: rgba(245, 240, 235, 0.6);
+                border-top: 1px solid rgba(0, 0, 0, 0.05);
+                padding: 80px 0 40px;
+                margin-top: auto;
+            }
+
+            .footer-brand h4 {
+                color: var(--text-main);
+            }
+
+            .footer-brand p {
+                color: var(--text-muted);
+            }
+
+            .footer-link {
+                color: var(--text-muted);
+                text-decoration: none;
+                display: block;
+                margin-bottom: 12px;
+                transition: 0.3s;
+                font-weight: 400;
+            }
+
+            .footer-headers {
+                color: var(--text-main);
+                font-weight: 700;
+                letter-spacing: 0.05em;
+            }
+
+            .footer-link:hover {
+                color: #a68a76;
+                transform: translateX(5px);
+            }
+
+            /* =========================================
+           6. OVERLAYS (FROSTED WINDOWS)
+           ========================================= */
+            .auth-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 9999;
+                background: rgba(253, 252, 248, 0.6);
+                /* Light overlay backdrop */
+                backdrop-filter: blur(10px);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .auth-overlay.active {
+                display: flex;
+                opacity: 1;
+            }
+
+            .auth-card {
+                width: 100%;
+                max-width: 420px;
+                background: #ffffff;
+                border: 1px solid #f0e6dd;
+                border-radius: 24px;
+                padding: 40px;
+                position: relative;
+                box-shadow: 0 20px 50px -10px rgba(166, 138, 118, 0.25);
+                transform: scale(0.95);
+                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+
+            .auth-overlay.active .auth-card {
+                transform: scale(1);
+            }
+
+            .close-btn {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: transparent;
+                border: none;
+                color: var(--text-muted);
+                font-size: 1.5rem;
+                cursor: pointer;
+            }
+
+            .close-btn:hover {
+                color: var(--text-main);
+            }
+
+            /* Alerts */
+            .alert-box {
+                padding: 12px;
+                border-radius: 12px;
+                font-size: 0.9rem;
+                text-align: center;
+                margin-bottom: 20px;
+                display: none;
+            }
+
+            .alert-err {
+                background: var(--error-bg);
+                color: var(--error-text);
+                border: 1px solid rgba(185, 28, 28, 0.1);
+            }
+
+            .alert-suc {
+                background: var(--success-bg);
+                color: var(--success-text);
+                border: 1px solid rgba(21, 128, 61, 0.1);
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div id="ambient-bg">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+
+        <nav class="navbar navbar-expand-lg fixed-top">
+            <div class="container">
+                <a class="navbar-brand" href="#">Collab<span>Hub</span></a>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav">
+                    <i class="fas fa-bars fs-3" style="color: var(--text-main);"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center gap-4">
+                        <li class="nav-item"><a class="nav-link mobile-nav" href="#home">Home</a></li>
+                        <li class="nav-item"><a class="nav-link mobile-nav" href="#features">Features</a></li>
+                        <li class="nav-item"><a class="nav-link mobile-nav" href="#about">About</a></li>
+                        <li class="nav-item d-none d-lg-block"><span style="color:rgba(0,0,0,0.1)">|</span></li>
+                        <li class="nav-item"><button class="btn btn-outline-light mobile-nav"
+                                onclick="openOverlay('login')">Login</button></li>
+                        <li class="nav-item"><button class="btn btn-primary mobile-nav"
+                                onclick="openOverlay('signup')">Sign Up</button></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <section id="home" class="hero-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 mb-5 mb-lg-0 text-center text-lg-start">
+                        <div class="d-inline-block px-3 py-1 mb-3 rounded-pill"
+                            style="border:1px solid rgba(166, 138, 118, 0.2); background:rgba(255,255,255,0.4);">
+                            <small style="color: #a68a76; font-weight: 600;">✨ Minimalist Workspace</small>
+                        </div>
+                        <h1 class="hero-title">Sync your team,<br>Create with clarity.</h1>
+                        <p class="lead mb-5" style="color: var(--text-muted);">CollabHub provides the calm, aesthetic
+                            environment your team needs to focus, flow, and succeed.</p>
+                        <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+                            <button class="btn btn-primary px-5 py-3" onclick="openOverlay('signup')">Start Free
+                                Trial</button>
+                            <button class="btn btn-outline-light px-4 py-3"><i class="fas fa-play me-2"></i>
+                                Demo</button>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <img src="https://via.placeholder.com/600x400/f5f0eb/8a705e?text=CollabHub+Dashboard"
+                            class="img-fluid img-glow" alt="Dashboard">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="py-5">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="glass-card p-4 h-100 d-flex flex-column align-items-center text-center">
+                            <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                            <h4 class="mb-3">Effortless Speed</h4>
+                            <p style="color: var(--text-muted);">Built on a lightweight architecture to ensure your
+                                workflow never lags.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="glass-card p-4 h-100 d-flex flex-column align-items-center text-center">
+                            <div class="feature-icon"><i class="fas fa-layer-group"></i></div>
+                            <h4 class="mb-3">Clean Kanban</h4>
+                            <p style="color: var(--text-muted);">Visualize your tasks with a clutter-free, drag-and-drop
+                                interface.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="glass-card p-4 h-100 d-flex flex-column align-items-center text-center">
+                            <div class="feature-icon"><i class="fas fa-lock"></i></div>
+                            <h4 class="mb-3">Secure & Private</h4>
+                            <p style="color: var(--text-muted);">Your data is encrypted and stored with the highest
+                                security standards.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="py-5">
+            <div class="container py-5">
+                <div class="glass-card p-5">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6 mb-4 mb-lg-0">
+                            <h2 class="mb-4">Designed for Focus.</h2>
+                            <p style="color: var(--text-muted);" class="mb-4">We removed the visual noise found in other
+                                tools. CollabHub is a breath of fresh air for your digital life.</p>
+                            <ul class="list-unstyled" style="color: var(--text-muted);">
+                                <li class="mb-2"><i class="fas fa-check-circle me-2" style="color:#a68a76"></i> Calming
+                                    color palette</li>
+                                <li class="mb-2"><i class="fas fa-check-circle me-2" style="color:#a68a76"></i>
+                                    Distraction-free mode</li>
+                                <li><i class="fas fa-check-circle me-2" style="color:#a68a76"></i> Intuitive controls
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-6">
+                            <form class="p-2" onsubmit="event.preventDefault(); alert('Sent!');">
+                                <div class="mb-3">
+                                    <label class="mb-2 small fw-bold" style="color: var(--text-muted);">EMAIL
+                                        ADDRESS</label>
+                                    <input type="email" class="form-control" placeholder="you@company.com">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="mb-2 small fw-bold" style="color: var(--text-muted);">MESSAGE</label>
+                                    <textarea class="form-control" rows="3"
+                                        placeholder="Tell us about your team..."></textarea>
+                                </div>
+                                <button class="btn btn-primary w-100">Send Message</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="site-footer">
+            <div class="container">
+                <div class="row gy-5">
+                    <div class="col-lg-4">
+                        <div class="footer-brand">
+                            <h4 class="mb-3 fw-bold">CollabHub</h4>
+                            <p class="small">Crafting digital sanctuaries for modern creators.</p>
+                        </div>
+                        <div class="d-flex gap-3 mt-4">
+                            <a href="#" class="footer-link"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="footer-link"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="footer-link"><i class="fab fa-pinterest"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-2 offset-lg-2">
+                        <h6 class="footer-headers mb-3">PRODUCT</h6>
+                        <a href="#" class="footer-link small">Download</a>
+                        <a href="#" class="footer-link small">Changelog</a>
+                        <a href="#" class="footer-link small">Docs</a>
+                    </div>
+                    <div class="col-6 col-lg-2">
+                        <h6 class="footer-headers mb-3">COMPANY</h6>
+                        <a href="#" class="footer-link small">About</a>
+                        <a href="#" class="footer-link small">Careers</a>
+                        <a href="#" class="footer-link small">Legal</a>
+                    </div>
+                    <div class="col-lg-2">
+                        <h6 class="footer-headers mb-3">COMMUNITY</h6>
+                        <a href="#" class="footer-link small">Forum</a>
+                        <a href="#" class="footer-link small">Events</a>
+                    </div>
+                </div>
+                <div class="border-top mt-5 pt-4 text-center" style="border-color: rgba(0,0,0,0.05) !important;">
+                    <small style="color: var(--text-muted);">&copy; 2026 CollabHub Inc. All rights reserved.</small>
+                </div>
+            </div>
+        </footer>
+
+        <div id="login-overlay" class="auth-overlay">
+            <div class="auth-card">
+                <button class="close-btn" onclick="closeAllOverlays()">&times;</button>
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold">Welcome Back</h3>
+                    <p style="color: var(--text-muted);" class="small">Enter your credentials to access your workspace.
+                    </p>
+                </div>
+
+                <div id="login-err" class="alert-box alert-err">Invalid Credentials</div>
+                <div id="login-suc" class="alert-box alert-suc">Success! Redirecting...</div>
+
+                <form onsubmit="handleLogin(event)">
+                    <div class="mb-3">
+                        <input type="text" id="login-input" class="form-control" placeholder="Username or Email"
+                            required>
+                    </div>
+                    <div class="mb-4">
+                        <div class="input-group">
+                            <input type="password" id="login-pass" class="form-control" placeholder="Password"
+                                style="border-right:none" required>
+                            <span class="input-group-text bg-white border-start-0"
+                                style="border-color:rgba(140, 129, 119, 0.2); cursor:pointer"
+                                onclick="togglePass('login-pass', this)">
+                                <i class="fas fa-eye-slash" style="color: var(--text-muted);"></i>
+                            </span>
+                        </div>
+                        <div class="text-end mt-2">
+                            <a href="#" class="small text-decoration-none" style="color: #a68a76;"
+                                onclick="openOverlay('forgot')">Forgot Password?</a>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary w-100 py-2">Log In</button>
+                </form>
+                <div class="text-center mt-4">
+                    <span class="small" style="color: var(--text-muted);">New here? <a href="#"
+                            class="text-decoration-none fw-bold" style="color: var(--text-main);"
+                            onclick="openOverlay('signup')">Create Account</a></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="signup-overlay" class="auth-overlay">
+            <div class="auth-card">
+                <button class="close-btn" onclick="closeAllOverlays()">&times;</button>
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold">Get Started</h3>
+                    <p style="color: var(--text-muted);" class="small">Join the future of collaboration today.</p>
+                </div>
+
+                <div id="signup-err" class="alert-box alert-err">Passwords do not match</div>
+                <div id="signup-suc" class="alert-box alert-suc">Account Created!</div>
+
+                <form onsubmit="handleSignup(event)">
+                    <div class="mb-3"><input type="text" class="form-control" placeholder="Full Name" required></div>
+                    <div class="mb-3"><input type="email" class="form-control" placeholder="Email Address" required>
+                    </div>
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="password" id="sign-pass" class="form-control" placeholder="Password"
+                                style="border-right:none" required>
+                            <span class="input-group-text bg-white border-start-0"
+                                style="border-color:rgba(140, 129, 119, 0.2); cursor:pointer"
+                                onclick="togglePass('sign-pass', this)">
+                                <i class="fas fa-eye-slash" style="color: var(--text-muted);"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <input type="password" id="sign-conf" class="form-control" placeholder="Confirm Password"
+                            required>
+                    </div>
+                    <button class="btn btn-primary w-100 py-2">Create Account</button>
+                </form>
+                <div class="text-center mt-4">
+                    <span class="small" style="color: var(--text-muted);">Have an account? <a href="#"
+                            class="text-decoration-none fw-bold" style="color: var(--text-main);"
+                            onclick="openOverlay('login')">Log In</a></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="forgot-overlay" class="auth-overlay">
+            <div class="auth-card">
+                <button class="close-btn" onclick="closeAllOverlays()">&times;</button>
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold">Reset Password</h3>
+                    <p style="color: var(--text-muted);" class="small">We'll send a recovery link to your email.</p>
+                </div>
+                <form onsubmit="event.preventDefault(); alert('Link sent!'); openOverlay('login');">
+                    <div class="mb-4"><input type="email" class="form-control" placeholder="Enter your email" required>
+                    </div>
+                    <button class="btn btn-primary w-100 py-2">Send Link</button>
+                </form>
+                <div class="text-center mt-3">
+                    <a href="#" class="small text-decoration-none" style="color: var(--text-muted);"
+                        onclick="openOverlay('login')">Back to Login</a>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // --- OVERLAY SYSTEM ---
+            function openOverlay(id) {
+                closeAllOverlays();
+                const el = document.getElementById(id + '-overlay');
+                if (el) {
+                    el.classList.add('active');
+                    const firstInput = el.querySelector('input');
+                    if (firstInput) setTimeout(() => firstInput.focus(), 100);
+                }
+            }
+
+            function closeAllOverlays() {
+                document.querySelectorAll('.auth-overlay').forEach(el => {
+                    el.classList.remove('active');
+                    const form = el.querySelector('form');
+                    if (form) form.reset();
+                    el.querySelectorAll('.alert-box').forEach(al => al.style.display = 'none');
+                });
+            }
+
+            document.querySelectorAll('.auth-overlay').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    if (e.target === el) closeAllOverlays();
+                });
+            });
+
+            // --- PASSWORD TOGGLE (Light Mode Version) ---
+            function togglePass(inputId, btn) {
+                const input = document.getElementById(inputId);
+                const icon = btn.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                    icon.style.color = '#a68a76'; // Mocha color when active
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                    icon.style.color = '#8c8177'; // Muted when hidden
+                }
+            }
+
+            // --- LOGIN LOGIC ---
+            function handleLogin(e) {
+                e.preventDefault();
+                const u = document.getElementById('login-input').value;
+                const p = document.getElementById('login-pass').value;
+                const err = document.getElementById('login-err');
+                const suc = document.getElementById('login-suc');
+
+                err.style.display = 'none';
+                suc.style.display = 'none';
+
+                if ((u === 'admin' || u.includes('@')) && p === '123') {
+                    suc.style.display = 'block';
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    err.style.display = 'block';
+                    document.getElementById('login-pass').value = '';
+                }
+            }
+
+            // --- SIGNUP LOGIC ---
+            function handleSignup(e) {
+                e.preventDefault();
+                const p = document.getElementById('sign-pass').value;
+                const c = document.getElementById('sign-conf').value;
+                const err = document.getElementById('signup-err');
+                const suc = document.getElementById('signup-suc');
+
+                err.style.display = 'none';
+                suc.style.display = 'none';
+
+                if (p !== c) {
+                    err.style.display = 'block';
+                    return;
+                }
+
+                suc.style.display = 'block';
+                setTimeout(() => {
+                    openOverlay('login');
+                }, 1500);
+            }
+
+            // --- MOBILE NAV AUTO-CLOSE ---
+            document.querySelectorAll('.mobile-nav').forEach(link => {
+                link.addEventListener('click', () => {
+                    const nav = document.getElementById('navbarNav');
+                    if (nav.classList.contains('show')) {
+                        const bsCollapse = new bootstrap.Collapse(nav, { toggle: true });
+                    }
+                });
+            });
+        </script>
+    </body>
+
+</html>
