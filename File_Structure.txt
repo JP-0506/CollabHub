@@ -3,12 +3,12 @@ frontend/
 ├── templates/                     # ALL HTML UI SCREENS
 │   ├── home.html
 │   ├── about.html
-│   └── contact.html
-│
+│   ├── contact.html
+    │
 │   ├── auth/
 │   │   ├── login.html
-│   │   ├── register.html
-│   │   └── forgot_password.html
+│   │   ├── signup.html
+│   │   └── forgotPassword.html
 │   │
 │   ├── admin/
 │   │   ├── dashboard.html
@@ -17,7 +17,7 @@ frontend/
 │   │   ├── manage_users.html
 │   │   └── profile.html
 │   │
-│   ├── leader/
+│   ├── projectLeader/
 │   │   ├── dashboard.html
 │   │   ├── project_overview.html
 │   │   ├── team_members.html
