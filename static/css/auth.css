@@ -1,0 +1,185 @@
+/* =========================================
+   AUTH PAGES & FORMS
+   ========================================= */
+
+/* Centering Container for Auth Pages */
+.auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+
+    /* --- UPDATED PADDING --- */
+    /* Top: 60px (Moves form up) */
+    /* Side: 20px */
+    /* Bottom: 120px (Adds space at bottom) */
+    padding: 120px 20px 120px;
+}
+
+.auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+    padding-bottom: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+
+    /* --- SCROLLBAR REMOVED --- */
+    height: auto;
+    overflow: visible;
+}
+
+.auth-header {
+    padding: 25px 30px 5px;
+    text-align: center;
+}
+
+.auth-header h3 {
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.card-body {
+    padding: 10px 30px 25px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: var(--text-dim);
+    font-size: 1.5rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    z-index: 10;
+}
+
+.close-btn:hover {
+    color: white;
+}
+
+/* =========================================
+   ALERTS
+   ========================================= */
+.alert-error {
+    background-color: var(--error-bg);
+    border: 1px solid var(--error-border);
+    color: var(--error-text);
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    display: none;
+}
+
+.alert-success {
+    background-color: var(--success-bg);
+    border: 1px solid var(--success-border);
+    color: var(--success-text);
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    display: none;
+}
+
+/* =========================================
+   FORM ELEMENTS
+   ========================================= */
+.form-control {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 12px;
+    caret-color: white !important;
+}
+
+/* FIX: AUTOFILL BACKGROUND COLOR */
+/* Forces dark background when user clicks a suggestion */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-text-fill-color: white !important;
+    /* Large inset shadow covers the white/yellow browser default */
+    -webkit-box-shadow: 0 0 0 1000px #15171f inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: white !important;
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+    opacity: 1;
+}
+
+.form-control:focus {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-color: var(--accent);
+    color: white;
+    box-shadow: none;
+}
+
+/* FORM BUTTONS */
+.btn-custom {
+    background-color: var(--accent) !important;
+    color: white !important;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    width: 100%;
+    border: 1px solid var(--accent) !important;
+    margin-top: 20px;
+    transition: 0.3s;
+}
+
+.btn-custom:hover {
+    background-color: #4f46e5 !important;
+    border-color: #4f46e5 !important;
+    box-shadow: 0 0 15px var(--accent-glow);
+    transform: translateY(-2px);
+}
+
+/* PASSWORD TOGGLE */
+/* =========================================
+   PASSWORD TOGGLE (Clean & Transparent Fix)
+   ========================================= */
+
+/* 1. Main Box: Apply background and border here */
+.input-group {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+}
+
+/* 2. Input & Icon: Remove background and border to make them transparent */
+.input-group .form-control,
+.input-group .input-group-text {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: white;
+}
+
+/* 3. Eye Icon Styling */
+.input-group .input-group-text {
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 0 15px;
+}
+
+.input-group .input-group-text:hover {
+    color: var(--accent);
+}
+
+/* 4. Focus State: Glow the main box when input is focused */
+.input-group:focus-within {
+    border-color: var(--accent);
+    background-color: rgba(0, 0, 0, 0.5);
+}
