@@ -1,4 +1,4 @@
-frontend/
+CollabHub/
 │
 ├── templates/                     # ALL HTML UI SCREENS
 │   ├── home.html
@@ -58,3 +58,49 @@ frontend/
 │       └── avatars/
 │
 └── README.md
+
+=> For backend
+CollabHub/
+│
+├── app.py                     # Main Flask App
+│
+├── auth/                       # Authentication Module
+│   ├── __init__.py
+│   └── routes.py
+│
+├── database/                   # Database Connection
+│   ├── __init__.py
+│   └── db.py
+│
+├── admin/                      # Admin Logic (Later)
+│   ├── __init__.py
+│   └── routes.py   (optional)
+│
+├── leader/                     # Project Leader Logic
+│   ├── __init__.py
+│   └── routes.py   (optional)
+│
+├── employee/                   # Employee Logic
+│   ├── __init__.py
+│   └── routes.py   (optional)
+│
+├── templates/                  # ALL HTML FILES
+│   │
+│   ├── home.html               # Landing Page
+│   │
+│   ├── auth/                   # Login / Signup Pages
+│   │   ├── login.html
+│   │   └── signup.html
+│   │
+│   ├── admin/                  # Admin UI
+│   │   └── dashboard.html
+│   │
+│   ├── leader/                 # Leader UI
+│   │   └── dashboard.html
+│   │
+│   └── employee/               # Employee UI
+│       └── dashboard.html
+│
+├── static/                     # Frontend Assets
+│   │
+│   ├── css
