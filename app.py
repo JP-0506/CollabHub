@@ -25,7 +25,7 @@ def home():
 # -----------------------------
 # ADMIN DASHBOARD
 # -----------------------------
-@app.route("/admin/section/dashboard")
+@app.route("/admin")
 def admin_dashboard():
 
     if "user_id" not in session:
