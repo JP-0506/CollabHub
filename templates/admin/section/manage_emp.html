@@ -1,181 +1,409 @@
+{% extends "admin/admin.html" %}
+
+{% block content %}
+
 <div class="fade-in">
+
+    <!-- ================= HEADER ================= -->
+
     <div class="d-flex justify-content-between align-items-center mb-4">
+
         <div>
             <h2 class="fw-bold">Employees</h2>
-            <p class="text-muted mb-0">Manage your team members and roles</p>
+
+            <p class="text-muted mb-0">
+                Manage your team members and roles
+            </p>
         </div>
+
+
         <button class="btn btn-primary px-4 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#addEmpModal">
-            <i class="fas fa-user-plus me-2"></i>Add Employee
+
+            <i class="fas fa-user-plus me-2"></i>
+            Add Employee
+
         </button>
+
     </div>
 
+
+    <!-- ================= STATS ================= -->
+
     <div class="row g-4 mb-4">
-    <div class="row g-4 mb-4">
+
         <div class="col-md-4">
+
             <div class="stat-card text-center">
-                <span class="stat-value">48</span>
-                <span class="stat-label">Total Employees</span>
+
+                <span class="stat-value">
+                    {{ total_employees | default(0) }}
+                </span>
+
+                <span class="stat-label">
+                    Total Employees
+                </span>
+
             </div>
+
         </div>
+
+
         <div class="col-md-4">
+
             <div class="stat-card text-center">
-                <span class="stat-value">36</span>
-                <span class="stat-label">Active Now</span>
+
+                <span class="stat-value">
+                    {{ active_employees | default(0) }}
+                </span>
+
+                <span class="stat-label">
+                    Active Now
+                </span>
+
             </div>
+
         </div>
+
+
         <div class="col-md-4">
+
             <div class="stat-card text-center">
-                <span class="stat-value">4</span>
-                <span class="stat-label">New This Month</span>
+
+                <span class="stat-value">
+                    {{ new_employees | default(0) }}
+                </span>
+
+                <span class="stat-label">
+                    New This Month
+                </span>
+
             </div>
+
         </div>
+
     </div>
+
+
+    <!-- ================= TABLE ================= -->
 
     <div class="table-card">
+
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-bold mb-0">All Employees</h5>
+
+            <h5 class="fw-bold mb-0">
+                All Employees
+            </h5>
+
+
             <div class="d-flex gap-2">
-                <input type="text" class="form-control form-control-sm employee-search" placeholder="Search employees..." style="max-width: 200px;">
-                <select class="form-select form-select-sm employee-filter" style="max-width: 150px;">
-                    <option value="">All Departments</option>
-                    <option>Development</option>
-                    <option>Design</option>
-                    <option>Marketing</option>
+
+                <input type="text" class="form-control form-control-sm employee-search"
+                    placeholder="Search employees..." style="max-width:200px;">
+
+
+                <select class="form-select form-select-sm employee-filter" style="max-width:150px;">
+
+                    <option value="">
+                        All Departments
+                    </option>
+
+                    {% for dept in departments %}
+
+                    <option value="{{ dept }}">
+                        {{ dept }}
+                    </option>
+
+                    {% endfor %}
+
                 </select>
+
             </div>
+
         </div>
+
+
         <table class="custom-table">
+
             <thead>
+
                 <tr>
+
                     <th>Name</th>
-                    <th>Position</th>
+                    <th>Email</th>
+                    <th>Designation</th>
                     <th>Department</th>
                     <th>Status</th>
-                    <th>Last Active</th>
+                    <th>Joined</th>
                     <th>Actions</th>
+
                 </tr>
+
             </thead>
+
+
             <tbody>
+
+                {% for emp in employees %}
+
                 <tr>
+
                     <td>
+
                         <div class="d-flex align-items-center">
-                            <div class="user-avatar me-3">D</div>
-                            <div>
-                                <div class="fw-bold">Dev Patel</div>
-                                <small class="text-muted">dev@collab.com</small>
+
+                            <div class="user-avatar me-3">
+
+                                {{ emp.name[0] }}
+
                             </div>
+
+                            <div>
+
+                                <div class="fw-bold">
+                                    {{ emp.name }}
+                                </div>
+
+                            </div>
+
                         </div>
+
                     </td>
-                    <td>Senior Developer</td>
-                    <td>Engineering</td>
-                    <td><span class="status-badge status-active">Active</span></td>
-                    <td>2 hours ago</td>
+
+
                     <td>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                        </div>
+                        {{ emp.email }}
                     </td>
+
+
+                    <td>
+                        {{ emp.designation }}
+                    </td>
+
+
+                    <td>
+                        {{ emp.department }}
+                    </td>
+
+
+                    <td>
+
+                        {% if emp.is_active %}
+
+                        <span class="status-badge status-active">
+                            Active
+                        </span>
+
+                        {% else %}
+
+                        <span class="status-badge status-inactive">
+                            Inactive
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+                        {{ emp.created_at.strftime('%d %b %Y') }}
+                    </td>
+
+
+                    <td>
+
+                        <div class="d-flex gap-2">
+
+                            <a href="{{ url_for('admin.edit_employee', id=emp.user_id) }}"
+                                class="btn btn-sm btn-outline-primary">
+
+                                <i class="fas fa-edit"></i>
+
+                            </a>
+
+
+                            <a href="{{ url_for('admin.delete_employee', id=emp.user_id) }}"
+                                class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this employee?')">
+
+                                <i class="fas fa-trash"></i>
+
+                            </a>
+
+                        </div>
+
+                    </td>
+
                 </tr>
+
+                {% else %}
+
                 <tr>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="user-avatar me-3" style="background: #f59e0b;">S</div>
-                            <div>
-                                <div class="fw-bold">Sarah Chen</div>
-                                <small class="text-muted">sarah@collab.com</small>
-                            </div>
-                        </div>
+
+                    <td colspan="7" class="text-center text-muted">
+
+                        No employees found
+
                     </td>
-                    <td>UI/UX Designer</td>
-                    <td>Design</td>
-                    <td><span class="status-badge status-active">Active</span></td>
-                    <td>30 minutes ago</td>
-                    <td>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </td>
+
                 </tr>
+
+                {% endfor %}
+
             </tbody>
+
         </table>
+
     </div>
+
 </div>
-<!-- Add Employee Modal -->
-<div class="modal fade" id="addEmpModal" tabindex="-1" aria-labelledby="addEmpModalLabel" aria-hidden="true">
+
+
+<!-- ================= MODAL ================= -->
+
+<div class="modal fade" id="addEmpModal" tabindex="-1">
+
     <div class="modal-dialog modal-lg">
+
         <div class="modal-content">
+
+
             <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="addEmpModalLabel">Add New Employee</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <h5 class="modal-title fw-bold">
+                    Add New Employee
+                </h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+
             </div>
-            <div class="modal-body">
-                <form id="addEmployeeForm">
+
+
+            <form method="POST" action="{{ url_for('admin.employees') }}">
+
+                <div class="modal-body">
+
                     <div class="row g-3">
+
+
                         <div class="col-md-6">
-                            <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="firstName" required>
+
+                            <label class="form-label">
+                                Full Name *
+                            </label>
+
+                            <input type="text" name="name" class="form-control" required>
+
                         </div>
+
+
                         <div class="col-md-6">
-                            <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="lastName" required>
+
+                            <label class="form-label">
+                                Email *
+                            </label>
+
+                            <input type="email" name="email" class="form-control" required>
+
                         </div>
+
+
                         <div class="col-md-6">
-                            <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" id="email" required>
-                            <small class="text-muted">Employee will use this to login</small>
+
+                            <label class="form-label">
+                                Designation *
+                            </label>
+
+                            <input type="text" name="designation" class="form-control" required>
+
                         </div>
+
+
                         <div class="col-md-6">
-                            <label for="phone" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" id="phone">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="position" class="form-label">Position <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="position" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="department" class="form-label">Department <span class="text-danger">*</span></label>
-                            <select class="form-select" id="department" required>
-                                <option value="">Select Department</option>
-                                <option value="Engineering">Engineering</option>
-                                <option value="Design">Design</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Sales">Sales</option>
-                                <option value="HR">Human Resources</option>
-                                <option value="Finance">Finance</option>
-                                <option value="Operations">Operations</option>
+
+                            <label class="form-label">
+                                Department *
+                            </label>
+
+                            <select name="department" class="form-select" required>
+
+                                <option value="">
+                                    Select Department
+                                </option>
+
+                                {% for dept in departments %}
+
+                                <option value="{{ dept }}">
+                                    {{ dept }}
+                                </option>
+
+                                {% endfor %}
+
                             </select>
+
                         </div>
+
+
                         <div class="col-md-6">
-                            <label for="hireDate" class="form-label">Hire Date</label>
-                            <input type="date" class="form-control" id="hireDate">
+
+                            <label class="form-label">
+                                Password *
+                            </label>
+
+                            <input type="password" name="password" class="form-control" required>
+
                         </div>
+
+
                         <div class="col-md-6">
-                            <label for="status" class="form-label">Status</label>
-                            <select class="form-select" id="status">
-                                <option value="active" selected>Active</option>
-                                <option value="inactive">Inactive</option>
-                                <option value="on-leave">On Leave</option>
+
+                            <label class="form-label">
+                                Status
+                            </label>
+
+                            <select name="status" class="form-select">
+
+                                <option value="1" selected>
+                                    Active
+                                </option>
+
+                                <option value="0">
+                                    Inactive
+                                </option>
+
                             </select>
+
                         </div>
-                        <div class="col-12">
-                            <label for="address" class="form-label">Address</label>
-                            <textarea class="form-control" id="address" rows="2"></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="password" class="form-label">Initial Password <span class="text-danger">*</span></label>
-                            <input type="password" class="form-control" id="password" required>
-                            <small class="text-muted">Employee can change this after first login</small>
-                        </div>
+
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveEmployeeBtn">Add Employee</button>
-            </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+
+                    <button type="submit" class="btn btn-primary">
+
+                        Add Employee
+
+                    </button>
+
+                </div>
+
+            </form>
+
         </div>
+
     </div>
+
 </div>
+
 <script src="{{ url_for('static', filename='js/admin/manage_emp.js') }}"></script>
+
+{% endblock %}
