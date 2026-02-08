@@ -14,7 +14,8 @@
                             <p class="text-muted small">Super Administrator</p>
                             <div class="d-flex justify-content-center gap-2">
                                 <span class="status-badge status-active">Verified</span>
-                                <span class="status-badge" style="background: #f3f4f6; color: #6b7280;">Last login: 2h ago</span>
+                                <span class="status-badge" style="background: #f3f4f6; color: #6b7280;">Last login: 2h
+                                    ago</span>
                             </div>
                         </div>
                     </div>
@@ -28,7 +29,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-600 small text-muted">EMAIL *</label>
-                                    <input type="email" class="form-control" id="email" value="admin@collabhub.com" required>
+                                    <input type="email" class="form-control" id="email" value="admin@collabhub.com"
+                                        required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-600 small text-muted">PHONE NUMBER</label>
@@ -40,7 +42,8 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label fw-600 small text-muted">BIO</label>
-                                    <textarea class="form-control" id="bio" rows="3">System administrator with full access to all platform features and settings.</textarea>
+                                    <textarea class="form-control" id="bio"
+                                        rows="3">System administrator with full access to all platform features and settings.</textarea>
                                 </div>
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary px-4">Save Changes</button>
@@ -102,6 +105,4 @@
     </div>
 </div>
 
-<script src="../../../static/js/admin/profile.js">
-
-</script>
+<script src="{{ url_for('static', filename='js/admin/profile.js') }}"></script>
