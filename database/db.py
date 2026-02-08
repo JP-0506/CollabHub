@@ -6,7 +6,7 @@ def get_db():
     return psycopg2.connect(
         dbname="CollabHub",  # your database name
         user="postgres",  # your username
-        password="9871",  # your password
+        password="",  # your password
         host="localhost",
         port="5432",
     )
