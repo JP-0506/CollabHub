@@ -1,128 +1,249 @@
+{% extends "admin/admin.html" %}
+
+{% block content %}
+
 <div class="fade-in">
 
-    <h2 class="fw-bold mb-4">Assign Team Leader</h2>
-    <p class="text-muted mb-4">Assign leaders to projects and teams</p>
+    <!-- ================= HEADER ================= -->
 
-    <div class="table-card">
+    <h2 class="fw-bold mb-3">
+        Assign Team Leader
+    </h2>
 
-        <h5 class="fw-bold mb-4">Assign Project Leader</h5>
+    <p class="text-muted mb-4">
+        Assign leaders to projects and teams
+    </p>
 
-        <form id="assignLeaderForm" onsubmit="return assignLeader()">
+
+    <!-- ================= ASSIGN FORM ================= -->
+
+    <div class="table-card mb-4">
+
+        <h5 class="fw-bold mb-4">
+            Assign Project Leader
+        </h5>
+
+
+        <form method="POST" action="{{ url_for('admin.assign_leader') }}">
+
 
             <div class="row g-3">
 
+
+                <!-- Project -->
                 <div class="col-md-6">
-                    <label class="form-label">Select Project *</label>
-                    <select class="form-select" id="projectSelect" required>
-                        <option value="">Choose a project</option>
-                        <option>Website Redesign</option>
-                        <option>Mobile App</option>
-                        <option>Backend API</option>
-                        <option>Database Migration</option>
+
+                    <label class="form-label">
+                        Select Project *
+                    </label>
+
+                    <select name="project_id" class="form-select" required>
+
+                        <option value="">
+                            Choose Project
+                        </option>
+
+                        {% for project in projects %}
+
+                        <option value="{{ project.project_id }}">
+                            {{ project.project_name }}
+                        </option>
+
+                        {% endfor %}
+
                     </select>
+
                 </div>
 
+
+                <!-- Leader -->
                 <div class="col-md-6">
-                    <label class="form-label">Select Team Leader *</label>
-                    <select class="form-select" id="leaderSelect" required>
-                        <option value="">Choose a leader</option>
-                        <option>Dev Patel (Senior Developer)</option>
-                        <option>Sarah Chen (UI/UX Designer)</option>
-                        <option>Alex Johnson (Project Manager)</option>
-                        <option>Maria Garcia (Team Lead)</option>
+
+                    <label class="form-label">
+                        Select Leader *
+                    </label>
+
+                    <select name="leader_id" class="form-select" required>
+
+                        <option value="">
+                            Choose Leader
+                        </option>
+
+                        {% for leader in leaders %}
+
+                        <option value="{{ leader.user_id }}">
+                            {{ leader.name }}
+                            ({{ leader.designation }})
+                        </option>
+
+                        {% endfor %}
+
                     </select>
+
                 </div>
 
+
+                <!-- Date -->
                 <div class="col-12">
-                    <label class="form-label">Assignment Date *</label>
-                    <input type="date" class="form-control" id="assignmentDate" required>
+
+                    <label class="form-label">
+                        Assignment Date *
+                    </label>
+
+                    <input type="date" name="assigned_date" class="form-control" required>
+
                 </div>
 
+
+                <!-- Notes -->
                 <div class="col-12">
-                    <label class="form-label">Notes (Optional)</label>
-                    <textarea class="form-control" id="assignmentNotes" rows="3"
-                        placeholder="Add any additional notes..."></textarea>
+
+                    <label class="form-label">
+                        Notes (Optional)
+                    </label>
+
+                    <textarea name="notes" class="form-control" rows="3" placeholder="Add notes..."></textarea>
+
                 </div>
 
+
+                <!-- Submit -->
                 <div class="col-12">
+
                     <button type="submit" class="btn btn-primary px-4">
+
                         Assign Leader
+
                     </button>
+
                 </div>
 
             </div>
+
         </form>
+
     </div>
 
 
+
+    <!-- ================= ASSIGNMENTS TABLE ================= -->
+
     <div class="table-card mt-4">
 
-        <h5 class="fw-bold mb-4">Current Assignments</h5>
+        <h5 class="fw-bold mb-4">
+            Current Assignments
+        </h5>
+
 
         <table class="custom-table">
 
             <thead>
+
                 <tr>
                     <th>Project</th>
-                    <th>Team Leader</th>
-                    <th>Assigned Date</th>
+                    <th>Leader</th>
+                    <th>Date</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th>Action</th>
                 </tr>
+
             </thead>
+
 
             <tbody>
 
-                <tr>
-                    <td>Website Redesign</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="user-avatar me-2">D</div>
-                            Dev Patel
-                        </div>
-                    </td>
-                    <td>2023-05-15</td>
-                    <td>
-                        <span class="status-badge status-active">
-                            Active
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-danger" onclick="removeAssignment(this)">
-                            Remove
-                        </button>
-                    </td>
-                </tr>
+
+                {% for a in assignments %}
 
                 <tr>
-                    <td>Mobile App</td>
+
+                    <!-- Project -->
                     <td>
-                        <div class="d-flex align-items-center">
-                            <div class="user-avatar me-2" style="background:#f59e0b">
-                                S
-                            </div>
-                            Sarah Chen
-                        </div>
+                        {{ a.project_name }}
                     </td>
-                    <td>2023-06-20</td>
+
+
+                    <!-- Leader -->
                     <td>
+
+                        <div class="d-flex align-items-center">
+
+                            <div class="user-avatar me-2">
+                                {{ a.leader_name[0] }}
+                            </div>
+
+                            {{ a.leader_name }}
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- Date -->
+                    <td>
+                        {{ a.assigned_date }}
+                    </td>
+
+
+                    <!-- Status -->
+                    <td>
+
+                        {% if a.status == "active" %}
+
                         <span class="status-badge status-active">
                             Active
                         </span>
+
+                        {% else %}
+
+                        <span class="status-badge status-inactive">
+                            Inactive
+                        </span>
+
+                        {% endif %}
+
                     </td>
+
+
+                    <!-- Remove -->
                     <td>
-                        <button class="btn btn-sm btn-outline-danger" onclick="removeAssignment(this)">
-                            Remove
-                        </button>
+
+                        <form method="POST" action="{{ url_for('admin.remove_assignment', id=a.id) }}"
+                            onsubmit="return confirm('Remove this assignment?')">
+
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+
+                                Remove
+
+                            </button>
+
+                        </form>
+
                     </td>
+
                 </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="5" class="text-center text-muted">
+
+                        No assignments yet
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
 
             </tbody>
 
         </table>
+
     </div>
 
 </div>
 
-
-<script src="{{ url_for('static', filename='js/admin/assign_leader.js') }}"></script>
+{% endblock %}
