@@ -1,11 +1,16 @@
 <div class="fade-in">
+
     <h2 class="fw-bold mb-4">Assign Team Leader</h2>
     <p class="text-muted mb-4">Assign leaders to projects and teams</p>
 
     <div class="table-card">
+
         <h5 class="fw-bold mb-4">Assign Project Leader</h5>
+
         <form id="assignLeaderForm" onsubmit="return assignLeader()">
+
             <div class="row g-3">
+
                 <div class="col-md-6">
                     <label class="form-label">Select Project *</label>
                     <select class="form-select" id="projectSelect" required>
@@ -16,6 +21,7 @@
                         <option>Database Migration</option>
                     </select>
                 </div>
+
                 <div class="col-md-6">
                     <label class="form-label">Select Team Leader *</label>
                     <select class="form-select" id="leaderSelect" required>
@@ -26,24 +32,35 @@
                         <option>Maria Garcia (Team Lead)</option>
                     </select>
                 </div>
+
                 <div class="col-12">
                     <label class="form-label">Assignment Date *</label>
                     <input type="date" class="form-control" id="assignmentDate" required>
                 </div>
+
                 <div class="col-12">
                     <label class="form-label">Notes (Optional)</label>
-                    <textarea class="form-control" id="assignmentNotes" rows="3" placeholder="Add any additional notes..."></textarea>
+                    <textarea class="form-control" id="assignmentNotes" rows="3"
+                        placeholder="Add any additional notes..."></textarea>
                 </div>
+
                 <div class="col-12">
-                    <button type="submit" class="btn btn-primary px-4">Assign Leader</button>
+                    <button type="submit" class="btn btn-primary px-4">
+                        Assign Leader
+                    </button>
                 </div>
+
             </div>
         </form>
     </div>
 
+
     <div class="table-card mt-4">
+
         <h5 class="fw-bold mb-4">Current Assignments</h5>
+
         <table class="custom-table">
+
             <thead>
                 <tr>
                     <th>Project</th>
@@ -53,40 +70,59 @@
                     <th>Actions</th>
                 </tr>
             </thead>
+
             <tbody>
+
                 <tr>
                     <td>Website Redesign</td>
                     <td>
                         <div class="d-flex align-items-center">
-                            <div class="user-avatar me-2" style="width: 32px; height: 32px; font-size: 0.8rem;">D</div>
+                            <div class="user-avatar me-2">D</div>
                             Dev Patel
                         </div>
                     </td>
                     <td>2023-05-15</td>
-                    <td><span class="status-badge status-active">Active</span></td>
                     <td>
-                        <button class="btn btn-sm btn-outline-danger" onclick="removeAssignment(this)">Remove</button>
+                        <span class="status-badge status-active">
+                            Active
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" onclick="removeAssignment(this)">
+                            Remove
+                        </button>
                     </td>
                 </tr>
+
                 <tr>
                     <td>Mobile App</td>
                     <td>
                         <div class="d-flex align-items-center">
-                            <div class="user-avatar me-2" style="width: 32px; height: 32px; font-size: 0.8rem; background: #f59e0b;">S</div>
+                            <div class="user-avatar me-2" style="background:#f59e0b">
+                                S
+                            </div>
                             Sarah Chen
                         </div>
                     </td>
                     <td>2023-06-20</td>
-                    <td><span class="status-badge status-active">Active</span></td>
                     <td>
-                        <button class="btn btn-sm btn-outline-danger" onclick="removeAssignment(this)">Remove</button>
+                        <span class="status-badge status-active">
+                            Active
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" onclick="removeAssignment(this)">
+                            Remove
+                        </button>
                     </td>
                 </tr>
+
             </tbody>
+
         </table>
     </div>
+
 </div>
 
-<script src="../../../static/js/admin/assign_leader.js">
 
-</script>
+<script src="{{ url_for('static', filename='js/admin/assign_leader.js') }}"></script>
