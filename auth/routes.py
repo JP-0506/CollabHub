@@ -105,7 +105,7 @@ def login():
 
             # 7. Role મુજબ Redirect URL નક્કી કરો
             if role == "admin":
-                redirect_url = url_for("admin.admin_home")
+                redirect_url = url_for("admin.dashboard")
 
             elif role == "project_leader":
                 redirect_url = url_for("leader_dashboard")
