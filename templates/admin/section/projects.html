@@ -49,7 +49,8 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold mb-0">All Projects</h5>
             <div class="d-flex gap-2">
-                <input type="text" class="form-control form-control-sm project-search" placeholder="Search projects..." style="max-width: 200px;">
+                <input type="text" class="form-control form-control-sm project-search" placeholder="Search projects..."
+                    style="max-width: 200px;">
                 <select class="form-select form-select-sm project-filter" style="max-width: 150px;">
                     <option value="">All Status</option>
                     <option>Active</option>
@@ -73,7 +74,8 @@
                 <tr>
                     <td>
                         <div class="d-flex align-items-center">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #3b82f6;">W</div>
+                            <div class="user-avatar me-3"
+                                style="width: 36px; height: 36px; font-size: 0.9rem; background: #3b82f6;">W</div>
                             <div>
                                 <div class="fw-bold">Website Redesign</div>
                                 <small class="text-muted">Frontend Team</small>
@@ -101,7 +103,8 @@
                 <tr>
                     <td>
                         <div class="d-flex align-items-center">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #8b5cf6;">M</div>
+                            <div class="user-avatar me-3"
+                                style="width: 36px; height: 36px; font-size: 0.9rem; background: #8b5cf6;">M</div>
                             <div>
                                 <div class="fw-bold">Mobile App</div>
                                 <small class="text-muted">Mobile Team</small>
@@ -142,8 +145,10 @@
                 <form id="addProjectForm">
                     <div class="row g-3">
                         <div class="col-md-8">
-                            <label for="projectName" class="form-label">Project Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="projectName" placeholder="e.g., Website Redesign" required>
+                            <label for="projectName" class="form-label">Project Name <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="projectName"
+                                placeholder="e.g., Website Redesign" required>
                         </div>
                         <div class="col-md-4">
                             <label for="projectCode" class="form-label">Project Code</label>
@@ -151,10 +156,12 @@
                         </div>
                         <div class="col-md-12">
                             <label for="projectDescription" class="form-label">Description</label>
-                            <textarea class="form-control" id="projectDescription" rows="3" placeholder="Brief description of the project..."></textarea>
+                            <textarea class="form-control" id="projectDescription" rows="3"
+                                placeholder="Brief description of the project..."></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label for="projectManager" class="form-label">Project Manager <span class="text-danger">*</span></label>
+                            <label for="projectManager" class="form-label">Project Manager <span
+                                    class="text-danger">*</span></label>
                             <select class="form-select" id="projectManager" required>
                                 <option value="">Select Manager</option>
                                 <option value="1">John Smith</option>
@@ -205,7 +212,7 @@
                             <label for="projectBudget" class="form-label">Budget ($)</label>
                             <input type="number" class="form-control" id="projectBudget" min="0" step="100">
                         </div>
-                        
+
                     </div>
                 </form>
             </div>
@@ -216,6 +223,4 @@
         </div>
     </div>
 </div>
-<script src="../../../static/js/admin/projects.js">
-
-</script>
+<script src="{{ url_for('static', filename='js/admin/projects.js') }}"></script>
