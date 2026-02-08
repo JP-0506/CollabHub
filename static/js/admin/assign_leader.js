@@ -1,38 +1,40 @@
+/****************** assign_leader.js ************************/
+
+
+// =======================
+// Assign Leader Form
+// =======================
 function assignLeader() {
+
     const project = document.getElementById('projectSelect').value;
     const leader = document.getElementById('leaderSelect').value;
     const date = document.getElementById('assignmentDate').value;
-    
+
+    // Basic validation
     if (!project || !leader || !date) {
         alert('Please fill all required fields');
-        return false;
+        return false; // stop submit
     }
-    
-    // Save to localStorage (from syllabus Unit-10)
-    const assignments = JSON.parse(localStorage.getItem('leaderAssignments') || '[]');
-    assignments.push({
-        project: project,
-        leader: leader,
-        date: date,
-        notes: document.getElementById('assignmentNotes').value,
-        timestamp: new Date().toISOString()
-    });
-    
-    localStorage.setItem('leaderAssignments', JSON.stringify(assignments));
-    
-    // Show success message
-    alert(`Successfully assigned ${leader.split(' ')[0]} as leader of ${project}`);
-    
-    // Reset form
-    document.getElementById('assignLeaderForm').reset();
-    
-    return false; // Prevent form submission for demo
+
+    // ✅ Allow normal form submit to Flask
+    return true;
 }
 
+
+// =======================
+// Remove Assignment (UI Only)
+// =======================
 function removeAssignment(button) {
-    if (confirm('Are you sure you want to remove this assignment?')) {
-        const row = button.closest('tr');
+
+    if (!confirm('Are you sure you want to remove this assignment?')) {
+        return;
+    }
+
+    const row = button.closest('tr');
+
+    if (row) {
         row.style.opacity = '0.5';
+
         setTimeout(() => row.remove(), 300);
     }
 }
