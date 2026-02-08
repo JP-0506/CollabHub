@@ -1,11 +1,42 @@
-/****************** projects ************************/
+/****************** projects.js ************************/
 
-// Initialize Project Section (Runs after fetch load)
+
+// ============================
+// Page Init
+// ============================
+document.addEventListener("DOMContentLoaded", function () {
+
+    initProjects();
+
+});
+
+
+// ============================
+// Initialize
+// ============================
 function initProjects() {
 
-    // Project search
-    const searchInput = document.querySelector('.project-search');
-    const filterSelect = document.querySelector('.project-filter');
+    initSearchFilter();
+
+    initAddProjectModal();
+
+    initProgressSlider();
+
+    initDefaultDates();
+}
+
+
+// ============================
+// Search & Filter
+// ============================
+function initSearchFilter() {
+
+    const searchInput =
+        document.querySelector('.project-search');
+
+    const filterSelect =
+        document.querySelector('.project-filter');
+
 
     if (searchInput) {
         searchInput.addEventListener('input', filterProjects);
@@ -14,103 +45,136 @@ function initProjects() {
     if (filterSelect) {
         filterSelect.addEventListener('change', filterProjects);
     }
+}
 
-    // Add Project Modal functionality
-    const saveProjectBtn = document.getElementById('saveProjectBtn');
 
-    if (saveProjectBtn) {
+// ============================
+// Filter Logic
+// ============================
+function filterProjects() {
 
-        saveProjectBtn.addEventListener('click', function () {
+    const searchTerm =
+        document.querySelector('.project-search')
+            ?.value.toLowerCase() || '';
 
-            const form = document.getElementById('addProjectForm');
+    const statusFilter =
+        document.querySelector('.project-filter')
+            ?.value.toLowerCase() || '';
 
-            if (!form) return;
 
-            if (form.checkValidity()) {
+    const rows =
+        document.querySelectorAll(
+            '.custom-table tbody tr'
+        );
 
-                // (Later: Send data to backend API here)
 
-                const modalEl = document.getElementById('addProjectModal');
-                const modal = bootstrap.Modal.getInstance(modalEl);
+    rows.forEach(row => {
 
-                if (modal) {
-                    modal.hide();
-                }
+        const text =
+            row.textContent.toLowerCase();
 
-                // Success message
-                alert('Project created successfully!');
+        const status =
+            row.querySelector('.status-badge')
+                ?.textContent.toLowerCase() || '';
 
-                // Reset form
-                form.reset();
 
-                const progressValue = document.getElementById('progressValue');
+        const matchesSearch =
+            text.includes(searchTerm);
 
-                if (progressValue) {
-                    progressValue.textContent = '0%';
-                }
+        const matchesStatus =
+            !statusFilter ||
+            status.includes(statusFilter);
 
-            } else {
 
-                // Trigger HTML5 validation
-                form.reportValidity();
-            }
-        });
-    }
+        row.style.display =
+            (matchesSearch && matchesStatus)
+                ? ''
+                : 'none';
+    });
+}
 
-    // Progress slider update
-    const progressSlider = document.getElementById('projectProgress');
-    const progressValue = document.getElementById('progressValue');
 
-    if (progressSlider && progressValue) {
+// ============================
+// Add Project Modal
+// ============================
+function initAddProjectModal() {
 
-        progressSlider.addEventListener('input', function () {
-            progressValue.textContent = this.value + '%';
-        });
-    }
+    const saveProjectBtn =
+        document.getElementById('saveProjectBtn');
 
-    // Set default dates
-    const startDate = document.getElementById('startDate');
-    const dueDate = document.getElementById('dueDate');
+
+    if (!saveProjectBtn) return;
+
+
+    saveProjectBtn.addEventListener('click', function () {
+
+        const form =
+            document.getElementById('addProjectForm');
+
+        if (!form) return;
+
+
+        if (!form.checkValidity()) {
+
+            form.reportValidity();
+            return;
+        }
+
+
+        // Let form submit to Flask
+        form.submit();
+    });
+}
+
+
+// ============================
+// Progress Slider
+// ============================
+function initProgressSlider() {
+
+    const progressSlider =
+        document.getElementById('projectProgress');
+
+    const progressValue =
+        document.getElementById('progressValue');
+
+
+    if (!progressSlider || !progressValue) return;
+
+
+    progressSlider.addEventListener('input', function () {
+
+        progressValue.textContent =
+            this.value + '%';
+    });
+}
+
+
+// ============================
+// Default Dates
+// ============================
+function initDefaultDates() {
+
+    const startDate =
+        document.getElementById('startDate');
+
+    const dueDate =
+        document.getElementById('dueDate');
+
 
     if (startDate) {
         startDate.valueAsDate = new Date();
     }
 
+
     if (dueDate) {
 
         const nextMonth = new Date();
 
-        nextMonth.setMonth(nextMonth.getMonth() + 1);
+        nextMonth.setMonth(
+            nextMonth.getMonth() + 1
+        );
 
         dueDate.valueAsDate = nextMonth;
     }
-}
-
-
-// Filter Projects
-function filterProjects() {
-
-    const searchTerm =
-        document.querySelector('.project-search')?.value.toLowerCase() || '';
-
-    const statusFilter =
-        document.querySelector('.project-filter')?.value || '';
-
-    const rows = document.querySelectorAll('.custom-table tbody tr');
-
-    rows.forEach(row => {
-
-        const text = row.textContent.toLowerCase();
-
-        const status =
-            row.querySelector('.status-badge')?.textContent || '';
-
-        const matchesSearch = text.includes(searchTerm);
-
-        const matchesStatus =
-            !statusFilter || status.includes(statusFilter);
-
-        row.style.display =
-            (matchesSearch && matchesStatus) ? '' : 'none';
-    });
 }
