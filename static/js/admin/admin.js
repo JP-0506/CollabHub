@@ -1,7 +1,9 @@
 /****************** admin.js ************************/
 
 
+// =======================
 // Toggle Sidebar
+// =======================
 function toggleSidebar() {
 
     const sb = document.getElementById('sidebar');
@@ -9,66 +11,6 @@ function toggleSidebar() {
 
     sb.classList.toggle('collapsed');
     mc.classList.toggle('expanded');
-}
-
-
-// =======================
-// Load Section From Flask
-// =======================
-async function loadSection(url) {
-
-    try {
-
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error("Failed to load section");
-        }
-
-        const html = await response.text();
-
-        const content = document.getElementById("content-area");
-
-        content.innerHTML = html;
-
-        content.classList.add("fade-in");
-
-        setActiveNav(url);
-
-        initializeSection();
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        document.getElementById("content-area").innerHTML = `
-            <div class="alert alert-danger">
-                Failed to load content.
-            </div>
-        `;
-    }
-}
-
-
-// =======================
-// Initialize Section JS
-// =======================
-function initializeSection() {
-
-    // Cards / Modals
-    initActionCards();
-
-    // Form validation
-    initForms();
-
-    // Delete buttons
-    initDeleteButtons();
-
-    // Section specific
-    if (typeof initEmployees === "function") initEmployees();
-    if (typeof initProjects === "function") initProjects();
-    if (typeof initProfile === "function") initProfile();
 }
 
 
@@ -142,7 +84,6 @@ function initDeleteButtons() {
 function validateForm(form) {
 
     let isValid = true;
-
     const errors = [];
 
 
@@ -225,7 +166,9 @@ function showAlert(message, type = 'info') {
 
     const contentArea = document.getElementById('content-area');
 
-    contentArea.insertBefore(alertDiv, contentArea.firstChild);
+    if (contentArea) {
+        contentArea.insertBefore(alertDiv, contentArea.firstChild);
+    }
 
     setTimeout(() => alertDiv.remove(), 5000);
 }
@@ -289,7 +232,7 @@ function initShortcuts() {
 
 
 // =======================
-// Navigation
+// Navigation (NORMAL ROUTING)
 // =======================
 function initNavigation() {
 
@@ -297,32 +240,14 @@ function initNavigation() {
         .querySelectorAll(".nav-item[data-url]")
         .forEach(item => {
 
-            item.addEventListener("click", function (e) {
-
-                e.preventDefault();
+            item.addEventListener("click", function () {
 
                 const url = this.dataset.url;
 
-                loadSection(url);
+                // 👉 NORMAL PAGE REDIRECT
+                window.location.href = url;
             });
         });
-}
-
-
-// =======================
-// Active Menu
-// =======================
-function setActiveNav(url) {
-
-    document.querySelectorAll(".nav-item").forEach(item => {
-
-        item.classList.remove("active");
-
-        if (item.dataset.url === url) {
-
-            item.classList.add("active");
-        }
-    });
 }
 
 
@@ -390,6 +315,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     initNotifications();
 
+    initActionCards();
+    initForms();
+    initDeleteButtons();
+
 
     // Mobile sidebar
     if (window.innerWidth <= 768) {
@@ -405,9 +334,5 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-
-
-    // Default page
-    loadSection("/admin/dashboard");
 
 });
