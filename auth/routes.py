@@ -108,7 +108,7 @@ def login():
                 redirect_url = url_for("admin.dashboard")
 
             elif role == "project_leader":
-                redirect_url = url_for("leader_dashboard")
+                redirect_url = url_for("project_leader.dashboard")
 
             elif role == "employee":
                 redirect_url = url_for("employee_dashboard")
@@ -253,7 +253,7 @@ def signup():
                 redirect_url = url_for("admin.admin_home")
 
             elif role == "project_leader":
-                redirect_url = url_for("leader_dashboard")
+                 redirect_url = url_for("project_leader.dashboard")
 
             elif role == "employee":
                 redirect_url = url_for("employee_dashboard")
