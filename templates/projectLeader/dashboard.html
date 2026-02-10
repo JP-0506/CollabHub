@@ -1,268 +1,212 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CollabHub | Project Leader Dashboard</title>
+{% extends "projectLeader/base.html" %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_css %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <link rel="stylesheet" href="../../static/css/projectLeader/style.css">
-</head>
-<body>
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h1 class="brand-name">CollabHub</h1>
-            <div class="toggle-btn" onclick="toggleSidebar()" id="sidebar-toggle">
-                <img src="logo.jpeg" alt="Logo" class="sidebar-logo-img">
-                <i class="bi bi-layout-sidebar" id="toggle-icon"></i>
-            </div>
+{% endblock %}
+
+{% block content %}
+    <div class="top-bar">
+        <div class="search-container">
+            <i class="fas fa-search text-muted"></i>
+            <input type="text" placeholder="Search projects, tasks, or team members...">
         </div>
-
-        <nav class="mt-3">
-            <a class="nav-item active" href="dashboard.html" data-tooltip="Dashboard">
-                <i class="fas fa-th-large"></i>
-                <span>Dashboard</span>
-            </a>
-            <a class="nav-item" href="myproject.html" data-tooltip="My Projects">
-                <i class="bi bi-folder-fill"></i>
-                <span>My Projects</span>
-            </a>
-            <a class="nav-item" href="tasks.html" data-tooltip="Tasks">
-                <i class="bi bi-check-circle-fill"></i>
-                <span>Tasks</span>
-            </a>
-            <a class="nav-item" href="my_team.html" data-tooltip="Team">
-                <i class="bi bi-people-fill"></i>
-                <span>My Team</span>
-            </a>
-            <a class="nav-item" href="reports.html" data-tooltip="Reports">
-                <i class="bi bi-bar-chart-fill"></i>
-                <span>Reports</span>
-            </a>
-            <a class="nav-item" href="my_profile.html" data-tooltip="Profile">
-                <i class="bi bi-person-badge-fill"></i>
-                <span>My Profile</span>
-            </a>
-            <a class="nav-item" href="index.html" data-tooltip="Logout">
-                <i class="bi bi-box-arrow-left"></i>
-                <span>Logout</span>
-            </a>
-        </nav>
-
-        <div class="user-section">
-            <div class="user-avatar">JL</div>
-            <div class="user-details">
-                <p class="user-name">Jane Lawson</p>
-                <p class="user-role">Project Leader</p>
+        <div class="d-flex gap-3 align-items-center">
+            <div class="notification-btn" data-bs-toggle="dropdown">
+                <i class="fas fa-bell fa-lg"></i>
+                <span class="notification-badge">3</span>
             </div>
-        </div>
-    </aside>
-
-    <main class="main-content" id="main-content">
-        <div class="top-bar">
-            <div class="search-container">
-                <i class="fas fa-search text-muted"></i>
-                <input type="text" placeholder="Search projects, tasks, or team members...">
-            </div>
-            <div class="d-flex gap-3 align-items-center">
-                <div class="notification-btn" data-bs-toggle="dropdown">
-                    <i class="fas fa-bell fa-lg"></i>
-                    <span class="notification-badge">3</span>
+            <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
+                <div class="p-3 border-bottom">
+                    <h6 class="mb-0">Notifications</h6>
                 </div>
-                <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
+                <div class="p-0">
                     <div class="p-3 border-bottom">
-                        <h6 class="mb-0">Notifications</h6>
+                        <div class="d-flex">
+                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">M</div>
+                            <div>
+                                <p class="mb-1"><strong>Mike Chen</strong> completed a task</p>
+                                <small class="text-muted">30 minutes ago</small>
+                            </div>
+                        </div>
                     </div>
-                    <div class="p-0">
-                        <div class="p-3 border-bottom">
-                            <div class="d-flex">
-                                <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">M</div>
-                                <div>
-                                    <p class="mb-1"><strong>Mike Chen</strong> completed a task</p>
-                                    <small class="text-muted">30 minutes ago</small>
-                                </div>
+                    <div class="p-3 border-bottom">
+                        <div class="d-flex">
+                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #f59e0b;">S</div>
+                            <div>
+                                <p class="mb-1"><strong>Sarah</strong> added a comment</p>
+                                <small class="text-muted">2 hours ago</small>
                             </div>
                         </div>
-                        <div class="p-3 border-bottom">
-                            <div class="d-flex">
-                                <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #f59e0b;">S</div>
-                                <div>
-                                    <p class="mb-1"><strong>Sarah</strong> added a comment</p>
-                                    <small class="text-muted">2 hours ago</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-3">
-                            <div class="d-flex">
-                                <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #10b981;">A</div>
-                                <div>
-                                    <p class="mb-1">Project <strong>Website Redesign</strong> milestone reached</p>
-                                    <small class="text-muted">1 day ago</small>
-                                </div>
+                    </div>
+                    <div class="p-3">
+                        <div class="d-flex">
+                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #10b981;">A</div>
+                            <div>
+                                <p class="mb-1">Project <strong>Website Redesign</strong> milestone reached</p>
+                                <small class="text-muted">1 day ago</small>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Dashboard Content -->
-        <h2 class="fw-bold mb-4">Welcome back, Jane 👋</h2>
-        <p class="text-muted mb-4">Here's an overview of your projects and team progress.</p>
+    <!-- Dashboard Content -->
+    <h2 class="fw-bold mb-4">Welcome back, Jane 👋</h2>
+    <p class="text-muted mb-4">Here's an overview of your projects and team progress.</p>
 
-        <!-- Stats Cards -->
-        <div class="row g-4 mb-5">
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #93c5fd 0%, #3b82f6 100%); color: white;">
-                        <i class="fas fa-folder"></i>
-                    </div>
-                    <span class="stat-label">Active Projects</span>
-                    <span class="stat-value">5</span>
-                    <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>1 new this week</span>
-                    </div>
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #93c5fd 0%, #3b82f6 100%); color: white;">
+                    <i class="fas fa-folder"></i>
+                </div>
+                <span class="stat-label">Active Projects</span>
+                <span class="stat-value">5</span>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>1 new this week</span>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #86efac 0%, #10b981 100%); color: white;">
-                        <i class="fas fa-tasks"></i>
-                    </div>
-                    <span class="stat-label">Tasks Completed</span>
-                    <span class="stat-value">127</span>
-                    <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>12% from last week</span>
-                    </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #86efac 0%, #10b981 100%); color: white;">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <span class="stat-label">Tasks Completed</span>
+                <span class="stat-value">127</span>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>12% from last week</span>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white;">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <span class="stat-label">Overdue Tasks</span>
-                    <span class="stat-value">8</span>
-                    <div class="stat-change negative">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>2 from yesterday</span>
-                    </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white;">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <span class="stat-label">Overdue Tasks</span>
+                <span class="stat-value">8</span>
+                <div class="stat-change negative">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>2 from yesterday</span>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #c7d2fe 0%, #8b5cf6 100%); color: white;">
-                        <i class="fas fa-users"></i>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #c7d2fe 0%, #8b5cf6 100%); color: white;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <span class="stat-label">Team Members</span>
+                <span class="stat-value">14</span>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>2 new members</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and Recent Activity -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-8">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h5 class="fw-bold mb-0">Project Progress Overview</h5>
+                    <select class="form-select form-select-sm" style="max-width: 150px;">
+                        <option>Last 7 days</option>
+                        <option>Last 30 days</option>
+                        <option>Last quarter</option>
+                    </select>
+                </div>
+                <canvas id="projectProgressChart"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="table-card">
+                <h5 class="fw-bold mb-4">Recent Activity</h5>
+                <div class="activity-timeline">
+                    <div class="activity-item">
+                        <div class="activity-dot task"></div>
+                        <div>
+                            <p class="mb-1"><strong>Task completed</strong> by Mike Chen</p>
+                            <small class="text-muted">Mobile App - Login UI</small>
+                            <small class="text-muted d-block">30 minutes ago</small>
+                        </div>
                     </div>
-                    <span class="stat-label">Team Members</span>
-                    <span class="stat-value">14</span>
-                    <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>2 new members</span>
+                    <div class="activity-item">
+                        <div class="activity-dot project"></div>
+                        <div>
+                            <p class="mb-1"><strong>Milestone reached</strong> Website Redesign</p>
+                            <small class="text-muted">85% completion</small>
+                            <small class="text-muted d-block">2 hours ago</small>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-dot user"></div>
+                        <div>
+                            <p class="mb-1"><strong>New comment</strong> on API Integration task</p>
+                            <small class="text-muted">Sarah requested changes</small>
+                            <small class="text-muted d-block">4 hours ago</small>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-dot project"></div>
+                        <div>
+                            <p class="mb-1"><strong>Project status updated</strong></p>
+                            <small class="text-muted">E-commerce backend moved to testing</small>
+                            <small class="text-muted d-block">1 day ago</small>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Charts and Recent Activity -->
-        <div class="row g-4 mb-5">
-            <div class="col-lg-8">
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <h5 class="fw-bold mb-0">Project Progress Overview</h5>
-                        <select class="form-select form-select-sm" style="max-width: 150px;">
-                            <option>Last 7 days</option>
-                            <option>Last 30 days</option>
-                            <option>Last quarter</option>
-                        </select>
-                    </div>
-                    <canvas id="projectProgressChart"></canvas>
+    <!-- Quick Actions -->
+    <div class="mt-5">
+        <h5 class="fw-bold mb-3">Quick Actions</h5>
+        <div class="quick-actions">
+            <div class="action-card" data-bs-toggle="modal" data-bs-target="#createTask">
+                <div class="action-icon">
+                    <i class="fas fa-plus"></i>
                 </div>
+                <h6 class="fw-bold mb-1">Create Task</h6>
+                <p class="text-muted small mb-0">Assign new task to team</p>
             </div>
-            <div class="col-lg-4">
-                <div class="table-card">
-                    <h5 class="fw-bold mb-4">Recent Activity</h5>
-                    <div class="activity-timeline">
-                        <div class="activity-item">
-                            <div class="activity-dot task"></div>
-                            <div>
-                                <p class="mb-1"><strong>Task completed</strong> by Mike Chen</p>
-                                <small class="text-muted">Mobile App - Login UI</small>
-                                <small class="text-muted d-block">30 minutes ago</small>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-dot project"></div>
-                            <div>
-                                <p class="mb-1"><strong>Milestone reached</strong> Website Redesign</p>
-                                <small class="text-muted">85% completion</small>
-                                <small class="text-muted d-block">2 hours ago</small>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-dot user"></div>
-                            <div>
-                                <p class="mb-1"><strong>New comment</strong> on API Integration task</p>
-                                <small class="text-muted">Sarah requested changes</small>
-                                <small class="text-muted d-block">4 hours ago</small>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-dot project"></div>
-                            <div>
-                                <p class="mb-1"><strong>Project status updated</strong></p>
-                                <small class="text-muted">E-commerce backend moved to testing</small>
-                                <small class="text-muted d-block">1 day ago</small>
-                            </div>
-                        </div>
-                    </div>
+            <div class="action-card" data-bs-toggle="modal" data-bs-target="#scheduleMeeting">
+                <div class="action-icon">
+                    <i class="fas fa-calendar-alt"></i>
                 </div>
+                <h6 class="fw-bold mb-1">Schedule Meeting</h6>
+                <p class="text-muted small mb-0">Plan team meeting</p>
+            </div>
+            <div class="action-card" href="reports.html">
+                <div class="action-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Generate Report</h6>
+                <p class="text-muted small mb-0">Create progress report</p>
+            </div>
+            <div class="action-card" data-bs-toggle="modal" data-bs-target="#sendUpdate">
+                <div class="action-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Team Update</h6>
+                <p class="text-muted small mb-0">Send update to team</p>
             </div>
         </div>
+    </div>
+{% endblock %}
 
-        <!-- Quick Actions -->
-        <div class="mt-5">
-            <h5 class="fw-bold mb-3">Quick Actions</h5>
-            <div class="quick-actions">
-                <div class="action-card" data-bs-toggle="modal" data-bs-target="#createTask">
-                    <div class="action-icon">
-                        <i class="fas fa-plus"></i>
-                    </div>
-                    <h6 class="fw-bold mb-1">Create Task</h6>
-                    <p class="text-muted small mb-0">Assign new task to team</p>
-                </div>
-                <div class="action-card" data-bs-toggle="modal" data-bs-target="#scheduleMeeting">
-                    <div class="action-icon">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    <h6 class="fw-bold mb-1">Schedule Meeting</h6>
-                    <p class="text-muted small mb-0">Plan team meeting</p>
-                </div>
-                <div class="action-card" href="reports.html">
-                    <div class="action-icon">
-                        <i class="fas fa-chart-bar"></i>
-                    </div>
-                    <h6 class="fw-bold mb-1">Generate Report</h6>
-                    <p class="text-muted small mb-0">Create progress report</p>
-                </div>
-                <div class="action-card" data-bs-toggle="modal" data-bs-target="#sendUpdate">
-                    <div class="action-icon">
-                        <i class="fas fa-bullhorn"></i>
-                    </div>
-                    <h6 class="fw-bold mb-1">Team Update</h6>
-                    <p class="text-muted small mb-0">Send update to team</p>
-                </div>
-            </div>
-        </div>
-    </main>
-
+{% block modals %}
     <!-- Modals -->
     <div class="modal fade" id="createTask" tabindex="-1">
         <div class="modal-dialog">
@@ -402,9 +346,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../../static/js/projectLeader/sidebar.js"></script>
-    <script src="../../static/js/projectLeader/charts.js"></script>
-</body>
-</html>
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='js/projectLeader/charts.js') }}"></script>
+{% endblock %}
