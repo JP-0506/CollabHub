@@ -118,3 +118,23 @@ input:-webkit-autofill:active {
     color: white;
     box-shadow: none;
 }
+
+/* FORM BUTTONS */
+.btn-custom {
+    background-color: var(--accent) !important;
+    color: white !important;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    width: 100%;
+    border: 1px solid var(--accent) !important;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.btn-custom:hover {
+    background-color: #4f46e5 !important;
+    border-color: #4f46e5 !important;
+    box-shadow: 0 0 15px var(--accent-glow);
+    transform: translateY(-2px);
+}
