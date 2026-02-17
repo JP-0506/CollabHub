@@ -10,12 +10,10 @@
 
         <div>
             <h2 class="fw-bold">Projects</h2>
-
             <p class="text-muted mb-0">
                 Manage all your projects and teams
             </p>
         </div>
-
 
         <button class="btn btn-primary px-4 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#addProjectModal">
 
@@ -27,27 +25,51 @@
     </div>
 
 
+
     <!-- ================= STATS ================= -->
 
-    <div class="row g-4">
+    <!-- ROW 1 : PROJECT STATS -->
+    <div class="row g-4 mb-4">
 
-        <!-- Ongoing -->
+        <!-- Total Projects -->
         <div class="col-md-3">
             <div class="stat-card">
 
-                <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <span class="stat-label">Total Projects</span>
+                        <span class="stat-value">
+                            {{ total_count or 0 }}
+                        </span>
+                    </div>
+
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#6366f1,#2563eb);">
+                        <i class="fas fa-folder text-white"></i>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- In Progress -->
+        <div class="col-md-3">
+            <div class="stat-card">
+
+                <div class="d-flex justify-content-between align-items-center">
 
                     <div>
                         <span class="stat-label">In Progress</span>
-
                         <span class="stat-value">
                             {{ ongoing_count or 0 }}
                         </span>
                     </div>
 
-                    <span class="status-badge status-active">
-                        Active
-                    </span>
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#10b981,#34d399);">
+                        <i class="fas fa-spinner text-white"></i>
+                    </div>
 
                 </div>
 
@@ -59,43 +81,18 @@
         <div class="col-md-3">
             <div class="stat-card">
 
-                <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex justify-content-between align-items-center">
 
                     <div>
                         <span class="stat-label">Planning</span>
-
                         <span class="stat-value">
                             {{ planning_count or 0 }}
                         </span>
                     </div>
 
-                    <span class="status-badge status-pending">
-                        Planning
-                    </span>
-
-                </div>
-
-            </div>
-        </div>
-
-
-        <!-- On Hold -->
-        <div class="col-md-3">
-            <div class="stat-card">
-
-                <div class="d-flex justify-content-between align-items-start">
-
-                    <div>
-                        <span class="stat-label">On Hold</span>
-
-                        <span class="stat-value">
-                            {{ onhold_count or 0 }}
-                        </span>
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);">
+                        <i class="fas fa-lightbulb text-white"></i>
                     </div>
-
-                    <span class="status-badge status-pending">
-                        Pending
-                    </span>
 
                 </div>
 
@@ -107,19 +104,18 @@
         <div class="col-md-3">
             <div class="stat-card">
 
-                <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex justify-content-between align-items-center">
 
                     <div>
                         <span class="stat-label">Completed</span>
-
                         <span class="stat-value">
                             {{ completed_count or 0 }}
                         </span>
                     </div>
 
-                    <span class="status-badge status-inactive">
-                        Done
-                    </span>
+                    <div class="stat-icon" style="background:linear-gradient(135deg,#3b82f6,#60a5fa);">
+                        <i class="fas fa-check-circle text-white"></i>
+                    </div>
 
                 </div>
 
@@ -129,6 +125,65 @@
     </div>
 
 
+    <!-- ROW 2 : LEADER STATS -->
+    <!-- ================= LEADER SUMMARY ================= -->
+
+    <!-- ================= PROJECT & LEADER SUMMARY ================= -->
+
+    <div class="summary-strip mt-4">
+
+        <div class="row g-3">
+
+            <div class="col-md-3 col-6">
+
+                <div class="summary-item">
+
+                    <span>Total Leaders</span>
+                    <h6>{{ total_leaders }}</h6>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-3 col-6">
+
+                <div class="summary-item">
+
+                    <span>Assigned Leaders</span>
+                    <h6>{{ assigned_leaders }}</h6>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-3 col-6">
+
+                <div class="summary-item">
+
+                    <span>Free Leaders</span>
+                    <h6>{{ free_leaders }}</h6>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-3 col-6">
+
+                <div class="summary-item">
+
+                    <span>Unassigned Projects</span>
+                    <h6>{{ unassigned_projects }}</h6>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
     <!-- ================= TABLE ================= -->
 
@@ -136,16 +191,12 @@
 
         <div class="d-flex justify-content-between align-items-center mb-4">
 
-            <h5 class="fw-bold mb-0">
-                All Projects
-            </h5>
-
+            <h5 class="fw-bold mb-0">All Projects</h5>
 
             <div class="d-flex gap-2">
 
                 <input type="text" class="form-control form-control-sm project-search" placeholder="Search projects..."
                     style="max-width:200px;">
-
 
                 <select class="form-select form-select-sm project-filter" style="max-width:150px;">
 
@@ -162,19 +213,23 @@
         </div>
 
 
+
         <table class="custom-table">
 
             <thead>
+
                 <tr>
                     <th>Project Name</th>
-                    <th>Leader</th>
+                    <th>Team Leader</th>
                     <th>Team Members</th>
                     <th>Progress</th>
                     <th>Status</th>
                     <th>Due Date</th>
                     <th>Actions</th>
                 </tr>
+
             </thead>
+
 
             <tbody>
 
@@ -182,75 +237,69 @@
 
                 <tr>
 
-                    <!-- Project Name + Avatar -->
+                    <!-- Name -->
                     <td>
+
                         <div class="d-flex align-items-center">
 
-                            <div class="user-avatar me-3" style="width:36px;height:36px;
-                                 font-size:0.9rem;
-                                 background:#3b82f6;">
+                            <div class="user-avatar me-3"
+                                style="width:36px;height:36px;font-size:0.9rem;background:#3b82f6;">
 
-                                {{ p[1][0]|upper }}
+                                {{ p.project_name[:1]|upper }}
 
                             </div>
 
                             <div>
 
-                                <div class="fw-bold">
-                                    {{ p[1] }}
-                                </div>
+                                <div class="fw-bold">{{ p.project_name }}</div>
 
-                                <small class="text-muted">
-                                    Project Team
-                                </small>
+                                <small class="text-muted">Project Team</small>
 
                             </div>
 
                         </div>
+
                     </td>
 
 
                     <!-- Leader -->
-                    <td>
-                        {{ p[6] or "-" }}
-                    </td>
+                    <td>{{ p.leader_name or "-" }}</td>
 
 
-                    <!-- Team Members -->
-                    <td>
-                        0 Members
-                    </td>
+                    <!-- Members -->
+                    <td>{{ p.member_count or 0 }}</td>
 
 
                     <!-- Progress -->
                     <td>
+
                         <div class="d-flex align-items-center">
 
                             <div class="progress-container me-2" style="flex:1;">
 
-                                <div class="progress-bar" style="width: {{ p[3] or 0 }}%;">
-                                </div>
+                                <div class="progress-bar" data-width="{{ p.progress or 0 }}"></div>
 
                             </div>
 
-                            <small>{{ p[3] or 0 }}%</small>
+                            <small>{{ p.progress or 0 }}%</small>
 
                         </div>
+
                     </td>
 
 
                     <!-- Status -->
                     <td>
-                        <span class="status-badge status-{{ p[2] }}">
-                            {{ p[2]|capitalize }}
+
+                        <span class="status-badge status-{{ p.status }}">
+                            {{ p.status|capitalize }}
                         </span>
+
                     </td>
 
 
-                    <!-- Due Date -->
-                    <td>
-                        {{ p[5] or "-" }}
-                    </td>
+                    <!-- Due -->
+                    <td>{{ p.end_date or "-" }}</td>
 
 
                     <!-- Actions -->
@@ -258,21 +307,28 @@
 
                         <div class="d-flex gap-2">
 
-                            <!-- Edit -->
-                            <a href="#" class="btn btn-sm btn-outline-primary">
+
+                            <!-- EDIT -->
+                            <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                                data-id="{{ p.project_id }}" data-name="{{ p.project_name }}"
+                                data-status="{{ p.status }}" data-progress="{{ p.progress }}"
+                                data-start="{{ p.start_date }}" data-end="{{ p.end_date }}" data-desc="{{ p.features }}"
+                                data-leader="{{ p.leader_id }}">
 
                                 <i class="fas fa-edit"></i>
+                            </button>
 
-                            </a>
 
+                            <!-- DELETE -->
+                            <form method="POST" action="{{ url_for('admin.delete_project', project_id=p.project_id) }}"
+                                style="display:inline;" onsubmit="return confirm('Delete this project?')">
 
-                            <!-- Delete -->
-                            <a href="#" class="btn btn-sm btn-outline-danger"
-                                onclick="return confirm('Delete this project?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
 
-                                <i class="fas fa-trash"></i>
+                            </form>
 
-                            </a>
 
                         </div>
 
@@ -284,9 +340,7 @@
 
                 <tr>
                     <td colspan="7" class="text-center text-muted">
-
                         No projects found
-
                     </td>
                 </tr>
 
@@ -315,26 +369,25 @@
                     Create New Project
                 </h5>
 
-                <button type="button" class="btn-close" data-bs-dismiss="modal">
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 
             </div>
 
 
             <div class="modal-body">
 
-                <form method="POST" action="{{ url_for('admin.projects') }}">
+
+                <form method="POST" action="{{ url_for('admin.projects') }}" id="projectForm">
 
                     <div class="row g-3">
 
-                        <!-- Project Name -->
+
+                        <!-- Name -->
                         <div class="col-md-8">
 
-                            <label class="form-label">
-                                Project Name *
-                            </label>
+                            <label class="form-label">Project Name *</label>
 
-                            <input type="text" class="form-control" name="project_name" required>
+                            <input type="text" class="form-control" name="project_name" id="projectName" required>
 
                         </div>
 
@@ -342,20 +395,16 @@
                         <!-- Leader -->
                         <div class="col-md-4">
 
-                            <label class="form-label">
-                                Leader *
-                            </label>
+                            <label class="form-label">Leader</label>
 
-                            <select class="form-select" name="leader_id" required>
+                            <select class="form-select" name="leader_id" id="projectLeader">
 
-                                <option value="">
-                                    Select Leader
-                                </option>
+                                <option value="" hidden>Select Leader</option>
 
                                 {% for user in leaders %}
 
-                                <option value="{{ user[0] }}">
-                                    {{ user[1] }}
+                                <option value="{{ user.user_id }}">
+                                    {{ user.name }}
                                 </option>
 
                                 {% endfor %}
@@ -365,26 +414,24 @@
                         </div>
 
 
-                        <!-- Start Date -->
+
+                        <!-- Start -->
                         <div class="col-md-6">
 
-                            <label class="form-label">
-                                Start Date
-                            </label>
+                            <label class="form-label">Start Date</label>
 
-                            <input type="date" class="form-control" name="start_date">
+                            <input type="date" class="form-control" name="start_date" id="projectStart">
 
                         </div>
 
 
-                        <!-- End Date -->
+
+                        <!-- End -->
                         <div class="col-md-6">
 
-                            <label class="form-label">
-                                End Date
-                            </label>
+                            <label class="form-label">End Date</label>
 
-                            <input type="date" class="form-control" name="end_date">
+                            <input type="date" class="form-control" name="end_date" id="projectEnd">
 
                         </div>
 
@@ -392,14 +439,12 @@
                         <!-- Status -->
                         <div class="col-md-6">
 
-                            <label class="form-label">
-                                Status
-                            </label>
+                            <label class="form-label">Status</label>
 
-                            <select class="form-select" name="status">
+                            <select class="form-select" name="status" id="projectStatus">
 
                                 <option value="planning">Planning</option>
-                                <option value="ongoing" selected>Ongoing</option>
+                                <option value="ongoing">Ongoing</option>
                                 <option value="on_hold">On Hold</option>
                                 <option value="completed">Completed</option>
 
@@ -411,26 +456,21 @@
                         <!-- Progress -->
                         <div class="col-md-6">
 
-                            <label class="form-label">
-                                Progress %
-                            </label>
+                            <label class="form-label">Progress %</label>
 
-                            <input type="number" class="form-control" name="progress" min="0" max="100">
+                            <input type="number" class="form-control" name="progress" id="projectProgress" min="0"
+                                max="100">
 
                         </div>
 
 
-                        <!-- Description (NEW) -->
+
+                        <!-- Desc -->
                         <div class="col-md-12">
 
-                            <label for="projectDescription" class="form-label">
+                            <label class="form-label">Description</label>
 
-                                Description
-                            </label>
-
-                            <textarea class="form-control" id="projectDescription" name="description" rows="3"
-                                placeholder="Brief description of the project...">
-                            </textarea>
+                            <textarea class="form-control" name="description" id="projectDesc" rows="3"></textarea>
 
                         </div>
 
@@ -446,9 +486,178 @@
                         </button>
 
 
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="projectSubmitBtn">
 
                             Create
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= EDIT PROJECT     MODAL ================= -->
+
+<div class="modal fade" id="editProjectModal" tabindex="-1">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <!-- HEADER -->
+            <div class="modal-header">
+
+                <h5 class="modal-title fw-bold">
+                    Edit Project
+                </h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+
+            <!-- BODY -->
+            <div class="modal-body">
+
+                <form method="POST" id="editProjectForm">
+
+                    <!-- Hidden Project ID -->
+                    <input type="hidden" name="project_id" id="editProjectId">
+
+                    <div class="row g-3">
+
+                        <!-- Name -->
+                        <div class="col-md-8">
+
+                            <label class="form-label">
+                                Project Name *
+                            </label>
+
+                            <input type="text" class="form-control" name="project_name" id="editProjectName" required>
+
+                        </div>
+
+
+                        <!-- Leader -->
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Leader
+                            </label>
+
+                            <select class="form-select" name="leader_id" id="editProjectLeader">
+
+                                <option value="" hidden>
+                                    Select Leader
+                                </option>
+
+                                {% for user in leaders %}
+
+                                <option value="{{ user.user_id }}">
+                                    {{ user.name }}
+                                </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Start -->
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Start Date
+                            </label>
+
+                            <input type="date" class="form-control" name="start_date" id="editProjectStart">
+
+                        </div>
+
+
+                        <!-- End -->
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                End Date
+                            </label>
+
+                            <input type="date" class="form-control" name="end_date" id="editProjectEnd">
+
+                        </div>
+
+
+                        <!-- Status -->
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Status
+                            </label>
+
+                            <select class="form-select" name="status" id="editProjectStatus">
+
+                                <option value="planning">Planning</option>
+                                <option value="ongoing">Ongoing</option>
+                                <option value="on_hold">On Hold</option>
+                                <option value="completed">Completed</option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Progress -->
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Progress %
+                            </label>
+
+                            <input type="number" class="form-control" name="progress" id="editProjectProgress" min="0"
+                                max="100">
+
+                        </div>
+
+
+                        <!-- Desc -->
+                        <div class="col-md-12">
+
+                            <label class="form-label">
+                                Description
+                            </label>
+
+                            <textarea class="form-control" name="description" id="editProjectDesc" rows="3">
+                            </textarea>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- FOOTER -->
+                    <div class="modal-footer mt-3">
+
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+
+                            Cancel
+
+                        </button>
+
+
+                        <button type="submit" class="btn btn-primary">
+
+                            Update
 
                         </button>
 
