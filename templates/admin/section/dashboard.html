@@ -17,10 +17,10 @@
 
     <!-- ================= STATS ================= -->
 
-    <div class="row g-4 mb-5">
+    <!-- <div class="row g-4 mb-5">
 
 
-        <!-- Total Users -->
+        **********<Total Users>*******************
         <div class="col-md-3">
 
             <div class="stat-card">
@@ -44,7 +44,7 @@
         </div>
 
 
-        <!-- Active Projects -->
+       *************** <Active Projects>**********
         <div class="col-md-3">
 
             <div class="stat-card">
@@ -68,7 +68,7 @@
         </div>
 
 
-        <!-- Tasks Completed -->
+        **********<Tasks Completed >************
         <div class="col-md-3">
 
             <div class="stat-card">
@@ -92,7 +92,7 @@
         </div>
 
 
-        <!-- Avg Response -->
+        <Avg Response >
         <div class="col-md-3">
 
             <div class="stat-card">
@@ -115,23 +115,262 @@
 
         </div>
 
+    </div> -->
+    <div class="row g-4 mb-5">
+
+        <!-- Total Users -->
+        <div class="col-md-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon" style="background:linear-gradient(135deg,#93c5fd,#3b82f6);color:white;">
+
+                    <i class="fas fa-users"></i>
+
+                </div>
+
+                <span class="stat-label">
+                    Total Users
+                </span>
+
+                <span class="stat-value">
+                    {{ total_users }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- Active Projects -->
+        <div class="col-md-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon" style="background:linear-gradient(135deg,#86efac,#10b981);color:white;">
+
+                    <i class="fas fa-folder-open"></i>
+
+                </div>
+
+                <span class="stat-label">
+                    Active Projects
+                </span>
+
+                <span class="stat-value">
+                    {{ active_projects }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- Leader Wise Progress -->
+        <div class="col-md-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon" style="background:linear-gradient(135deg,#fde68a,#f59e0b);color:white;">
+
+                    <i class="fas fa-chart-line"></i>
+
+                </div>
+
+                <span class="stat-label">
+                    Overall Project Progress
+                </span>
+
+                <span class="stat-value">
+
+                    {{ Overall_project_progress }}%
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- Overdue Projects -->
+        <div class="col-md-3">
+
+            <div class="stat-card">
+
+                <div class="stat-icon" style="background:linear-gradient(135deg,#fca5a5,#ef4444);color:white;">
+
+                    <i class="fas fa-exclamation-triangle"></i>
+
+                </div>
+
+                <span class="stat-label">
+                    Overdue Projects
+                </span>
+
+                <span class="stat-value">
+                    {{ overdue_projects }}
+                </span>
+
+            </div>
+
+        </div>
+
     </div>
+
+    <!-- ================= PROJECT OVERVIEW ================= -->
+
+    <div class="mt-5">
+
+        <h4 class="fw-bold mb-3">
+            Project Overview
+        </h4>
+
+
+        <!-- ===== Row 1 : Status + Creation ===== -->
+        <div class="row g-4 mb-4">
+
+            <!-- Project Status -->
+            <div class="col-md-6">
+
+                <div class="chart-box">
+
+                    <h6 class="chart-title">
+                        Project Status
+                    </h6>
+
+                    <canvas id="statusChart" height="220"></canvas>
+
+                </div>
+
+            </div>
+
+
+            <!-- Project Creation -->
+            <div class="col-md-6">
+
+                <div class="chart-box">
+
+                    <h6 class="chart-title">
+                        Project Creation Rate
+                    </h6>
+
+                    <canvas id="creationChart" height="220"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ===== Row 2 : Deadline ===== -->
+        <div class="row g-4 mb-4">
+
+            <div class="col-12">
+
+                <div class="chart-box">
+
+                    <h6 class="chart-title">
+                        Deadline vs Progress
+                    </h6>
+
+                    <canvas id="deadlineChart" height="260"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ===== Row 3 : Trend (Big) ===== -->
+        <div class="row g-4">
+
+            <div class="col-12">
+
+                <div class="chart-box">
+
+                    <h6 class="chart-title">
+                        Progress Trend
+                    </h6>
+
+                    <canvas id="trendChart" height="320"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= RISK PANEL ================= -->
+
+    <div class="mt-5">
+
+        <h4 class="fw-bold mb-3 text-danger">
+            ⚠️ Risk Projects
+        </h4>
+
+        <div class="chart-box border-danger">
+
+            <canvas id="riskChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================= RECENT PROJECTS ================= -->
+
+    <div class="mt-5 mb-5">
+
+        <h4 class="fw-bold mb-3">
+            Recent Projects
+        </h4>
+
+        <div class="table-box">
+
+            <table class="custom-table modern-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Project</th>
+                        <th>Status</th>
+                        <th>Progress</th>
+                        <th>Due Date</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="recentProjects">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
 
 
     <!-- ================= QUICK ACTIONS ================= -->
 
-    <div class="mt-4">
+    <div class="mt-5">
 
         <h5 class="fw-bold mb-3">
             Quick Actions
         </h5>
 
-
         <div class="quick-actions">
 
-
             <!-- New Project -->
-            <a href="{{ url_for('admin.projects') }}" class="action-card">
+            <div class="action-card" data-url="{{ url_for('admin.projects') }}" onclick="goTo(this)">
 
                 <div class="action-icon">
                     <i class="fas fa-plus"></i>
@@ -145,11 +384,11 @@
                     Create a new project
                 </p>
 
-            </a>
+            </div>
 
 
             <!-- Add Employee -->
-            <a href="{{ url_for('admin.employees') }}" class="action-card">
+            <div class="action-card" data-url="{{ url_for('admin.employees') }}" onclick="goTo(this)">
 
                 <div class="action-icon">
                     <i class="fas fa-user-plus"></i>
@@ -163,11 +402,11 @@
                     Invite team member
                 </p>
 
-            </a>
+            </div>
 
 
             <!-- View Reports -->
-            <a href="{{ url_for('admin.projects') }}" class="action-card">
+            <div class="action-card" data-url="{{ url_for('admin.projects') }}" onclick="goTo(this)">
 
                 <div class="action-icon">
                     <i class="fas fa-chart-bar"></i>
@@ -181,11 +420,11 @@
                     See analytics
                 </p>
 
-            </a>
+            </div>
 
 
             <!-- Profile -->
-            <a href="{{ url_for('admin.profile') }}" class="action-card">
+            <div class="action-card" data-url="{{ url_for('admin.profile') }}" onclick="goTo(this)">
 
                 <div class="action-icon">
                     <i class="fas fa-user"></i>
@@ -199,7 +438,7 @@
                     Manage account
                 </p>
 
-            </a>
+            </div>
 
         </div>
 
