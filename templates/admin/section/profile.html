@@ -19,17 +19,15 @@
                     <div class="col-md-4 text-center">
 
                         <div class="user-avatar mx-auto mb-3" style="width:100px;height:100px;font-size:2.5rem;">
-
-                            {{ user[0][0] }}
-
+                            {{ user.name[0] }}
                         </div>
 
                         <h6 class="fw-bold">
-                            {{ user[0] }}
+                            {{ user.name }}
                         </h6>
 
                         <p class="text-muted small">
-                            {{ user[2]|capitalize }}
+                            {{ user.role|capitalize }}
                         </p>
 
                         <span class="status-badge status-active">
@@ -56,7 +54,8 @@
                                         Full Name *
                                     </label>
 
-                                    <input type="text" name="name" class="form-control" value="{{ user[0] }}" required>
+                                    <input type="text" name="name" class="form-control" value="{{ user.name }}"
+                                        required>
 
                                 </div>
 
@@ -67,7 +66,7 @@
                                         Email *
                                     </label>
 
-                                    <input type="email" name="email" class="form-control" value="{{ user[1] }}"
+                                    <input type="email" name="email" class="form-control" value="{{ user.email }}"
                                         required>
 
                                 </div>
@@ -90,7 +89,7 @@
                                         Role
                                     </label>
 
-                                    <input type="text" class="form-control" value="{{ user[2] }}" readonly>
+                                    <input type="text" class="form-control" value="{{ user.role }}" readonly>
 
                                 </div>
 
@@ -109,9 +108,7 @@
                                 <div class="col-12">
 
                                     <button type="submit" class="btn btn-primary px-4">
-
                                         Save Changes
-
                                     </button>
 
                                 </div>
@@ -132,39 +129,84 @@
         <!-- ================= RIGHT ================= -->
         <div class="col-lg-4">
 
-            <h2 class="fw-bold mb-4">
-                Login Activity
-            </h2>
+            <h2 class="fw-bold mb-4">Security</h2>
 
-            <div class="table-card">
 
-                {% for log in logs %}
+            <!-- CHANGE PASSWORD -->
+            <div class="table-card mb-4">
 
-                <div class="activity-item mb-3">
+                <h6 class="fw-bold mb-3">Change Password</h6>
 
-                    <div class="activity-dot user"></div>
+                <form id="passwordForm" onsubmit="return changePassword()">
 
-                    <div>
+                    <div class="mb-3">
+                        <label class="form-label small">Current Password *</label>
+                        <input type="password" class="form-control" id="currentPassword" required>
+                    </div>
 
-                        <p class="mb-1">
-                            <strong>Login</strong>
-                        </p>
+
+                    <div class="mb-3">
+                        <label class="form-label small">New Password *</label>
+                        <input type="password" class="form-control" id="newPassword" required>
 
                         <small class="text-muted">
-                            {{ log[0] }} • {{ log[1] }}
+                            Must be 6–12 characters
                         </small>
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label class="form-label small">Confirm Password *</label>
+                        <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        Update Password
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- LOGIN ACTIVITY -->
+            <div class="table-card">
+
+                <h6 class="fw-bold mb-3">Login Activity</h6>
+
+                <div class="activity-timeline">
+
+                    {% for log in logs %}
+
+                    <div class="activity-item">
+
+                        <div class="activity-dot user"></div>
+
+                        <div>
+
+                            <p class="mb-1">
+                                <strong>Login</strong>
+                            </p>
+
+                            <small class="text-muted">
+                                {{ log.login_time.strftime('%d %b %Y, %I:%M %p') }}
+                                • {{ log.ip_address }}
+                            </small>
+
+                        </div>
 
                     </div>
 
+                    {% else %}
+
+                    <p class="text-muted small">
+                        No login activity found
+                    </p>
+
+                    {% endfor %}
+
                 </div>
-
-                {% else %}
-
-                <p class="text-muted">
-                    No activity found
-                </p>
-
-                {% endfor %}
 
             </div>
 
