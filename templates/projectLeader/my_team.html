@@ -3,242 +3,196 @@
 {% block title %}My Team{% endblock %}
 
 {% block content %}
-    <div class="top-bar">
-        <div class="search-container">
-            <i class="fas fa-search text-muted"></i>
-            <input type="text" placeholder="Search projects, tasks, or team members...">
+<div class="top-bar">
+    <div class="search-container">
+        <i class="fas fa-search text-muted"></i>
+        <input type="text" placeholder="Search projects, tasks, or team members...">
+    </div>
+    <div class="d-flex gap-3 align-items-center">
+        <div class="notification-btn" data-bs-toggle="dropdown">
+            <i class="fas fa-bell fa-lg"></i>
+            <span class="notification-badge">3</span>
         </div>
-        <div class="d-flex gap-3 align-items-center">
-            <div class="notification-btn" data-bs-toggle="dropdown">
-                <i class="fas fa-bell fa-lg"></i>
-                <span class="notification-badge">3</span>
+        <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
+            <div class="p-3 border-bottom">
+                <h6 class="mb-0">Notifications</h6>
             </div>
-            <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
+            <div class="p-0">
                 <div class="p-3 border-bottom">
-                    <h6 class="mb-0">Notifications</h6>
+                    <div class="d-flex">
+                        <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">M</div>
+                        <div>
+                            <p class="mb-1"><strong>Mike Chen</strong> completed a task</p>
+                            <small class="text-muted">30 minutes ago</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="p-0">
-                    <div class="p-3 border-bottom">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">M</div>
-                            <div>
-                                <p class="mb-1"><strong>Mike Chen</strong> completed a task</p>
-                                <small class="text-muted">30 minutes ago</small>
-                            </div>
+                <div class="p-3 border-bottom">
+                    <div class="d-flex">
+                        <div class="user-avatar me-3"
+                            style="width: 36px; height: 36px; font-size: 0.9rem; background: #f59e0b;">S</div>
+                        <div>
+                            <p class="mb-1"><strong>Sarah</strong> added a comment</p>
+                            <small class="text-muted">2 hours ago</small>
                         </div>
                     </div>
-                    <div class="p-3 border-bottom">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #f59e0b;">S</div>
-                            <div>
-                                <p class="mb-1"><strong>Sarah</strong> added a comment</p>
-                                <small class="text-muted">2 hours ago</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-3">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #10b981;">A</div>
-                            <div>
-                                <p class="mb-1">Project <strong>Website Redesign</strong> milestone reached</p>
-                                <small class="text-muted">1 day ago</small>
-                            </div>
+                </div>
+                <div class="p-3">
+                    <div class="d-flex">
+                        <div class="user-avatar me-3"
+                            style="width: 36px; height: 36px; font-size: 0.9rem; background: #10b981;">A</div>
+                        <div>
+                            <p class="mb-1">Project <strong>Website Redesign</strong> milestone reached</p>
+                            <small class="text-muted">1 day ago</small>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Team Content -->
+<!-- Team Content -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold">My Team</h2>
+        <p class="text-muted mb-0">Manage your team members and their assignments</p>
+    </div>
+    <button class="btn btn-primary px-4 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#addMember">
+        <i class="fas fa-user-plus me-2"></i>Add Member
+    </button>
+</div>
+
+<!-- Update the stats cards in my_team.html -->
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card text-center">
+            <span class="stat-value">{{ team|length }}</span>  <!-- Team Members count -->
+            <span class="stat-label">Team Members</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card text-center">
+            <span class="stat-value">{{ team|length }}</span>  <!-- You can change this to active now count -->
+            <span class="stat-label">Active Now</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card text-center">
+            <span class="stat-value">42</span>  <!-- You'll need to calculate this -->
+            <span class="stat-label">Avg. Productivity</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card text-center">
+            <span class="stat-value">92%</span>  <!-- You'll need to calculate this -->
+            <span class="stat-label">On-time Delivery</span>
+        </div>
+    </div>
+</div>
+
+<div class="table-card">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold">My Team</h2>
-            <p class="text-muted mb-0">Manage your team members and their assignments</p>
+        <h5 class="fw-bold mb-0">Team Members</h5>
+        <div class="d-flex gap-2">
+            <input type="text" class="form-control form-control-sm" placeholder="Search team..."
+                style="max-width: 200px;">
+            <select class="form-select form-select-sm" style="max-width: 150px;">
+                <option>All Roles</option>
+                <option>Developer</option>
+                <option>Designer</option>
+                <option>Tester</option>
+            </select>
         </div>
-        <button class="btn btn-primary px-4 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#addMember">
-            <i class="fas fa-user-plus me-2"></i>Add Member
-        </button>
     </div>
+    <table class="custom-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Tasks</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <!-- Update your my_team.html file - replace the table body section -->
 
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
-            <div class="stat-card text-center">
-                <span class="stat-value">14</span>
-                <span class="stat-label">Team Members</span>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card text-center">
-                <span class="stat-value">10</span>
-                <span class="stat-label">Active Now</span>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card text-center">
-                <span class="stat-value">42</span>
-                <span class="stat-label">Avg. Productivity</span>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card text-center">
-                <span class="stat-value">92%</span>
-                <span class="stat-label">On-time Delivery</span>
-            </div>
-        </div>
-    </div>
+        <tbody>
+            {% if team and team|length > 0 %}
+            {% for member in team %}
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="user-avatar me-3">
+                            {{ member[1][0] if member[1] else 'U' }}
+                        </div>
+                        <div>
+                            <div class="fw-bold">{{ member[1] }}</div> <!-- name -->
+                            <small class="text-muted">{{ member[3] }}</small> <!-- designation -->
+                        </div>
+                    </div>
+                </td>
+                <td>{{ member[3] }}</td> <!-- designation/role -->
+                <td>
+                    <small>0/0</small> <!-- You'll need to add task count query later -->
+                </td>
+                <td><span class="status-badge status-active">Active</span></td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-comment"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                    No team members found in your projects.
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
 
-    <div class="table-card">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-bold mb-0">Team Members</h5>
-            <div class="d-flex gap-2">
-                <input type="text" class="form-control form-control-sm" placeholder="Search team..." style="max-width: 200px;">
-                <select class="form-select form-select-sm" style="max-width: 150px;">
-                    <option>All Roles</option>
-                    <option>Developer</option>
-                    <option>Designer</option>
-                    <option>Tester</option>
-                </select>
-            </div>
-        </div>
-        <table class="custom-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Role</th>
-                    <th>Current Project</th>
-                    <th>Tasks</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="user-avatar me-3">D</div>
-                            <div>
-                                <div class="fw-bold">Dev Patel</div>
-                                <small class="text-muted">dev@collab.com</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td>Senior Developer</td>
-                    <td>Website Redesign</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="progress-container me-2" style="flex: 1;">
-                                <div class="progress-bar" style="width: 85%"></div>
-                            </div>
-                            <small>12/15</small>
-                        </div>
-                    </td>
-                    <td><span class="status-badge status-active">Active</span></td>
-                    <td>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-comment"></i></button>
-                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="user-avatar me-3" style="background: #f59e0b;">S</div>
-                            <div>
-                                <div class="fw-bold">Sarah Chen</div>
-                                <small class="text-muted">sarah@collab.com</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td>UI/UX Designer</td>
-                    <td>Mobile App</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="progress-container me-2" style="flex: 1;">
-                                <div class="progress-bar" style="width: 70%"></div>
-                            </div>
-                            <small>7/10</small>
-                        </div>
-                    </td>
-                    <td><span class="status-badge status-active">Active</span></td>
-                    <td>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-comment"></i></button>
-                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="user-avatar me-3" style="background: #10b981;">M</div>
-                            <div>
-                                <div class="fw-bold">Mike Johnson</div>
-                                <small class="text-muted">mike@collab.com</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td>Backend Developer</td>
-                    <td>E-commerce Backend</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="progress-container me-2" style="flex: 1;">
-                                <div class="progress-bar" style="width: 90%"></div>
-                            </div>
-                            <small>9/10</small>
-                        </div>
-                    </td>
-                    <td><span class="status-badge status-active">Active</span></td>
-                    <td>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-comment"></i></button>
-                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    </table>
+</div>
 {% endblock %}
 
 {% block modals %}
-    <!-- Modals -->
-    <div class="modal fade" id="addMember" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Add Team Member</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label class="form-label">Select Employee</label>
-                            <select class="form-select">
-                                <option selected>Choose from company directory</option>
-                                <option>Alex Turner - Developer</option>
-                                <option>Lisa Wang - Designer</option>
-                                <option>Tom Harris - QA Engineer</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Role in Project</label>
-                            <input type="text" class="form-control" placeholder="e.g., Frontend Developer">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Assign to Project</label>
-                            <select class="form-select">
-                                <option selected>Select project</option>
-                                <option>Website Redesign</option>
-                                <option>Mobile App</option>
-                                <option>E-commerce Backend</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2">Add to Team</button>
-                    </form>
-                </div>
+<!-- Modals -->
+<!-- Update the Add Member modal in my_team.html -->
+
+<div class="modal fade" id="addMember" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Add Team Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('project_leader.add_team_member') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Select Employee</label>
+                        <select name="user_id" class="form-select" required>
+                            <option value="" selected hidden>Choose from company directory</option>
+                            {% for employee in available_employees %}
+                            <option value="{{ employee[0] }}">{{ employee[1] }} - {{ employee[2] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Role in Project</label>
+                        <input type="text" name="role" class="form-control" placeholder="e.g., Frontend Developer" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2">Add to Team</button>
+                </form>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
