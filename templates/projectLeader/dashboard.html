@@ -13,10 +13,43 @@
             <input type="text" placeholder="Search projects, tasks, or team members...">
         </div>
         <div class="d-flex gap-3 align-items-center">
-            <div class="notification-btn" data-bs-toggle="dropdown">
-                <i class="fas fa-bell fa-lg"></i>
-                <span class="notification-badge">3</span>
+<div class="d-flex gap-3 align-items-center">
+    <div class="notification-btn" data-bs-toggle="dropdown">
+        <i class="fas fa-bell fa-lg"></i>
+        {% if notification_count > 0 %}
+        <span class="notification-badge">{{ notification_count }}</span>
+        {% endif %}
+    </div>
+    <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
+        <div class="p-3 border-bottom">
+            <h6 class="mb-0">Notifications</h6>
+        </div>
+        <div class="p-0">
+            {% for notif in recent_notifications %}
+            <div class="p-3 border-bottom">
+                <div class="d-flex">
+                    <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                        {{ notif.sender_name[0] if notif.sender_name else '?' }}
+                    </div>
+                    <div>
+                        <p class="mb-1"><strong>{{ notif.sender_name }}</strong> {{ notif.title }}</p>
+                        <small class="text-muted">{{ notif.message|truncate(30) }}</small>
+                        <small class="text-muted d-block">
+                            {% if notif.sent_at %}
+                                {{ notif.sent_at.strftime('%I:%M %p, %b %d') }}
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
             </div>
+            {% else %}
+            <div class="p-3 text-center text-muted">
+                <p class="mb-0">No new notifications</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
             <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
                 <div class="p-3 border-bottom">
                     <h6 class="mb-0">Notifications</h6>
@@ -55,64 +88,51 @@
     </div>
 
     <!-- Dashboard Content -->
-    <h2 class="fw-bold mb-4">Welcome back, Jane 👋</h2>
+    <h2 class="fw-bold mb-4">Welcome back, {{ user_name }} 👋</h2>
     <p class="text-muted mb-4">Here's an overview of your projects and team progress.</p>
 
-    <!-- Stats Cards -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #93c5fd 0%, #3b82f6 100%); color: white;">
-                    <i class="fas fa-folder"></i>
-                </div>
-                <span class="stat-label">Active Projects</span>
-                <span class="stat-value">5</span>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>1 new this week</span>
-                </div>
+   <!-- Stats Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #86efac 0%, #10b981 100%); color: white;">
+                <i class="fas fa-tasks"></i>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #86efac 0%, #10b981 100%); color: white;">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <span class="stat-label">Tasks Completed</span>
-                <span class="stat-value">127</span>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>12% from last week</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white;">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <span class="stat-label">Overdue Tasks</span>
-                <span class="stat-value">8</span>
-                <div class="stat-change negative">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>2 from yesterday</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #c7d2fe 0%, #8b5cf6 100%); color: white;">
-                    <i class="fas fa-users"></i>
-                </div>
-                <span class="stat-label">Team Members</span>
-                <span class="stat-value">14</span>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>2 new members</span>
-                </div>
+            <span class="stat-label">Tasks Completed</span>
+            <span class="stat-value">{{ completed_tasks }}</span>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>{{ completed_change_str }}</span>
             </div>
         </div>
     </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white;">
+                <i class="fas fa-clock"></i>
+            </div>
+            <span class="stat-label">Overdue Tasks</span>
+            <span class="stat-value">{{ overdue_tasks }}</span>
+            <div class="stat-change negative">
+                <i class="fas fa-arrow-up"></i>
+                <span>Need attention</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #c7d2fe 0%, #8b5cf6 100%); color: white;">
+                <i class="fas fa-users"></i>
+            </div>
+            <span class="stat-label">Team Members</span>
+            <span class="stat-value">{{ team_members }}</span>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>{{ new_members }} new this week</span>
+            </div>
+        </div>
+    </div>
+</div>
 
     <!-- Charts and Recent Activity -->
     <div class="row g-4 mb-5">
@@ -130,45 +150,48 @@
             </div>
         </div>
         <div class="col-lg-4">
-            <div class="table-card">
-                <h5 class="fw-bold mb-4">Recent Activity</h5>
-                <div class="activity-timeline">
-                    <div class="activity-item">
-                        <div class="activity-dot task"></div>
-                        <div>
-                            <p class="mb-1"><strong>Task completed</strong> by Mike Chen</p>
-                            <small class="text-muted">Mobile App - Login UI</small>
-                            <small class="text-muted d-block">30 minutes ago</small>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-dot project"></div>
-                        <div>
-                            <p class="mb-1"><strong>Milestone reached</strong> Website Redesign</p>
-                            <small class="text-muted">85% completion</small>
-                            <small class="text-muted d-block">2 hours ago</small>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-dot user"></div>
-                        <div>
-                            <p class="mb-1"><strong>New comment</strong> on API Integration task</p>
-                            <small class="text-muted">Sarah requested changes</small>
-                            <small class="text-muted d-block">4 hours ago</small>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-dot project"></div>
-                        <div>
-                            <p class="mb-1"><strong>Project status updated</strong></p>
-                            <small class="text-muted">E-commerce backend moved to testing</small>
-                            <small class="text-muted d-block">1 day ago</small>
-                        </div>
-                    </div>
+    <div class="table-card">
+        <h5 class="fw-bold mb-4">Recent Activity</h5>
+        <div class="activity-timeline">
+            {% for activity in recent_activities %}
+            <div class="activity-item">
+                <div class="activity-dot 
+                    {% if activity.type == 'task_completed' %}task
+                    {% elif activity.type == 'member_joined' %}user
+                    {% else %}project{% endif %}">
+                </div>
+                <div>
+                    <p class="mb-1">
+                        {% if activity.type == 'task_completed' %}
+                            <strong>Task completed</strong> by {{ activity.user_name }}
+                        {% elif activity.type == 'member_joined' %}
+                            <strong>New member joined</strong> as {{ activity.description }}
+                        {% else %}
+                            <strong>Project updated</strong>
+                        {% endif %}
+                    </p>
+                    <small class="text-muted">{{ activity.project_name }}</small>
+                    {% if activity.type == 'task_completed' and activity.description %}
+                        <small class="text-muted d-block">{{ activity.description|truncate(30) }}</small>
+                    {% endif %}
+                    <small class="text-muted d-block">
+                        {% if activity.created_at %}
+                            {{ activity.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                        {% else %}
+                            Recently
+                        {% endif %}
+                    </small>
                 </div>
             </div>
+            {% else %}
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-history fa-2x mb-3 opacity-50"></i>
+                <p>No recent activities found</p>
+            </div>
+            {% endfor %}
         </div>
     </div>
+</div>
 
     <!-- Quick Actions -->
     <div class="mt-5">
@@ -216,53 +239,56 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label class="form-label">Task Title</label>
-                            <input type="text" class="form-control" placeholder="Enter task title" required>
+                                    <form method="POST" action="/projectleader/create_task">
+                    <div class="mb-3">
+                        <label class="form-label">Task Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="Enter task title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3"
+                            placeholder="Task description"></textarea>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Assignee</label>
+                            <select name="assigned_to" class="form-select" required>
+                                <option value="" selected>Select team member</option>
+                                {% for u in users %}
+                                <option value="{{ u[0] }}">{{ u[1] }}</option>
+                                {% endfor %}
+                            </select>
+
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" rows="3" placeholder="Task description"></textarea>
+                        <div class="col-md-6">
+                            <label class="form-label">Project</label>
+                            <select name="project_id" class="form-select" required>
+                                <option value="" selected>Select project</option>
+                                {% for p in projects %}
+                                <option value="{{ p[0] }}">{{ p[1] }}</option>
+                                {% endfor %}
+                            </select>
+
                         </div>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Assignee</label>
-                                <select class="form-select">
-                                    <option selected>Select team member</option>
-                                    <option>Dev Patel</option>
-                                    <option>Sarah Chen</option>
-                                    <option>Mike Johnson</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Project</label>
-                                <select class="form-select">
-                                    <option selected>Select project</option>
-                                    <option>Website Redesign</option>
-                                    <option>Mobile App</option>
-                                    <option>E-commerce Backend</option>
-                                </select>
-                            </div>
+                    </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Priority</label>
+                            <select name="priority" class="form-select">
+                                <option>Low</option>
+                                <option selected>Medium</option>
+                                <option>High</option>
+                            </select>
                         </div>
-                        <div class="row g-3 mt-2">
-                            <div class="col-md-6">
-                                <label class="form-label">Priority</label>
-                                <select class="form-select">
-                                    <option>Low</option>
-                                    <option selected>Medium</option>
-                                    <option>High</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Due Date</label>
-                                <input type="date" class="form-control">
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Due Date</label>
+                            <input type="date" name="due_date" class="form-control">
                         </div>
-                        <div class="mt-3">
-                            <button type="submit" class="btn btn-primary w-100 py-2">Create Task</button>
-                        </div>
-                    </form>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary w-100 py-2">Create Task</button>
+                    </div>
+                </form>
                 </div>
             </div>
         </div>

@@ -2,161 +2,288 @@
 
 {% block title %}My Profile{% endblock %}
 
-{% block content %}
-    <div class="top-bar">
-        <div class="search-container">
-            <i class="fas fa-search text-muted"></i>
-            <input type="text" placeholder="Search projects, tasks, or team members...">
-        </div>
-        <div class="d-flex gap-3 align-items-center">
-            <div class="notification-btn" data-bs-toggle="dropdown">
-                <i class="fas fa-bell fa-lg"></i>
-                <span class="notification-badge">3</span>
-            </div>
-            <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
-                <div class="p-3 border-bottom">
-                    <h6 class="mb-0">Notifications</h6>
-                </div>
-                <div class="p-0">
-                    <div class="p-3 border-bottom">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">M</div>
-                            <div>
-                                <p class="mb-1"><strong>Mike Chen</strong> completed a task</p>
-                                <small class="text-muted">30 minutes ago</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-3 border-bottom">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #f59e0b;">S</div>
-                            <div>
-                                <p class="mb-1"><strong>Sarah</strong> added a comment</p>
-                                <small class="text-muted">2 hours ago</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-3">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #10b981;">A</div>
-                            <div>
-                                <p class="mb-1">Project <strong>Website Redesign</strong> milestone reached</p>
-                                <small class="text-muted">1 day ago</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+{% block extra_css %}
+<style src="../../static/css/projectLeader/style.css">
 
-    <!-- Profile Content -->
-    <div class="row">
-        <div class="col-lg-8">
-            <h2 class="fw-bold mb-4">My Profile</h2>
-            <div class="table-card">
-                <div class="row">
-                    <div class="col-md-4 text-center">
-                        <div class="user-avatar mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
-                            JL
-                        </div>
-                        <button class="btn btn-outline-primary btn-sm mb-4">Change Photo</button>
-                        <div class="text-center">
-                            <h6 class="fw-bold">Jane Lawson</h6>
-                            <p class="text-muted small">Project Leader</p>
-                            <div class="d-flex justify-content-center gap-2">
-                                <span class="status-badge status-active">Verified</span>
-                                <span class="status-badge" style="background: #f3f4f6; color: #6b7280;">Last login: 30m ago</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-8">
-                        <h5 class="fw-bold mb-4">Personal Information</h5>
-                        <form>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-600 small text-muted">FULL NAME</label>
-                                    <input type="text" class="form-control" value="Jane Lawson">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-600 small text-muted">EMAIL</label>
-                                    <input type="email" class="form-control" value="jane.lawson@collabhub.com">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-600 small text-muted">PHONE NUMBER</label>
-                                    <input type="tel" class="form-control" value="+1 (555) 987-6543">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-600 small text-muted">ROLE</label>
-                                    <input type="text" class="form-control" value="Project Leader" readonly>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-600 small text-muted">DEPARTMENT</label>
-                                    <input type="text" class="form-control" value="Project Management">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-600 small text-muted">JOINING DATE</label>
-                                    <input type="text" class="form-control" value="Mar 15, 2021" readonly>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label fw-600 small text-muted">BIO</label>
-                                    <textarea class="form-control" rows="3">Experienced project leader with 8+ years in tech project management. Specialized in agile methodologies and team collaboration.</textarea>
-                                </div>
-                                <div class="col-12">
-                                    <button type="submit" class="btn btn-primary px-4">Save Changes</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+    <div class="search-container">
+        <i class="fas fa-search text-muted"></i>
+        <input type="text" placeholder="Search projects, tasks, or team members...">
+    </div>
+    <div class="d-flex gap-3 align-items-center">
+        <div class="notification-btn" data-bs-toggle="dropdown">
+            <i class="fas fa-bell fa-lg"></i>
+            {% if notification_count > 0 %}
+            <span class="notification-badge">{{ notification_count }}</span>
+            {% endif %}
         </div>
-        <div class="col-lg-4">
-            <h2 class="fw-bold mb-4">Security</h2>
-            <div class="table-card mb-4">
-                <h6 class="fw-bold mb-3">Change Password</h6>
-                <form>
-                    <div class="mb-3">
-                        <label class="form-label small">Current Password</label>
-                        <input type="password" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small">New Password</label>
-                        <input type="password" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small">Confirm Password</label>
-                        <input type="password" class="form-control">
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Update Password</button>
-                </form>
+        <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
+            <div class="p-3 border-bottom">
+                <h6 class="mb-0">Notifications</h6>
             </div>
-            <div class="table-card">
-                <h6 class="fw-bold mb-3">Recent Projects Led</h6>
-                <div class="activity-timeline">
-                    <div class="activity-item">
-                        <div class="activity-dot project"></div>
-                        <div>
-                            <p class="mb-1"><strong>Website Redesign</strong></p>
-                            <small class="text-muted">Active • 85% complete</small>
+            <div class="p-0">
+                {% for notif in recent_notifications %}
+                <div class="p-3 border-bottom">
+                    <div class="d-flex">
+                        <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                            {{ notif.sender_name[0:1]|upper }}
                         </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-dot project"></div>
                         <div>
-                            <p class="mb-1"><strong>Mobile App Development</strong></p>
-                            <small class="text-muted">Active • 45% complete</small>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-dot project"></div>
-                        <div>
-                            <p class="mb-1"><strong>E-commerce Platform</strong></p>
-                            <small class="text-muted">Completed • Feb 2023</small>
+                            <p class="mb-1">{{ notif.message }}</p>
+                            <small class="text-muted">{{ notif.sent_at }}</small>
                         </div>
                     </div>
                 </div>
+                {% else %}
+                <div class="p-3 text-center text-muted">
+                    No new notifications
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
+</div>
+
+<!-- Profile Content -->
+<div class="row">
+    <!-- Left Column - Profile Card -->
+    <div class="col-lg-4">
+        <div class="table-card text-center">
+            <!-- Profile Photo -->
+            <div class="position-relative d-inline-block mb-3">
+                <div class="user-avatar mx-auto" style="width: 120px; height: 120px; font-size: 3rem;">
+                    {{ user.name[0:2]|upper }}
+                </div>
+                <button class="btn btn-sm btn-light position-absolute bottom-0 end-0 rounded-circle" 
+                        style="width: 36px; height: 36px;" onclick="document.getElementById('photoUpload').click()">
+                    <i class="fas fa-camera"></i>
+                </button>
+                <input type="file" id="photoUpload" accept="image/*" style="display: none;">
+            </div>
+            
+            <!-- Name & Role -->
+            <h4 class="fw-bold mb-1">{{ user.name }}</h4>
+            <p class="text-muted mb-2">{{ user.role|replace('_', ' ')|title }}</p>
+            
+            <!-- Profile Completion -->
+            <div class="text-start mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <small class="text-muted">Profile Completion</small>
+                    <small class="fw-bold">{{ user.profile_completion }}%</small>
+                </div>
+                <div class="profile-completion">
+                    <div class="profile-completion-bar" style="width: {{ user.profile_completion }}%;"></div>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="d-flex gap-2 mb-4">
+                <div class="stat-box">
+                    <div class="stat-value">{{ stats.team_size }}</div>
+                    <div class="stat-label">Team</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ stats.total_tasks }}</div>
+                    <div class="stat-label">Tasks</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ stats.completion_rate }}%</div>
+                    <div class="stat-label">Done</div>
+                </div>
+            </div>
+            
+            <!-- Edit Profile Button -->
+            <button class="btn btn-primary w-100 mb-3" onclick="toggleEditMode()" id="editToggleBtn">
+                <i class="fas fa-edit me-2"></i>Edit Profile
+            </button>
+        </div>
+    </div>
+    
+    <!-- Right Column - Personal & Account Info -->
+    <div class="col-lg-8">
+        <!-- Personal Information -->
+        <div class="table-card" id="profileForm">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">Personal Information</h5>
+                <span class="badge bg-light text-dark" id="editModeBadge" style="display: none;">Edit Mode</span>
+            </div>
+            
+            <form id="profileUpdateForm">
+                <div class="row g-4">
+                    <div class="col-md-6 view-only">
+                        <label class="form-label fw-600 small text-muted">FULL NAME</label>
+                        <div class="editable-field" onclick="enableEdit('name')" id="view_name">
+                            <i class="fas fa-user me-2 text-muted"></i>{{ user.name }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 edit-only">
+                        <label class="form-label fw-600 small text-muted">FULL NAME</label>
+                        <input type="text" class="form-control" name="name" value="{{ user.name }}">
+                    </div>
+                    
+                    <div class="col-md-6 view-only">
+                        <label class="form-label fw-600 small text-muted">EMAIL</label>
+                        <div class="editable-field" onclick="enableEdit('email')" id="view_email">
+                            <i class="fas fa-envelope me-2 text-muted"></i>{{ user.email }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 edit-only">
+                        <label class="form-label fw-600 small text-muted">EMAIL</label>
+                        <input type="email" class="form-control" name="email" value="{{ user.email }}">
+                    </div>
+                    
+                    <div class="col-md-6 view-only">
+                        <label class="form-label fw-600 small text-muted">PHONE NUMBER</label>
+                        <div class="editable-field" onclick="enableEdit('phone')" id="view_phone">
+                            <i class="fas fa-phone me-2 text-muted"></i>{{ user.phone }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 edit-only">
+                        <label class="form-label fw-600 small text-muted">PHONE NUMBER</label>
+                        <input type="tel" class="form-control" name="phone" value="{{ user.phone }}">
+                    </div>
+                    
+                    <div class="col-md-6 view-only">
+                        <label class="form-label fw-600 small text-muted">ROLE</label>
+                        <div>
+                            <i class="fas fa-briefcase me-2 text-muted"></i>{{ user.role|replace('_', ' ')|title }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 edit-only">
+                        <label class="form-label fw-600 small text-muted">ROLE</label>
+                        <input type="text" class="form-control" value="{{ user.role|replace('_', ' ')|title }}" readonly>
+                    </div>
+                    
+                    <div class="col-md-6 view-only">
+                        <label class="form-label fw-600 small text-muted">DESIGNATION</label>
+                        <div class="editable-field" onclick="enableEdit('designation')" id="view_designation">
+                            <i class="fas fa-tag me-2 text-muted"></i>{{ user.designation or 'Not specified' }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 edit-only">
+                        <label class="form-label fw-600 small text-muted">DESIGNATION</label>
+                        <input type="text" class="form-control" name="designation" value="{{ user.designation or '' }}">
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label fw-600 small text-muted">JOINING DATE</label>
+                        <div>
+                            <i class="fas fa-calendar me-2 text-muted"></i>{{ user.joining_date }}
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 view-only">
+                        <label class="form-label fw-600 small text-muted">BIO</label>
+                        <div class="editable-field p-3 bg-light rounded" onclick="enableEdit('bio')" id="view_bio">
+                            {{ user.bio }}
+                        </div>
+                    </div>
+                    <div class="col-12 edit-only">
+                        <label class="form-label fw-600 small text-muted">BIO</label>
+                        <textarea class="form-control" name="bio" rows="4">{{ user.bio }}</textarea>
+                    </div>
+                    
+                    <div class="col-12 edit-only">
+                        <button type="button" class="btn btn-primary px-4" onclick="saveProfile()">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary px-4 ms-2" onclick="cancelEdit()">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Change Password -->
+        <div class="table-card mt-4">
+            <h5 class="fw-bold mb-4">Change Password</h5>
+            <form id="passwordForm" onsubmit="changePassword(event)">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small">Current Password</label>
+                        <input type="password" class="form-control" id="current_password" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small">New Password</label>
+                        <input type="password" class="form-control" id="new_password" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm_password" required>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-key me-2"></i>Update Password
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Row - Projects & Activity -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="table-card">
+            <h5 class="fw-bold mb-3">Projects Led</h5>
+            <div class="activity-timeline">
+                {% for project in projects %}
+                <div class="activity-item">
+                    <div class="activity-dot project"></div>
+                    <div>
+                        <p class="mb-1"><strong>{{ project.name }}</strong></p>
+                        <small class="text-muted">
+                            {{ project.status|title }} • {{ project.progress }}% complete
+                            {% if project.end_date %}
+                            • Ends {{ project.end_date }}
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    No projects found
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="table-card">
+            <h5 class="fw-bold mb-3">Recent Activity</h5>
+            <div class="activity-timeline">
+                {% for activity in activities %}
+                <div class="activity-item">
+                    <div class="activity-dot 
+                        {% if activity.type == 'task_completed' %}task
+                        {% elif activity.type == 'member_joined' %}user
+                        {% else %}project{% endif %}">
+                    </div>
+                    <div>
+                        <p class="mb-1">{{ activity.description }}</p>
+                        <small class="text-muted">{{ activity.created_at }}</small>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    No recent activity
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="../../static/js/projectLeader/main.js">
+
+</script>
 {% endblock %}

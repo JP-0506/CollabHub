@@ -91,7 +91,6 @@ body {
 
 .sidebar.collapsed #toggle-icon {
     display: none;
-    position: absolute;
 }
 
 .sidebar.collapsed .toggle-btn:hover .sidebar-logo-img {
@@ -100,7 +99,6 @@ body {
 
 .sidebar.collapsed .toggle-btn:hover #toggle-icon {
     display: block;
-    cursor: e-resize;
 }
 
 .toggle-btn:hover {
@@ -379,10 +377,6 @@ body {
     position: relative;
 }
 
-#reports {
-    height: 500px;
-}
-
 .chart-header {
     display: flex;
     justify-content: space-between;
@@ -449,7 +443,7 @@ body {
     padding: 24px;
     margin-top: 24px;
     box-shadow: var(--card-shadow);
-    overflow: hidden;
+    overflow-x: auto;
 }
 
 .table-card h5 {
@@ -462,6 +456,7 @@ body {
 .custom-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 800px;
 }
 
 .custom-table th {
@@ -471,44 +466,106 @@ body {
     color: #6b7280;
     border-bottom: 1px solid #e5e7eb;
     background: #f9fafb;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .custom-table td {
     padding: 16px;
     border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
 }
 
 .custom-table tr:hover {
     background: #f9fafb;
 }
 
-/* Status Badges */
+/* Status Badges - Updated for Tasks */
 .status-badge {
     padding: 6px 12px;
     border-radius: 20px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
     display: inline-block;
+    text-transform: capitalize;
+    white-space: nowrap;
 }
 
-.status-active {
+.status-badge.status-completed,
+.status-badge.status-active {
     background: #d1fae5;
     color: #065f46;
 }
 
-.status-pending {
-    background: #fef3c7;
-    color: #92400e;
+/* Priority Badges */
+
+.priority-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    text-transform: capitalize;
+    white-space: nowrap;
 }
 
-.status-inactive {
-    background: #f3f4f6;
-    color: #6b7280;
-}
-
-.status-delayed {
+.priority-badge.priority-high {
     background: #fee2e2;
-    color: #991b1b;
+    color: #dc2626;
+}
+
+.priority-badge.priority-medium {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.priority-badge.priority-low {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+/* Task Row Priority Border */
+.task-row.priority-high {
+    border-left: 4px solid #ef4444;
+}
+
+.task-row.priority-medium {
+    border-left: 4px solid #f59e0b;
+}
+
+.task-row.priority-low {
+    border-left: 4px solid #10b981;
+}
+
+/* Avatar in tasks */
+.task-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+    font-size: 0.9rem;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    flex-shrink: 0;
+}
+
+.task-title {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.task-description {
+    font-size: 0.8rem;
+    color: #6b7280;
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Progress Bar */
@@ -517,6 +574,8 @@ body {
     border-radius: 10px;
     height: 10px;
     overflow: hidden;
+    width: 100%;
+    max-width: 150px;
 }
 
 .progress-bar {
@@ -524,29 +583,6 @@ body {
     border-radius: 10px;
     background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
 }
-
-/* Sections Visibility */
-.section-view {
-    display: none;
-    animation: fadeIn 0.4s ease;
-}
-
-.section-view.active {
-    display: block;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 /* Button Styles */
 .btn-primary {
     background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
@@ -560,30 +596,15 @@ body {
     box-shadow: 0 6px 12px rgba(37, 99, 235, 0.2);
 }
 
-/* Task Priority */
-.priority-high {
-    border-left: 4px solid #ef4444;
+.btn-outline-primary {
+    border: 1px solid #2563eb;
+    color: #2563eb;
+    transition: all 0.3s;
 }
 
-.priority-medium {
-    border-left: 4px solid #f59e0b;
-}
-
-.priority-low {
-    border-left: 4px solid #10b981;
-}
-
-/* Team Member Avatar */
-.team-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
+.btn-outline-primary:hover {
+    background: #2563eb;
     color: white;
-    font-size: 0.9rem;
 }
 
 /* Quick Actions */
@@ -623,22 +644,6 @@ body {
     color: white;
     font-size: 1.2rem;
 }
-
-/* Task Cards */
-.task-card {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: var(--card-shadow);
-    transition: all 0.3s;
-}
-
-.task-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--card-hover-shadow);
-}
-
 /* Modal Styles */
 .modal-content {
     border-radius: 16px;
@@ -653,6 +658,54 @@ body {
 
 .modal-body {
     padding: 24px;
+}
+
+/* Form Styles */
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-label {
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+/* Due Date Styles */
+.due-date {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.due-date.overdue {
+    color: #dc2626;
+    font-weight: 600;
+}
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    background: #f9fafb;
+    border-radius: 12px;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #9ca3af;
+    margin-bottom: 16px;
+}
+
+.empty-state p {
+    color: #6b7280;
+    margin-bottom: 20px;
 }
 
 /* Responsive */
@@ -683,4 +736,227 @@ body {
     .search-container {
         max-width: 100%;
     }
+    
+    .custom-table {
+        min-width: 100%;
+    }
+}
+/* ========== PROJECT DETAILS PAGE (SINGLE PROJECT) ========== */
+/* Added for single project view - March 2024 */
+
+/* Project Info Card */
+.project-info-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+}
+
+.project-description {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.project-meta {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+/* Project Progress Card */
+.project-progress-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+}
+
+.progress-stat {
+    text-align: center;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+}
+
+.progress-stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.progress-stat-label {
+    font-size: 0.8rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Priority borders for tasks - uses existing priority classes */
+.project-table tr.priority-high {
+    border-left: 4px solid #ef4444;
+}
+
+.project-table tr.priority-medium {
+    border-left: 4px solid #f59e0b;
+}
+
+.project-table tr.priority-low {
+    border-left: 4px solid #10b981;
+}
+
+/* Due date states - uses existing classes */
+.due-date.overdue {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.due-date.today {
+    font-weight: 600;
+}
+
+/* Responsive for project details */
+@media (max-width: 768px) {
+    .project-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .employee-card {
+        padding: 12px;
+    }
+    
+    .progress-stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .project-info-card .row,
+    .project-progress-card .row {
+        flex-direction: column;
+    }
+    
+    .project-description,
+    .project-meta {
+        margin-bottom: 12px;
+    }
+}
+
+.btn-outline-primary, .btn-outline-danger {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.btn-outline-primary:hover {
+    background: #2563eb;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-outline-danger:hover {
+    background: #dc2626;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Task row hover effect */
+.custom-table tbody tr {
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.custom-table tbody tr:hover {
+    background: #f8fafc;
+    transform: translateX(4px);
+}
+
+/* Modal animations */
+.modal.fade .modal-dialog {
+    transform: scale(0.8);
+    transition: transform 0.2s;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1);
+}
+
+/* Delete modal specific */
+#deleteTaskModal .modal-content {
+    border-radius: 16px;
+}
+
+#deleteTaskModal .modal-footer form {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* Empty state styling */
+.empty-state {
+    padding: 48px 24px;
+    background: #f9fafb;
+    border-radius: 12px;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #9ca3af;
+}
+.profile-completion {
+    background: #f3f4f6;
+    border-radius: 20px;
+    height: 8px;
+    margin: 15px 0;
+}
+.profile-completion-bar {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #2563eb, #3b82f6);
+    transition: width 0.3s ease;
+}
+.stat-box {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    flex: 1;
+}
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 5px;
+}
+.stat-label {
+    font-size: 0.8rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.edit-mode .view-only {
+    display: none;
+}
+.edit-mode .edit-only {
+    display: block;
+}
+.view-only {
+    display: block;
+}
+.edit-only {
+    display: none;
+}
+.editable-field {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.editable-field:hover {
+    background: #f3f4f6;
+    padding: 4px 8px;
+    border-radius: 6px;
 }

@@ -3,177 +3,184 @@
 {% block title %}Tasks{% endblock %}
 
 {% block content %}
-    <div class="top-bar">
-        <div class="search-container">
-            <i class="fas fa-search text-muted"></i>
-            <input type="text" placeholder="Search projects, tasks, or team members...">
+<div class="top-bar">
+    <div class="search-container">
+        <i class="fas fa-search text-muted"></i>
+        <input type="text" id="searchTasks" placeholder="Search projects, tasks, or team members..." onkeyup="filterTasks()">
+    </div>
+    <div class="d-flex gap-3 align-items-center">
+        <div class="notification-btn" data-bs-toggle="dropdown">
+            <i class="fas fa-bell fa-lg"></i>
+            <span class="notification-badge">3</span>
         </div>
-        <div class="d-flex gap-3 align-items-center">
-            <div class="notification-btn" data-bs-toggle="dropdown">
-                <i class="fas fa-bell fa-lg"></i>
-                <span class="notification-badge">3</span>
+        <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
+            <div class="p-3 border-bottom">
+                <h6 class="mb-0">Notifications</h6>
             </div>
-            <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
+            <div class="p-0">
                 <div class="p-3 border-bottom">
-                    <h6 class="mb-0">Notifications</h6>
+                    <div class="d-flex">
+                        <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">M</div>
+                        <div>
+                            <p class="mb-1"><strong>Mike Chen</strong> completed a task</p>
+                            <small class="text-muted">30 minutes ago</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="p-0">
-                    <div class="p-3 border-bottom">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">M</div>
-                            <div>
-                                <p class="mb-1"><strong>Mike Chen</strong> completed a task</p>
-                                <small class="text-muted">30 minutes ago</small>
-                            </div>
+                <div class="p-3 border-bottom">
+                    <div class="d-flex">
+                        <div class="user-avatar me-3"
+                            style="width: 36px; height: 36px; font-size: 0.9rem; background: #f59e0b;">S</div>
+                        <div>
+                            <p class="mb-1"><strong>Sarah</strong> added a comment</p>
+                            <small class="text-muted">2 hours ago</small>
                         </div>
                     </div>
-                    <div class="p-3 border-bottom">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #f59e0b;">S</div>
-                            <div>
-                                <p class="mb-1"><strong>Sarah</strong> added a comment</p>
-                                <small class="text-muted">2 hours ago</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-3">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #10b981;">A</div>
-                            <div>
-                                <p class="mb-1">Project <strong>Website Redesign</strong> milestone reached</p>
-                                <small class="text-muted">1 day ago</small>
-                            </div>
+                </div>
+                <div class="p-3">
+                    <div class="d-flex">
+                        <div class="user-avatar me-3"
+                            style="width: 36px; height: 36px; font-size: 0.9rem; background: #10b981;">A</div>
+                        <div>
+                            <p class="mb-1">Project <strong>Website Redesign</strong> milestone reached</p>
+                            <small class="text-muted">1 day ago</small>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Tasks Content -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold">Tasks</h2>
-            <p class="text-muted mb-0">Manage all tasks across projects</p>
-        </div>
-        <button class="btn btn-primary px-4 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#createTask">
-            <i class="fas fa-plus me-2"></i>Create New Task
-        </button>
+<!-- Tasks Content -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold">Tasks</h2>
+        <p class="text-muted mb-0">Manage all tasks across projects</p>
     </div>
+    <button class="btn btn-primary px-4 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#createTask">
+        <i class="fas fa-plus me-2"></i>Create New Task
+    </button>
+</div>
 
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="table-card">
-                <h5 class="fw-bold mb-4">All Tasks</h5>
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th>Task</th>
-                            <th>Project</th>
-                            <th>Assignee</th>
-                            <th>Priority</th>
-                            <th>Due Date</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <div class="fw-bold">Design Login Screen</div>
-                                <small class="text-muted">Create responsive login UI</small>
-                            </td>
-                            <td>Website Redesign</td>
-                            <td>Sarah Chen</td>
-                            <td><span class="status-badge" style="background: #fee2e2; color: #991b1b;">High</span></td>
-                            <td>Jun 10, 2023</td>
-                            <td><span class="status-badge status-active">In Progress</span></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="fw-bold">API Integration</div>
-                                <small class="text-muted">Connect frontend with backend APIs</small>
-                            </td>
-                            <td>Mobile App</td>
-                            <td>Dev Patel</td>
-                            <td><span class="status-badge" style="background: #fef3c7; color: #92400e;">Medium</span></td>
-                            <td>Jun 12, 2023</td>
-                            <td><span class="status-badge status-pending">Pending Review</span></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="fw-bold">Database Optimization</div>
-                                <small class="text-muted">Optimize query performance</small>
-                            </td>
-                            <td>E-commerce Backend</td>
-                            <td>Mike Johnson</td>
-                            <td><span class="status-badge" style="background: #d1fae5; color: #065f46;">Low</span></td>
-                            <td>Jun 15, 2023</td>
-                            <td><span class="status-badge status-active">In Progress</span></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="fw-bold">Mobile Navigation</div>
-                                <small class="text-muted">Design mobile navigation menu</small>
-                            </td>
-                            <td>Mobile App</td>
-                            <td>Sarah Chen</td>
-                            <td><span class="status-badge" style="background: #fef3c7; color: #92400e;">Medium</span></td>
-                            <td>Jun 8, 2023</td>
-                            <td><span class="status-badge status-delayed">Overdue</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+
+    <div>
+        <div class="table-card">
+            <h5 class="fw-bold mb-4">All Tasks</h5>
+            <table class="custom-table" id="tasksTable">
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Project</th>
+                        <th>Assignee</th>
+                        <th>Priority</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if tasks and tasks|length > 0 %}
+                    {% for task in tasks %}
+                    <tr class="task-row priority-{{ task[3]|lower }}" data-task-id="{{ task[0] }}">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="task-avatar me-3">
+                                    {{ task[7][0] if task[7] else 'T' }}
+                                </div>
+                                <div>
+                                    <div class="task-title">{{ task[1] }}</div>
+                                    <small class="task-description">{{ task[2][:50] + '...' if task[2] and task[2]|length > 50 else task[2] }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ task[6] }}</td>
+                        <td>{{ task[7] }}</td>
+                        <td>
+                            {% if task[3] == 'High' %}
+                            <span class="priority-badge priority-high">{{ task[3] }}</span>
+                            {% elif task[3] == 'Medium' %}
+                            <span class="priority-badge priority-medium">{{ task[3] }}</span>
+                            {% elif task[3] == 'Low' %}
+                            <span class="priority-badge priority-low">{{ task[3] }}</span>
+                            {% else %}
+                            <span class="priority-badge">{{ task[3] }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task[5] %}
+                                <span class="due-date {% if task[5] < now %}overdue{% endif %}">{{ task[5] }}</span>
+                            {% else %}
+                                <span class="text-muted">No date</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task[4] == 'Completed' %}
+                            <span class="status-badge status-completed">{{ task[4] }}</span>
+                            {% elif task[4] == 'In Progress' %}
+                            <span class="status-badge status-progress">{{ task[4] }}</span>
+                            {% elif task[4] == 'Pending Review' %}
+                            <span class="status-badge status-pending">{{ task[4] }}</span>
+                            {% else %}
+                            <span class="status-badge">{{ task[4] }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary" onclick="editTask({{ task[0] }})" title="Edit Task">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteTask({{ task[0] }}, '{{ task[1] }}')" title="Delete Task">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-5">
+                            <div class="empty-state">
+                                <i class="fas fa-tasks fa-3x mb-3"></i>
+                                <p>No tasks found. Click "Create New Task" to add one.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
-        <div class="col-lg-4">
-            <div class="table-card mb-4">
-                <h5 class="fw-bold mb-4">Task Summary</h5>
-                <div class="activity-timeline">
-                    <div class="activity-item">
-                        <div class="activity-dot task"></div>
-                        <div>
-                            <p class="mb-1"><strong>42 Tasks Completed</strong></p>
-                            <small class="text-muted">This week</small>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-dot task"></div>
-                        <div>
-                            <p class="mb-1"><strong>8 Tasks Overdue</strong></p>
-                            <small class="text-muted">Need attention</small>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-dot task"></div>
-                        <div>
-                            <p class="mb-1"><strong>23 In Progress</strong></p>
-                            <small class="text-muted">Active tasks</small>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-dot task"></div>
-                        <div>
-                            <p class="mb-1"><strong>15 Pending Review</strong></p>
-                            <small class="text-muted">Awaiting approval</small>
-                        </div>
+    </div>
+    <div>
+        <div class="table-card mb-4">
+            <h5 class="fw-bold mb-4">Task Summary</h5>
+            <div class="activity-timeline">
+                <div class="activity-item">
+                    <div class="activity-dot task"></div>
+                    <div>
+                        <p class="mb-1"><strong>{{ task_summary[0] }} Tasks Completed</strong></p>
+                        <small class="text-muted">This week</small>
                     </div>
                 </div>
-            </div>
-            
-            <div class="table-card">
-                <h5 class="fw-bold mb-4">Quick Stats</h5>
-                <div class="row">
-                    <div class="col-6 mb-3">
-                        <div class="text-center">
-                            <div class="stat-value" style="font-size: 1.8rem;">68%</div>
-                            <div class="stat-label">Completion Rate</div>
-                        </div>
+                <div class="activity-item">
+                    <div class="activity-dot task"></div>
+                    <div>
+                        <p class="mb-1"><strong>{{ task_summary[1] }} Tasks Overdue</strong></p>
+                        <small class="text-muted">Need attention</small>
                     </div>
-                    <div class="col-6 mb-3">
-                        <div class="text-center">
-                            <div class="stat-value" style="font-size: 1.8rem;">12</div>
-                            <div class="stat-label">High Priority</div>
-                        </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot task"></div>
+                    <div>
+                        <p class="mb-1"><strong>{{ task_summary[2] }} Tasks In Progress</strong></p>
+                        <small class="text-muted">Active tasks</small>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot task"></div>
+                    <div>
+                        <p class="mb-1"><strong>{{ task_summary[3] }} Pending Review</strong></p>
+                        <small class="text-muted">Awaiting approval</small>
                     </div>
                 </div>
             </div>
@@ -182,64 +189,161 @@
 {% endblock %}
 
 {% block modals %}
-    <!-- Modals -->
-    <div class="modal fade" id="createTask" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Create New Task</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label class="form-label">Task Title</label>
-                            <input type="text" class="form-control" placeholder="Enter task title" required>
+<!-- Create Task Modal -->
+<div class="modal fade" id="createTask" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Create New Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/projectleader/create_task">
+                    <div class="mb-3">
+                        <label class="form-label">Task Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="Enter task title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Task description"></textarea>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Assignee</label>
+                            <select name="assigned_to" class="form-select" required>
+                                <option value="" selected>Select team member</option>
+                                {% for u in users %}
+                                <option value="{{ u[0] }}">{{ u[1] }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" rows="3" placeholder="Task description"></textarea>
+                        <div class="col-md-6">
+                            <label class="form-label">Priority</label>
+                            <select name="priority" class="form-select">
+                                <option>Low</option>
+                                <option selected>Medium</option>
+                                <option>High</option>
+                            </select>
                         </div>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Assignee</label>
-                                <select class="form-select">
-                                    <option selected>Select team member</option>
-                                    <option>Dev Patel</option>
-                                    <option>Sarah Chen</option>
-                                    <option>Mike Johnson</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Project</label>
-                                <select class="form-select">
-                                    <option selected>Select project</option>
-                                    <option>Website Redesign</option>
-                                    <option>Mobile App</option>
-                                    <option>E-commerce Backend</option>
-                                </select>
-                            </div>
+                    </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Due Date</label>
+                            <input type="date" name="due_date" class="form-control">
                         </div>
-                        <div class="row g-3 mt-2">
-                            <div class="col-md-6">
-                                <label class="form-label">Priority</label>
-                                <select class="form-select">
-                                    <option>Low</option>
-                                    <option selected>Medium</option>
-                                    <option>High</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Due Date</label>
-                                <input type="date" class="form-control">
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option>In Progress</option>
+                                <option>Pending Review</option>
+                                <option>Completed</option>
+                            </select>
                         </div>
-                        <div class="mt-3">
-                            <button type="submit" class="btn btn-primary w-100 py-2">Create Task</button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary w-100 py-2">Create Task</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Edit Task Modal -->
+<div class="modal fade" id="editTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Edit Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editTaskForm" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Task Title</label>
+                        <input type="text" name="title" id="edit_title" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" id="edit_description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Assignee</label>
+                            <select name="assigned_to" id="edit_assigned_to" class="form-select" required>
+                                <option value="">Select team member</option>
+                                {% for u in users %}
+                                <option value="{{ u[0] }}">{{ u[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Project</label>
+                            <select name="project_id" id="edit_project_id" class="form-select" required>
+                                <option value="">Select project</option>
+                                {% for p in projects %}
+                                <option value="{{ p[0] }}">{{ p[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Priority</label>
+                            <select name="priority" id="edit_priority" class="form-select">
+                                <option>Low</option>
+                                <option>Medium</option>
+                                <option>High</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select name="status" id="edit_status" class="form-select">
+                                <option>In Progress</option>
+                                <option>Pending Review</option>
+                                <option>Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-12">
+                            <label class="form-label">Due Date</label>
+                            <input type="date" name="due_date" id="edit_due_date" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary w-100 py-2">Update Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteTaskModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Delete Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-exclamation-triangle text-danger fa-3x mb-3"></i>
+                <p class="mb-0">Are you sure you want to delete "<span id="deleteTaskName"></span>"?</p>
+                <small class="text-muted">This action cannot be undone.</small>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <form id="deleteTaskForm" method="POST">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='js/projectLeader/main.js') }}"></script>
 {% endblock %}
