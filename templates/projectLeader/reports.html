@@ -3,160 +3,296 @@
 {% block title %}Reports{% endblock %}
 
 {% block extra_css %}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/projectLeader/reports.css') }}">
 {% endblock %}
 
 {% block content %}
-    <div class="top-bar">
-        <div class="search-container">
-            <i class="fas fa-search text-muted"></i>
-            <input type="text" placeholder="Search projects, tasks, or team members...">
+<div class="top-bar">
+    <div class="search-container">
+        <i class="fas fa-search text-muted"></i>
+        <input type="text" placeholder="Search reports...">
+    </div>
+    <div class="d-flex gap-3 align-items-center">
+        <div class="notification-btn" data-bs-toggle="dropdown">
+            <i class="fas fa-bell fa-lg"></i>
+            <span class="notification-badge">3</span>
         </div>
-        <div class="d-flex gap-3 align-items-center">
-            <div class="notification-btn" data-bs-toggle="dropdown">
-                <i class="fas fa-bell fa-lg"></i>
-                <span class="notification-badge">3</span>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold">Reports & Analytics</h2>
+        <p class="text-muted mb-0">Track project performance and team productivity</p>
+    </div>
+    <!-- Simplified: Only Email button -->
+    <button class="btn btn-primary px-4 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#emailModal">
+        <i class="fas fa-envelope me-2"></i>Email Report
+    </button>
+</div>
+
+<!-- Overview Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="report-stat-card">
+            <div class="report-stat-icon bg-soft-primary">
+                <i class="fas fa-tasks"></i>
             </div>
-            <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
-                <div class="p-3 border-bottom">
-                    <h6 class="mb-0">Notifications</h6>
+            <span class="report-stat-value">{{ task_stats[0] or 0 }}</span>
+            <span class="report-stat-label">Total Tasks</span>
+            <small class="text-muted d-block mt-2">{{ task_stats[2] or 0 }} in progress</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="report-stat-card">
+            <div class="report-stat-icon bg-soft-success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <span class="report-stat-value">{{ task_stats[1] or 0 }}</span>
+            <span class="report-stat-label">Completed</span>
+            <small class="text-success d-block mt-2">{{ completion_rate }}% completion rate</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="report-stat-card">
+            <div class="report-stat-icon bg-soft-warning">
+                <i class="fas fa-users"></i>
+            </div>
+            <span class="report-stat-value">{{ team_count }}</span>
+            <span class="report-stat-label">Team Members</span>
+            <small class="text-muted d-block mt-2">Active members</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="report-stat-card">
+            <div class="report-stat-icon bg-soft-danger">
+                <i class="fas fa-clock"></i>
+            </div>
+            <span class="report-stat-value">{{ task_stats[4] or 0 }}</span>
+            <span class="report-stat-label">Overdue Tasks</span>
+            <small class="text-danger d-block mt-2">Need attention</small>
+        </div>
+    </div>
+</div>
+
+<!-- Task Distribution and Priority -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="report-table-container">
+            <h5 class="fw-bold mb-0">Task Distribution</h5>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for status in tasks_by_status %}
+                    <tr>
+                        <td>
+                            <span class="status-badge 
+                                {% if status[0] == 'Completed' %}status-completed
+                                {% elif status[0] == 'In Progress' %}status-progress
+                                {% elif status[0] == 'Pending Review' %}status-pending
+                                {% elif status[0] == 'Overdue' %}status-overdue
+                                {% endif %}">
+                                {{ status[0] }}
+                            </span>
+                        </td>
+                        <td>{{ status[1] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="report-table-container">
+            <h5 class="fw-bold mb-0">Tasks by Priority</h5>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Priority</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for priority in tasks_by_priority %}
+                    <tr>
+                        <td>
+                            <span class="priority-badge 
+                                {% if priority[0] == 'High' %}priority-high
+                                {% elif priority[0] == 'Medium' %}priority-medium
+                                {% elif priority[0] == 'Low' %}priority-low
+                                {% endif %}">
+                                {{ priority[0] }}
+                            </span>
+                        </td>
+                        <td>{{ priority[1] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Project Progress -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="report-progress-section">
+            <h5 class="fw-bold mb-4">Project Progress</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="report-summary-box">
+                        <div class="report-summary-value">{{ task_stats[2] or 0 }}</div>
+                        <div class="report-summary-label">In Progress</div>
+                    </div>
                 </div>
-                <div class="p-0">
-                    <div class="p-3 border-bottom">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">M</div>
-                            <div>
-                                <p class="mb-1"><strong>Mike Chen</strong> completed a task</p>
-                                <small class="text-muted">30 minutes ago</small>
-                            </div>
+                <div class="col-md-6">
+                    <div class="report-summary-box">
+                        <div class="report-summary-value">{{ task_stats[3] or 0 }}</div>
+                        <div class="report-summary-label">Pending Review</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Overall Completion</span>
+                    <span class="fw-bold">{{ completion_rate }}%</span>
+                </div>
+                <div class="progress-container" style="max-width: 100%; height: 10px;">
+                    <div class="progress-bar" style="width: {{ completion_rate }}%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Team Performance Table -->
+<div class="report-table-container">
+    <h5 class="fw-bold mb-4">Team Performance</h5>
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th>Team Member</th>
+                <th>Role</th>
+                <th>Tasks Assigned</th>
+                <th>Completed</th>
+                <th>Overdue</th>
+                <th>Performance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in team_performance %}
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="user-avatar me-3">{{ member[1][0] }}</div>
+                        <div>
+                            <div class="fw-bold">{{ member[1] }}</div>
+                            <small class="text-muted">{{ member[2] }}</small>
                         </div>
                     </div>
-                    <div class="p-3 border-bottom">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #f59e0b;">S</div>
-                            <div>
-                                <p class="mb-1"><strong>Sarah</strong> added a comment</p>
-                                <small class="text-muted">2 hours ago</small>
-                            </div>
+                </td>
+                <td>{{ member[2] }}</td>
+                <td>{{ member[3] }}</td>
+                <td>{{ member[4] }}</td>
+                <td>
+                    {% if member[5] > 0 %}
+                    <span class="status-badge status-overdue">{{ member[5] }}</span>
+                    {% else %}
+                    <span class="status-badge status-completed">0</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if member[3] > 0 %}
+                    {% set rate = (member[4] / member[3] * 100)|round %}
+                    <div class="d-flex align-items-center gap-2">
+                        <span>{{ rate }}%</span>
+                        <div class="progress-container" style="width: 80px;">
+                            <div class="progress-bar" style="width: {{ rate }}%;"></div>
                         </div>
                     </div>
-                    <div class="p-3">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #10b981;">A</div>
-                            <div>
-                                <p class="mb-1">Project <strong>Website Redesign</strong> milestone reached</p>
-                                <small class="text-muted">1 day ago</small>
-                            </div>
-                        </div>
+                    {% else %}
+                    <span class="text-muted">No tasks</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Recent Activity -->
+<div class="report-table-container mt-4">
+    <h5 class="fw-bold mb-4">Recent Activity</h5>
+    <div class="report-timeline">
+        {% for activity in recent_activities %}
+        <div class="report-timeline-item">
+            <div class="report-timeline-dot {% if activity[0] == 'task_completed' %}task{% else %}user{% endif %}"></div>
+            <div>
+                <p class="mb-1">
+                    <strong>{{ activity[2] }}</strong>
+                    {% if activity[0] == 'task_completed' %}
+                    completed task "{{ activity[1] }}"
+                    {% else %}
+                    joined as {{ activity[1] }}
+                    {% endif %}
+                </p>
+                <small class="text-muted">{{ activity[3].strftime('%b %d, %Y at %I:%M %p') }}</small>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Email Modal -->
+<div class="modal fade" id="emailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-envelope me-2 text-primary"></i>
+                    Email Report
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="emailReportForm" method="POST" action="{{ url_for('project_leader.email_report') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">To <span class="text-danger">*</span></label>
+                        <input type="email" name="recipients" class="form-control" 
+                               placeholder="email@example.com" multiple required>
+                        <small class="text-muted">Separate multiple emails with commas</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Subject</label>
+                        <input type="text" name="subject" class="form-control" 
+                               value="Project Report: {{ project[1] if project else 'Project' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message (optional)</label>
+                        <textarea name="message" class="form-control" rows="3" 
+                                  placeholder="Add a personal message..."></textarea>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Reports Content -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold">Reports & Analytics</h2>
-            <p class="text-muted mb-0">Track project performance and team productivity</p>
-        </div>
-        <button class="btn btn-primary px-4 py-2 rounded-pill">
-            <i class="fas fa-download me-2"></i>Export Report
-        </button>
-    </div>
-
-    <div class="row g-4 mb-4">
-        <div class="col-lg-8">
-            <div class="chart-container">
-                <div class="chart-header">
-                    <h5 class="fw-bold mb-0">Team Productivity Trends</h5>
-                    <select class="form-select form-select-sm" style="max-width: 150px;">
-                        <option>Last 30 days</option>
-                        <option>Last quarter</option>
-                        <option>Last year</option>
-                    </select>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Send Report
+                    </button>
                 </div>
-                <canvas id="productivityChart"></canvas>
-            </div>
-        </div>
-        <div class="col-lg-4">
-            <div class="chart-container">
-                <div class="chart-header">
-                    <h5 class="fw-bold mb-0">Task Distribution</h5>
-                </div>
-                <canvas id="taskDistributionChart"></canvas>
-            </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <div class="table-card">
-        <h5 class="fw-bold mb-4">Project Performance Summary</h5>
-        <table class="custom-table">
-            <thead>
-                <tr>
-                    <th>Project</th>
-                    <th>Start Date</th>
-                    <th>Due Date</th>
-                    <th>Progress</th>
-                    <th>Team Size</th>
-                    <th>Tasks Completed</th>
-                    <th>On-time Score</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="fw-bold">Website Redesign</td>
-                    <td>Mar 15, 2023</td>
-                    <td>Jun 15, 2023</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="progress-container me-2" style="flex: 1;">
-                                <div class="progress-bar" style="width: 85%"></div>
-                            </div>
-                            <small>85%</small>
-                        </div>
-                    </td>
-                    <td>8</td>
-                    <td>42/56</td>
-                    <td><span class="status-badge status-active">94%</span></td>
-                </tr>
-                <tr>
-                    <td class="fw-bold">Mobile App</td>
-                    <td>Apr 10, 2023</td>
-                    <td>Aug 30, 2023</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="progress-container me-2" style="flex: 1;">
-                                <div class="progress-bar" style="width: 45%"></div>
-                            </div>
-                            <small>45%</small>
-                        </div>
-                    </td>
-                    <td>6</td>
-                    <td>23/68</td>
-                    <td><span class="status-badge status-pending">78%</span></td>
-                </tr>
-                <tr>
-                    <td class="fw-bold">E-commerce Backend</td>
-                    <td>Feb 1, 2023</td>
-                    <td>Jul 20, 2023</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="progress-container me-2" style="flex: 1;">
-                                <div class="progress-bar" style="width: 92%"></div>
-                            </div>
-                            <small>92%</small>
-                        </div>
-                    </td>
-                    <td>5</td>
-                    <td>48/52</td>
-                    <td><span class="status-badge status-active">96%</span></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{{ url_for('static', filename='js/projectLeader/charts.js') }}"></script>
+<script src="main.js">
+
+</script>
 {% endblock %}

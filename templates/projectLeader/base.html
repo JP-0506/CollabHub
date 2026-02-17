@@ -31,9 +31,9 @@
                 <span>Dashboard</span>
             </a>
             <a class="nav-item {% if request.endpoint and 'my_project' in request.endpoint %}active{% endif %}" 
-               href="{{ url_for('project_leader.my_project') }}" data-tooltip="My Projects">
+               href="{{ url_for('project_leader.my_project') }}" data-tooltip="Project Details">
                 <i class="bi bi-folder-fill"></i>
-                <span>My Projects</span>
+                <span>Project Details</span>
             </a>
             <a class="nav-item {% if request.endpoint and 'my_team_page' in request.endpoint %}active{% endif %}" 
                href="{{ url_for('project_leader.my_team_page') }}" data-tooltip="My Team">
@@ -62,12 +62,30 @@
         </nav>
 
         <div class="user-section">
-            <div class="user-avatar">JL</div>
-            <div class="user-details">
-                <p class="user-name">Jane Lawson</p>
-                <p class="user-role">Project Leader</p>
-            </div>
-        </div>
+    <div class="user-avatar">
+        {% if current_user %}
+            {{ current_user.name[0:2]|upper }}
+        {% else %}
+            JL
+        {% endif %}
+    </div>
+    <div class="user-details">
+        <p class="user-name">
+            {% if current_user %}
+                {{ current_user.name }}
+            {% else %}
+                Jane Lawson
+            {% endif %}
+        </p>
+        <p class="user-role">
+            {% if current_user %}
+                {{ current_user.role|replace('_', ' ')|title }}
+            {% else %}
+                Project Leader
+            {% endif %}
+        </p>
+    </div>
+</div>
     </aside>
 
     <main class="main-content" id="main-content">
@@ -80,4 +98,4 @@
     <script src="{{ url_for('static', filename='js/projectLeader/sidebar.js') }}"></script>
     {% block extra_js %}{% endblock %}
 </body>
-</html>`
+</html>
