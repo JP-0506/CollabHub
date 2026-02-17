@@ -599,3 +599,226 @@ body {
 .fade-in {
     animation: fadeIn 0.4s ease;
 }
+
+/* ================= DASHBOARD SECTIONS ================= */
+
+
+/* Chart Box */
+
+.chart-box {
+
+    background: #ffffff;
+
+    border-radius: 14px;
+
+    padding: 18px;
+
+    border: 1px solid #e5e7eb;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+
+    transition: all 0.3s ease;
+
+    min-height: 260px;
+}
+
+
+/* Hover Effect */
+
+.chart-box:hover {
+
+    transform: translateY(-3px);
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+
+/* Chart Title */
+
+.chart-title {
+
+    font-weight: 600;
+
+    margin-bottom: 10px;
+
+    color: #374151;
+
+    font-size: 0.95rem;
+}
+
+
+/* Canvas Fix */
+
+.chart-box canvas {
+
+    max-height: 190px !important;
+}
+
+
+
+/* Risk Border */
+
+.border-danger {
+
+    border-left: 5px solid #ef4444 !important;
+}
+
+
+
+/* ================= RECENT PROJECTS ================= */
+
+
+.table-box {
+
+    background: #ffffff;
+
+    border-radius: 14px;
+
+    padding: 16px;
+
+    border: 1px solid #e5e7eb;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+
+
+/* Modern Table */
+
+.modern-table {
+
+    border-collapse: separate;
+
+    border-spacing: 0 8px;
+}
+
+
+.modern-table thead th {
+
+    background: #f9fafb;
+
+    border: none;
+
+    font-size: 0.85rem;
+
+    text-transform: uppercase;
+
+    color: #6b7280;
+}
+
+
+.modern-table tbody tr {
+
+    background: #ffffff;
+
+    border-radius: 10px;
+
+    transition: 0.2s;
+}
+
+
+.modern-table tbody tr:hover {
+
+    background: #f3f4f6;
+
+    transform: scale(1.01);
+}
+
+
+.modern-table td {
+
+    border: none;
+
+    padding: 12px 10px;
+}
+
+
+
+/* Status Badge */
+
+.status-pill {
+
+    padding: 4px 10px;
+
+    border-radius: 20px;
+
+    font-size: 0.75rem;
+
+    font-weight: 600;
+
+    text-transform: capitalize;
+}
+
+
+.status-planning {
+    background: #e0f2fe;
+    color: #0284c7;
+}
+
+.status-ongoing {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-completed {
+    background: #ede9fe;
+    color: #7c3aed;
+}
+
+.status-on_hold {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* ================= SUMMARY STRIP ================= */
+
+.summary-strip {
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 12px;
+
+    padding: 14px 18px;
+
+    margin-top: 20px;
+}
+
+
+.summary-item {
+
+    padding: 8px 6px;
+
+    text-align: center;
+
+    border-right: 1px solid #e5e7eb;
+}
+
+
+.summary-item:last-child {
+
+    border-right: none;
+}
+
+
+.summary-item span {
+
+    font-size: 0.75rem;
+
+    color: #6b7280;
+
+    font-weight: 500;
+}
+
+
+.summary-item h6 {
+
+    margin-top: 4px;
+
+    font-size: 1.1rem;
+
+    font-weight: 700;
+
+    color: #111827;
+}
