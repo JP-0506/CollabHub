@@ -8,7 +8,7 @@ users {
 	designation
 	avatar
 	is_active
-	is_registerd
+	is_registered
 	created_at
 }
 
@@ -17,6 +17,9 @@ auth{
     user_id
     password_hash
     updated_at
+    reset_token
+    reset_token_expires
+
 }
 
 projects{
@@ -86,4 +89,15 @@ login_logs {
     user_id
     login_time
     ip_address
+}
+
+password_reset_otps{
+    
+    otp_id
+    user_id
+    email
+    otp_code
+    created_at
+    expires_at
+    is_used
 }
