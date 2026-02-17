@@ -125,19 +125,20 @@
         <table class="custom-table">
 
             <thead>
-
                 <tr>
 
-                    <th>Name</th>
+                    <th>Username</th>
                     <th>Email</th>
                     <th>Designation</th>
-                    <th>Department</th>
+                    <th>Role</th>
+
+                    <th>Working On</th> <!-- Project Name -->
+
                     <th>Status</th>
-                    <th>Joined</th>
+                    <th>Last Active</th>
                     <th>Actions</th>
 
                 </tr>
-
             </thead>
 
 
@@ -147,44 +148,61 @@
 
                 <tr>
 
+                    <!-- Name -->
                     <td>
-
                         <div class="d-flex align-items-center">
 
                             <div class="user-avatar me-3">
-
-                                {{ emp.name[0] }}
-
+                                {{ emp.name[:1]|upper }}
                             </div>
 
-                            <div>
-
-                                <div class="fw-bold">
-                                    {{ emp.name }}
-                                </div>
-
+                            <div class="fw-bold">
+                                {{ emp.name }}
                             </div>
 
                         </div>
-
                     </td>
 
 
+                    <!-- Email -->
                     <td>
                         {{ emp.email }}
                     </td>
 
 
+                    <!-- Designation -->
                     <td>
                         {{ emp.designation }}
                     </td>
 
 
+                    <!-- Role -->
                     <td>
-                        {{ emp.department }}
+                        {{ emp.role|capitalize }}
                     </td>
 
 
+                    <!-- Working On (Project) -->
+                    <td>
+
+                        {% if emp.project_name is not none %}
+
+                        <span class="badge bg-info">
+                            {{ emp.project_name }}
+                        </span>
+
+                        {% else %}
+
+                        <span class="text-muted">
+                            Not Assigned
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- Status -->
                     <td>
 
                         {% if emp.is_active %}
@@ -204,35 +222,47 @@
                     </td>
 
 
+                    <!-- Created Date -->
                     <td>
-                        {{ emp.created_at.strftime('%d %b %Y') }}
+                        {{ emp.created_at.strftime('%d %b %Y') if emp.created_at else '-' }}
                     </td>
 
 
+                    <!-- Actions -->
                     <td>
 
                         <div class="d-flex gap-2">
 
-                            <a href="{{ url_for('admin.edit_employee', id=emp.user_id) }}"
-                                class="btn btn-sm btn-outline-primary">
-
+                            <!-- Edit -->
+                            <!-- TODO: below button is temparay bc we will not give route here -->
+                            <button class="btn btn-sm btn-outline-primary edit-emp-btn" data-id="{{ emp.user_id }}"
+                                data-name="{{ emp.name }}" data-email="{{ emp.email }}"
+                                data-designation="{{ emp.designation }}" data-role="{{ emp.role }}"
+                                data-status="{{ 1 if emp.is_active else 0 }}">
                                 <i class="fas fa-edit"></i>
+                            </button>
 
-                            </a>
 
+                            <!-- Delete -->
+                            <!-- TODO: below button is temparay bc we will not give route here -->
+                            <!-- <a href="{{ url_for('admin.delete_employee', id=emp.user_id) }}"
+                                    class="btn btn-sm btn-outline-danger" title="Delete"
+                                    onclick="return confirm('Delete this employee?')" disabled>
 
-                            <a href="{{ url_for('admin.delete_employee', id=emp.user_id) }}"
-                                class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this employee?')">
+                                    <i class="fas fa-trash"></i>
 
+                                </a> -->
+
+                            <button class="btn btn-sm btn-outline-danger" disabled>
                                 <i class="fas fa-trash"></i>
-
-                            </a>
+                            </button>
 
                         </div>
 
                     </td>
 
                 </tr>
+
 
                 {% else %}
 
@@ -321,38 +351,26 @@
                         <div class="col-md-6">
 
                             <label class="form-label">
-                                Department *
+                                Role *
                             </label>
 
-                            <select name="department" class="form-select" required>
+                            <select name="role" class="form-select" required>
 
                                 <option value="">
-                                    Select Department
+                                    Select Role
                                 </option>
 
-                                {% for dept in departments %}
-
-                                <option value="{{ dept }}">
-                                    {{ dept }}
+                                <option value="project_leader">
+                                    Project Leader
                                 </option>
 
-                                {% endfor %}
+                                <option value="employee">
+                                    Employee
+                                </option>
 
                             </select>
 
                         </div>
-
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                Password *
-                            </label>
-
-                            <input type="password" name="password" class="form-control" required>
-
-                        </div>
-
 
                         <div class="col-md-6">
 
@@ -403,6 +421,94 @@
     </div>
 
 </div>
+
+<!-- ================= EDIT EMPLOYEE MODAL ================= -->
+
+<div class="modal fade" id="editEmpModal" tabindex="-1">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title fw-bold">
+                    Edit Employee
+                </h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+            </div>
+
+            <form method="POST" id="editEmpForm">
+
+                <div class="modal-body">
+
+                    <div class="row g-3">
+
+                        <!-- Hidden ID -->
+                        <input type="hidden" id="editEmpId">
+
+                        <!-- Name -->
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" name="name" id="editEmpName" class="form-control" required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <label class="form-label">Email *</label>
+                            <input type="email" name="email" id="editEmpEmail" class="form-control" required>
+                        </div>
+
+                        <!-- Designation -->
+                        <div class="col-md-6">
+                            <label class="form-label">Designation *</label>
+                            <input type="text" name="designation" id="editEmpDesignation" class="form-control" required>
+                        </div>
+
+                        <!-- Role -->
+                        <div class="col-md-6">
+                            <label class="form-label">Role *</label>
+                            <select name="role" id="editEmpRole" class="form-select" required>
+                                <option value="project_leader">Project Leader</option>
+                                <option value="employee">Employee</option>
+                            </select>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select name="status" id="editEmpStatus" class="form-select">
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="btn btn-primary">
+                        Update Employee
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
 
 <script src="{{ url_for('static', filename='js/admin/manage_emp.js') }}"></script>
 
