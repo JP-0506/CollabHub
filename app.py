@@ -7,7 +7,17 @@ from employee.routes import employee_bp
 app = Flask(__name__)
 
 app.secret_key = "collabhub_secret_key"
+from flask_mail import Mail, Message
 
+# Mail configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # or your SMTP server
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'sharingcode14@gmail.com'
+app.config['MAIL_PASSWORD'] = 'dxrv rxio jafe fcnm'
+app.config['MAIL_DEFAULT_SENDER'] = 'sharingcode14@gmail.com'
+
+mail = Mail(app)
 
 # -----------------------------
 # Register Blueprints
@@ -46,3 +56,15 @@ def logout():
 # -----------------------------
 if __name__ == "__main__":
     app.run(debug=True)
+@app.context_processor
+def inject_user():
+    if 'user_id' in session:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("SELECT name, role FROM users WHERE user_id = %s", (session['user_id'],))
+        user = cur.fetchone()
+        cur.close()
+        conn.close()
+        if user:
+            return dict(current_user={'name': user[0], 'role': user[1]})
+    return dict(current_user=None)

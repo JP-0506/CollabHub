@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #2563eb; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 30px 0; }
+        .stat-card { background: #f3f4f6; padding: 20px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #2563eb; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th { background: #2563eb; color: white; padding: 12px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #e5e7eb; }
+        .footer { margin-top: 40px; text-align: center; color: #6b7280; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Project Report: {{ project[1] }}</h1>
+        <p>Generated on: {{ generated_date }}</p>
+    </div>
+    
+    <h2>Task Overview</h2>
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-value">{{ stats[0] or 0 }}</div>
+            <div>Total Tasks</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" style="color: #10b981;">{{ stats[1] or 0 }}</div>
+            <div>Completed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" style="color: #3b82f6;">{{ stats[2] or 0 }}</div>
+            <div>In Progress</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" style="color: #ef4444;">{{ stats[3] or 0 }}</div>
+            <div>Overdue</div>
+        </div>
+    </div>
+    
+    <h2>Team Performance</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Total Tasks</th>
+                <th>Completed</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in team_data %}
+            <tr>
+                <td>{{ member[0] }}</td>
+                <td>{{ member[1] or 'N/A' }}</td>
+                <td>{{ member[2] or 0 }}</td>
+                <td>{{ member[3] or 0 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        <p>© CollabHub - This is an auto-generated report</p>
+    </div>
+</body>
+</html>
