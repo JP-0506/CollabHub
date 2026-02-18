@@ -1,0 +1,579 @@
+/* =========================
+   CollabHub Employee.css (CLEAN - SINGLE FILE)
+========================= */
+
+:root {
+  --sb-bg: #111827;
+  --sb-width: 240px;
+  --sb-collapsed: 70px;
+
+  --primary-blue: #2563eb;
+  --primary-blue-light: #3b82f6;
+
+  --bg-light: #f8fafc;
+  --text-gray: #9ca3af;
+
+  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+  --card-hover-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* =========================
+   BASE
+========================= */
+body {
+  font-family: "Inter", sans-serif;
+  background-color: var(--bg-light);
+  margin: 0;
+  overflow-x: hidden;
+  color: #1f2937;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+.layout {
+  display: flex;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+.sidebar {
+  width: var(--sb-width);
+  background: linear-gradient(180deg, #111827 0%, #1f2937 100%);
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar.collapsed {
+  width: var(--sb-collapsed);
+}
+
+/* =========================
+   SIDEBAR HEADER
+========================= */
+.sidebar-header {
+  padding: 24px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar.collapsed .sidebar-header {
+  justify-content: center;
+  padding: 24px 10px;
+}
+
+.brand-name {
+  font-weight: 800;
+  font-size: 1.85rem;
+  margin: 0;
+  background: linear-gradient(90deg, #60a5fa 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.sidebar.collapsed .brand-name {
+  display: none;
+}
+
+/* =========================
+   TOGGLE BUTTON (LOGO <-> ICON)
+========================= */
+.toggle-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: 0.25s ease;
+  padding: 0;
+}
+
+/* hover should be BLUE */
+.toggle-btn:hover {
+  background: var(--primary-blue);
+}
+
+/* logo */
+.sidebar-logo-img {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+  transition: 0.2s ease;
+}
+
+/* icon */
+.sidebar-toggle-icon {
+  position: absolute;
+  font-size: 1.25rem;
+  color: #fff;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: 0.2s ease;
+}
+
+/* hover swap: show icon hide logo */
+.toggle-btn:hover .sidebar-toggle-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+.toggle-btn:hover .sidebar-logo-img {
+  opacity: 0;
+}
+
+/* expanded sidebar => show icon, hide logo */
+.sidebar:not(.collapsed) .sidebar-logo-img {
+  display: none;
+}
+.sidebar:not(.collapsed) .sidebar-toggle-icon {
+  opacity: 1;
+  position: static;
+  transform: none;
+}
+
+/* collapsed sidebar => show logo by default */
+.sidebar.collapsed .sidebar-logo-img {
+  display: block;
+}
+/* Collapsed sidebar default: show logo */
+.sidebar.collapsed .sidebar-logo-img {
+  opacity: 1;
+}
+
+.sidebar.collapsed .sidebar-toggle-icon {
+  opacity: 0;
+  position: absolute;
+  transition: 0.2s ease;
+}
+
+/* 🔵 When collapsed AND hovered → show icon */
+.sidebar.collapsed .toggle-btn:hover .sidebar-toggle-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Hide logo when hovered */
+.sidebar.collapsed .toggle-btn:hover .sidebar-logo-img {
+  opacity: 0;
+}
+
+/* =========================
+   NAV LINKS
+========================= */
+.nav-item {
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  color: var(--text-gray);
+  text-decoration: none;
+  margin: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.nav-item.active {
+  background: linear-gradient(
+    90deg,
+    rgba(37, 99, 235, 0.2) 0%,
+    rgba(37, 99, 235, 0.1) 100%
+  );
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.3);
+}
+
+.nav-item i {
+  width: 24px;
+  font-size: 1.1rem;
+}
+
+.nav-item span {
+  margin-left: 12px;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* collapsed: hide text + center icon */
+.sidebar.collapsed .nav-item span {
+  display: none;
+}
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  margin: 6px 8px;
+}
+
+/* tooltip (uses data-tooltip attr) */
+.sidebar.collapsed .nav-item::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(var(--sb-collapsed) + 10px);
+  top: 50%;
+  transform: translateY(-50%) scale(0.95);
+  background: #1f2937;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.2s ease;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+  z-index: 9999;
+}
+
+.sidebar.collapsed .nav-item::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--sb-collapsed) + 2px);
+  top: 50%;
+  transform: translateY(-50%);
+  border: 6px solid transparent;
+  border-right-color: #1f2937;
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.2s ease;
+  z-index: 9999;
+}
+
+.sidebar.collapsed .nav-item:hover::after,
+.sidebar.collapsed .nav-item:hover::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* =========================
+   USER SECTION
+========================= */
+.user-section {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.sidebar.collapsed .user-section {
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.sidebar.collapsed .user-details {
+  display: none;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: var(--text-gray);
+  margin: 0;
+}
+
+/* =========================
+   MAIN CONTENT
+========================= */
+.main-content {
+  margin-left: var(--sb-width);
+  width: calc(100% - var(--sb-width));
+  min-height: 100vh;
+  padding: 30px;
+  transition: all 0.3s ease;
+}
+
+.main-content.expanded {
+  margin-left: var(--sb-collapsed);
+  width: calc(100% - var(--sb-collapsed));
+}
+
+/* =========================
+   TOP BAR / SEARCH (if you use it)
+========================= */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.search-container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 20px;
+  border: 1px solid #e5e7eb;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  align-items: center;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s;
+}
+
+.search-container:focus-within {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: var(--primary-blue);
+}
+
+.search-container input {
+  border: none;
+  outline: none;
+  width: 100%;
+  margin-left: 12px;
+  font-size: 0.95rem;
+}
+
+/* =========================
+   CARDS
+========================= */
+.stat-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  border: none;
+  position: relative;
+  transition: all 0.3s;
+  box-shadow: var(--card-shadow);
+  height: 100%;
+  overflow: hidden;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--card-hover-shadow);
+}
+
+.stat-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.stat-label {
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 8px 0;
+  display: block;
+  background: linear-gradient(90deg, #1f2937 0%, #4b5563 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* =========================
+   TABLE CARD
+========================= */
+.table-card {
+  background: #fff;
+  border-radius: 16px;
+  border: none;
+  padding: 24px;
+  margin-top: 24px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+
+.table-card h5 {
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+/* Custom Table */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.custom-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.custom-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.custom-table tr:hover {
+  background: #f9fafb;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+/* =========================
+   PROJECT CARD
+========================= */
+.project-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  height: 100%;
+}
+
+.project-card.in-progress {
+  border-left: 5px solid #3b82f6;
+}
+.project-card.upcoming {
+  border-left: 5px solid #f59e0b;
+}
+.project-card.completed {
+  border-left: 5px solid #10b981;
+}
+
+/* =========================
+   PROGRESS BAR
+========================= */
+.progress-container {
+  background: #f3f4f6;
+  border-radius: 10px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+}
+
+/* =========================
+   BUTTON
+========================= */
+.btn-primary {
+  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+  border: none;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* =========================
+   CHARTS
+========================= */
+.chart-container {
+  position: relative;
+  height: 280px;
+}
+
+.doughnut-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.doughnut-container canvas {
+  max-width: 280px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 20px;
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+}
+/* =========================
+   TEAM TABLE AVATAR
+========================= */
+.team-avatar{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background: linear-gradient(135deg,#2563eb,#4f46e5);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:16px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+}

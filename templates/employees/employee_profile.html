@@ -1,0 +1,123 @@
+{% extends "employees/sidebar.html" %}
+{% block content %}
+
+<h2 class="fw-bold mb-4">My Profile</h2>
+
+<div class="row g-4">
+
+    <!-- ================= LEFT: PROFILE INFO (VERTICAL) ================= -->
+    <div class="col-lg-8">
+        <div class="table-card">
+
+            <form method="POST" id="profileForm">
+                <div class="row">
+
+                    <!-- Avatar + Basic -->
+                    <div class="col-md-4 text-center border-end">
+                        <div class="user-avatar mx-auto mb-3"
+                             style="width:100px;height:100px;font-size:2.5rem;">
+                            {{ (user.name or 'E')[0] }}
+                        </div>
+
+                        <h5 class="fw-bold mb-1">{{ user.name }}</h5>
+                        <p class="text-muted small mb-2">
+                            {{ user.designation if user.designation else "Team Member" }}
+                        </p>
+
+                        <span class="badge bg-primary">
+                            {{ user.role | replace("_"," ") | title }}
+                        </span>
+                    </div>
+
+                    <!-- Vertical Info -->
+                    <div class="col-md-8">
+                        <h5 class="fw-bold mb-4">Personal Information</h5>
+
+                        <!-- NAME -->
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">FULL NAME</label>
+                            <p id="profile-name" class="mb-1">{{ user.name }}</p>
+                            <input type="text"
+                                   name="name"
+                                   id="edit-name"
+                                   class="form-control d-none"
+                                   value="{{ user.name }}">
+                        </div>
+
+                        <!-- EMAIL -->
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">EMAIL</label>
+                            <p id="profile-email" class="mb-1">{{ user.email }}</p>
+                            <input type="email"
+                                   name="email"
+                                   id="edit-email"
+                                   class="form-control d-none"
+                                   value="{{ user.email }}">
+                        </div>
+
+                        <!-- ROLE (VIEW ONLY - NO BOX) -->
+                            <div class="mb-3">
+                            <label class="form-label fw-600 small text-muted">ROLE</label>
+                            <p class="mb-0 fw-semibold">
+                                {{ user.role | replace("_", " ") | title }}
+                            </p>
+                            </div>
+
+                         <!-- DESIGNATION (VIEW ONLY - NO BOX) -->
+                            <div class="mb-3">
+                            <label class="form-label fw-600 small text-muted">DESIGNATION</label>
+                            <p class="mb-0 fw-semibold">
+                                {{ user.designation if user.designation else "Team Member" }}
+                            </p>
+                            </div>
+
+                        <!-- BUTTON -->
+                        <button type="button"
+                                class="btn btn-primary px-4"
+                                onclick="editProfile()"
+                                id="editBtn">
+                            <i class="fa fa-user-pen me-1"></i> Edit Profile
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- ================= RIGHT: SECURITY CARD ================= -->
+    <!-- ================= RIGHT: SECURITY CARD ================= -->
+<div class="col-lg-4">
+  <div class="table-card">
+    <h5 class="fw-bold mb-3">Security</h5>
+
+    <!-- messages -->
+    <div id="pass-error" class="alert alert-danger d-none"></div>
+    <div id="pass-success" class="alert alert-success d-none"></div>
+
+    <form id="passwordForm">
+      <div class="mb-3">
+        <label class="form-label small">Current Password</label>
+        <input type="password" id="currentPassword" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small">New Password</label>
+        <input type="password" id="newPassword" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small">Confirm Password</label>
+        <input type="password" id="confirmPassword" class="form-control" required>
+      </div>
+
+      <button id="passBtn" type="submit" class="btn btn-primary w-100">
+        Update Password
+      </button>
+    </form>
+  </div>
+</div>
+</div>
+
+{% endblock %}

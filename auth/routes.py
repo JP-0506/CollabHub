@@ -102,6 +102,7 @@ def login():
             # --- LOGIN SUCCESS ---
             session["user_id"] = user_id
             session["role"] = role
+            session["username"] = email_or_username
 
             # 7. Role મુજબ Redirect URL નક્કી કરો
             if role == "admin":
@@ -111,7 +112,7 @@ def login():
                 redirect_url = url_for("project_leader.dashboard")
 
             elif role == "employee":
-                redirect_url = url_for("employee_dashboard")
+                redirect_url = url_for("employee.dashboard")
 
             else:
                 redirect_url = url_for("home")
@@ -256,7 +257,7 @@ def signup():
                 redirect_url = url_for("project_leader.dashboard")
 
             elif role == "employee":
-                redirect_url = url_for("employee_dashboard")
+                redirect_url = url_for("employee.dashboard")
             else:
                 redirect_url = url_for("home")
 
