@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CollabHub - Employee Panel</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/employee/Employee.css') }}">
+</head>
+
+<body>
+
+<div class="layout d-flex">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-header d-flex justify-content-between align-items-center">
+            <h1 class="brand-name m-0">CollabHub</h1>
+            <button class="toggle-btn" onclick="toggleSidebar()">
+  <img src="{{ url_for('static', filename='images_videos/logo.jpeg') }}"
+       alt="Logo"
+       class="sidebar-logo-img">
+
+  <i class="bi bi-layout-sidebar sidebar-toggle-icon"></i>
+</button>
+        </div>
+
+        <nav class="mt-4">
+
+            <!-- Dashboard -->
+<a href="{{ url_for('employee.dashboard') }}"
+   data-tooltip="Dashboard"
+   class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+    <i class="fas fa-th-large"></i>
+    <span>Dashboard</span>
+</a>
+
+<!-- My Work -->
+<a href="{{ url_for('employee.my_work') }}"
+   data-tooltip="My Work"
+   class="nav-item {% if active_page == 'work' %}active{% endif %}">
+    <i class="bi bi-check2-square"></i>
+    <span>My Work</span>
+</a>
+
+<!-- Team -->
+<a href="{{ url_for('employee.my_team') }}"
+   data-tooltip="Team"
+   class="nav-item {% if active_page == 'team' %}active{% endif %}">
+    <i class="bi bi-people-fill"></i>
+    <span>Team</span>
+</a>
+
+<!-- Profile -->
+<a href="{{ url_for('employee.profile') }}"
+   data-tooltip="Profile"
+   class="nav-item {% if active_page == 'profile' %}active{% endif %}">
+    <i class="bi bi-person-circle"></i>
+    <span>Profile</span>
+</a>
+
+<!-- Logout -->
+<a href="{{ url_for('logout') }}"
+   data-tooltip="Logout"
+   class="nav-item">
+    <i class="bi bi-box-arrow-left"></i>
+    <span>Logout</span>
+</a>
+
+        </nav>
+
+        <!-- User Section -->
+        <div class="user-section mt-auto p-3 d-flex align-items-center">
+            <div class="user-avatar me-2">
+                {{ session.get('username','E')[0] }}
+            </div>
+            <div class="user-details">
+                <p class="user-name mb-0">
+                    {{ session.get('username','Employee') }}
+                </p>
+                <small class="text-muted">Team Member</small>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content flex-fill p-4">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+</div>
+
+<!-- Custom JS -->
+<script src="{{ url_for('static', filename='js/employee/Employee.js') }}"></script>
+
+</body>
+</html>

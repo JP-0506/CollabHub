@@ -1,0 +1,130 @@
+{% extends "employees/sidebar.html" %}
+{% block content %}
+
+<h2 class="fw-bold mb-4">My Work</h2>
+<p class="text-muted mb-4">Project overview and your assigned tasks.</p>
+
+<!-- ================= PROJECT SECTION ================= -->
+<h4 class="fw-bold mb-3 text-primary">My Project</h4>
+
+{% if project and project.project_name %}
+<div class="row g-4 mb-5">
+    <div class="col-lg-8">
+        <div class="project-card p-4 bg-white shadow-sm rounded">
+            
+            <h5 class="fw-bold">{{ project.project_name }}</h5>
+
+            <p class="text-muted small">
+                {{ project.description if project.description else "No description available." }}
+            </p>
+
+            <!-- ✅ Progress comes from backend -->
+            <div class="progress mb-2">
+                <div class="progress-bar bg-primary"
+                     role="progressbar"
+                     style="width: {{ progress }}%;"
+                     aria-valuenow="{{ progress }}"
+                     aria-valuemin="0"
+                     aria-valuemax="100">
+                    {{ progress }}%
+                </div>
+            </div>
+
+            <span class="badge bg-primary">
+                {{ project.status | replace("_", " ") | capitalize }}
+            </span>
+
+        </div>
+    </div>
+</div>
+{% else %}
+<p class="text-muted">Currently no project assigned.</p>
+{% endif %}
+
+
+<!-- ================= TASK SECTION ================= -->
+<h4 class="fw-bold mb-3 text-success">My Tasks</h4>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Task Name</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Due Date</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% if tasks %}
+                    {% for task in tasks %}
+                    <tr>
+                        <td><strong>{{ task.title }}</strong></td>
+
+                        <!-- Priority -->
+                        <td>
+                            {% if task.priority == "high" %}
+                                <span class="badge bg-danger">High</span>
+                            {% elif task.priority == "medium" %}
+                                <span class="badge bg-warning text-dark">Medium</span>
+                            {% else %}
+                                <span class="badge bg-success">Low</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Status -->
+                        <td>
+                            {% if task.status == "completed" %}
+                                <span class="badge bg-success">Completed</span>
+                            {% elif task.status == "in_progress" %}
+                                <span class="badge bg-primary">In Progress</span>
+                            {% else %}
+                                <span class="badge bg-info text-dark">
+                                    {{ task.status | replace("_", " ") | capitalize }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Due Date -->
+                        <td>
+                            {{ task.due_date.strftime('%d %b %Y') if task.due_date else "No Due Date" }}
+                        </td>
+
+                        <!-- Action -->
+                        <td class="text-center">
+                            {% if task.status != "completed" %}
+                            <form method="POST"
+                                  action="{{ url_for('employee.complete_task', task_id=task.task_id) }}">
+                                <button class="btn btn-success complete-btn" data-task-id="{{ task.task_id }}">
+                                    Mark Completed</button>
+                            </form>
+                            {% else %}
+                            <button class="btn btn-sm btn-secondary" disabled>
+                                Completed
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                        <tr>
+                         <td colspan="5" class="text-center text-muted">
+                                    Currently no task scheduled.
+                         </td>
+                        </tr>
+                  {% endif %}
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
