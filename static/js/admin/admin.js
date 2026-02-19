@@ -318,7 +318,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     initActionCards();
     initForms();
-    initDeleteButtons();
+    // initDeleteButtons();
+
 
     if (document.getElementById("statusChart")) {
         loadProjectOverview();
@@ -335,9 +336,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     //for edit project detailsfrom edit modal
     initEditProjectModal();
+    /*to modal on click project avtar */
+    initViewProject()
 
+    //manage_emp.html
     //for edit employee detailsfrom edit modal
     initEditEmployeeModal();
+    initDeleteEmployee();
+    initViewEmployee();
 
 
 
@@ -632,96 +638,6 @@ function loadRecentProjects() {
 
 }
 
-// // ============================
-// // Project Edit Modal Handler
-// // ============================
-
-// function initProjectEdit() {
-
-//     const editBtns = document.querySelectorAll(".edit-btn");
-
-//     const modalEl = document.getElementById("addProjectModal");
-
-//     if (!modalEl) return;
-
-//     const modal = new bootstrap.Modal(modalEl);
-
-//     const form = document.getElementById("projectForm");
-
-//     const title = modalEl.querySelector(".modal-title");
-
-//     const submitBtn = document.getElementById("projectSubmitBtn");
-
-
-//     editBtns.forEach(btn => {
-
-//         btn.addEventListener("click", function () {
-
-//             // Get Data
-//             const id = this.dataset.id;
-//             const name = this.dataset.name;
-//             const status = this.dataset.status;
-//             const progress = this.dataset.progress;
-//             const end = this.dataset.end;
-//             const desc = this.dataset.desc;
-
-
-//             // Fill Form
-//             document.getElementById("projectId").value = id;
-//             document.getElementById("projectName").value = name;
-//             document.getElementById("projectStatus").value = status;
-//             document.getElementById("projectProgress").value = progress || 0;
-//             document.getElementById("projectEnd").value = end || "";
-//             document.getElementById("projectDesc").value = desc || "";
-
-
-//             // Change UI
-//             title.textContent = "Edit Project";
-//             submitBtn.textContent = "Update";
-
-
-//             // Show Modal
-//             modal.show();
-
-//         });
-
-//     });
-
-// }
-
-// // ============================
-// // Reset Project Modal (Create)
-// // ============================
-
-// function initProjectCreateReset() {
-
-//     const addBtn = document.querySelector(
-//         '[data-bs-target="#addProjectModal"]'
-//     );
-
-//     const modalEl = document.getElementById("addProjectModal");
-
-//     if (!addBtn || !modalEl) return;
-
-
-//     addBtn.addEventListener("click", function () {
-
-//         const form = document.getElementById("projectForm");
-
-//         form.reset();
-
-//         document.getElementById("projectId").value = "";
-
-
-//         modalEl.querySelector(".modal-title")
-//             .textContent = "Create New Project";
-
-//         document.getElementById("projectSubmitBtn")
-//             .textContent = "Create";
-
-//     });
-
-// }
 
 // // ============================
 // // Project Edit Modal Handler
@@ -814,6 +730,9 @@ function initEditProjectModal() {
 
                 leaderSelect.appendChild(option);
 
+                document.getElementById("hiddenLeaderId").value = leaderId;
+
+
                 // 🔒 Disable dropdown
                 leaderSelect.disabled = true;
             }
@@ -823,7 +742,6 @@ function initEditProjectModal() {
             ========================= */
             else {
 
-                // Add "Select Leader" first
                 const defaultOption = document.createElement("option");
                 defaultOption.value = "";
                 defaultOption.text = "Select Leader";
@@ -831,30 +749,22 @@ function initEditProjectModal() {
                 defaultOption.disabled = true;
                 leaderSelect.appendChild(defaultOption);
 
-                // Copy free leaders from create modal
                 const freeLeaders =
                     document.querySelectorAll("#projectLeader option");
 
                 freeLeaders.forEach(opt => {
-
                     if (opt.value !== "") {
-
                         const option = document.createElement("option");
                         option.value = opt.value;
                         option.text = opt.text;
-
                         leaderSelect.appendChild(option);
                     }
                 });
 
-                // If no free leaders exist
-                if (leaderSelect.options.length === 1) {
-
-                    const option = document.createElement("option");
-                    option.value = "";
-                    option.text = "No Free Leaders";
-                    leaderSelect.appendChild(option);
-                }
+                // 👇 👇 👇 YAHI PASTE KARNA HAI
+                leaderSelect.addEventListener("change", function () {
+                    document.getElementById("hiddenLeaderId").value = this.value;
+                });
             }
 
             /* =========================
@@ -898,6 +808,142 @@ function initEditProjectModal() {
     });
 }
 
+/*to show modal when click project avtar*/
+// ============================
+// View Project Details (Two Column Layout)
+// ============================
+function initViewProject() {
+
+    const viewBtns = document.querySelectorAll(".view-project-btn");
+
+    viewBtns.forEach(btn => {
+        btn.addEventListener("click", function () {
+
+            const projectId = this.dataset.id;
+            const projectName = this.dataset.name;
+            const modal = new bootstrap.Modal(document.getElementById('viewProjectModal'));
+
+            // Set title
+            document.getElementById('viewProjectModalTitle').textContent = projectName;
+
+            // Show loading
+            document.getElementById('viewProjectDetails').innerHTML = `
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            `;
+
+            modal.show();
+
+            // Fetch project details
+            fetch(`/admin/api/project/${projectId}`)
+                .then(res => res.json())
+                .then(data => {
+
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    const project = data.project;
+                    const members = data.members || [];
+
+                    // Team Members HTML (Right Side)
+                    let membersHtml = '';
+                    if (members.length > 0) {
+                        members.forEach(m => {
+                            membersHtml += `
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="user-avatar me-2" style="width: 36px; height: 36px; font-size: 0.9rem; background: ${m.is_leader ? '#10b981' : '#6b7280'}; flex-shrink: 0;">
+                                        ${m.name ? m.name.charAt(0).toUpperCase() : '?'}
+                                    </div>
+                                    <div>
+                                        <div class="d-flex align-items-center">
+                                            <strong>${m.name || 'Unknown'}</strong>
+                                            ${m.is_leader ? '<span class="badge bg-success ms-2">Leader</span>' : ''}
+                                        </div>
+                                        <small class="text-muted d-block">${m.designation || 'Team Member'}</small>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        membersHtml = '<p class="text-muted text-center py-3">No team members assigned</p>';
+                    }
+
+                    // Two Column Layout
+                    document.getElementById('viewProjectDetails').innerHTML = `
+                        <div class="row">
+                            <!-- LEFT COLUMN - Project Details -->
+                            <div class="col-md-6 border-end">
+                                <div class="pe-3">
+                                    <!-- Progress -->
+                                    <div class="mb-4">
+                                        <label class="fw-bold text-muted small">PROGRESS</label>
+                                        <div class="d-flex align-items-center mt-1">
+                                            <div class="progress-container flex-grow-1 me-2" style="height: 8px;">
+                                                <div class="progress-bar" style="width:${project.progress || 0}%"></div>
+                                            </div>
+                                            <span class="badge bg-primary">${project.progress || 0}%</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Leader -->
+                                    <div class="mb-3">
+                                        <label class="fw-bold text-muted small">TEAM LEADER</label>
+                                        <p class="mb-0 fw-semibold">${project.leader_name || 'Not assigned'}</p>
+                                    </div>
+                                    
+                                    <!-- Dates -->
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <label class="fw-bold text-muted small">START DATE</label>
+                                            <p class="mb-0">${project.start_date || 'Not set'}</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="fw-bold text-muted small">END DATE</label>
+                                            <p class="mb-0">${project.end_date || 'Not set'}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Status -->
+                                    <div class="mb-3">
+                                        <label class="fw-bold text-muted small">STATUS</label>
+                                        <p class="mb-0"><span class="status-badge status-${project.status || 'planning'}">${(project.status || 'planning').toUpperCase()}</span></p>
+                                    </div>
+                                    
+                                    <!-- Description -->
+                                    <div class="mb-3">
+                                        <label class="fw-bold text-muted small">DESCRIPTION</label>
+                                        <p class="mb-0">${project.description || 'No description provided'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- RIGHT COLUMN - Team Members -->
+                            <div class="col-md-6">
+                                <div class="ps-3">
+                                    <label class="fw-bold text-muted small mb-2">TEAM MEMBERS (${members.length})</label>
+                                    <div style="max-height: 350px; overflow-y: auto;">
+                                        ${membersHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                })
+                .catch(err => {
+                    document.getElementById('viewProjectDetails').innerHTML = `
+                        <div class="alert alert-danger mb-0">
+                            Error loading project details: ${err.message || 'Something went wrong'} ❌
+                        </div>
+                    `;
+                });
+        });
+    });
+}
+
 /****************** manage_emp.js ************************/
 // ============================
 // Edit Employee Modal
@@ -913,43 +959,235 @@ function initEditEmployeeModal() {
         btn.addEventListener("click", function () {
 
             const id = this.dataset.id;
-            const name = this.dataset.name;
-            const email = this.dataset.email;
             const designation = this.dataset.designation;
             const role = this.dataset.role;
-            const status = this.dataset.status;
 
-            // Helper to safely set value
-            const setValue = (elementId, value) => {
-                const el = document.getElementById(elementId);
-                if (el) el.value = value || "";
-            };
+            document.getElementById("editEmpId").value = id;
+            document.getElementById("editEmpDesignation").value = designation || "";
+            document.getElementById("editEmpRole").value = role || "employee";
 
-            setValue("editEmpId", id);
-            setValue("editEmpName", name);
-            setValue("editEmpEmail", email);
-            setValue("editEmpDesignation", designation);
-            setValue("editEmpRole", role);
-            setValue("editEmpStatus", status);
-
-            // Set form action dynamically
-            const form = document.getElementById("editEmpForm");
-            if (form) {
-                form.action = "/admin/employee/edit/" + id;
-            }
-
-            // Open Bootstrap Modal
             const modalElement = document.getElementById("editEmpModal");
+            const form = document.getElementById("editEmpForm");
+
+            if (form) {
+                // Remove any existing submit event listeners
+                form.onsubmit = null;
+
+                // Set form action
+                form.action = "/admin/employee/edit/" + id;
+
+                // Add new submit handler
+                form.onsubmit = async function (e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(form);
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (result.status === 'success') {
+                            // Show success alert
+                            alert(result.message);
+                            // Close modal
+                            const modal = bootstrap.Modal.getInstance(modalElement);
+                            if (modal) {
+                                modal.hide();
+                            }
+                            // Reload page to show updated data
+                            location.reload();
+                        } else {
+                            // Show error alert
+                            alert(result.message);
+                        }
+                    } catch (error) {
+                        alert('An error occurred while updating employee ❌');
+                        console.error('Error:', error);
+                    }
+                };
+            }
 
             if (modalElement) {
                 const modal = new bootstrap.Modal(modalElement);
                 modal.show();
             }
-
         });
-
     });
-
 }
 
+// ============================
+// Soft Delete Employee with Confirmation
+// ============================
+function initDeleteEmployee() {
 
+    const deleteBtns = document.querySelectorAll(".delete-emp-btn");
+
+    if (!deleteBtns.length) return;
+
+    deleteBtns.forEach(btn => {
+
+        btn.addEventListener("click", function () {
+
+            const id = this.dataset.id;
+            const name = this.dataset.name;
+
+            // Show confirmation dialog
+            if (confirm(`Are you sure you want to deactivate ${name}? They will no longer be able to access the system.`)) {
+
+                // Create form data
+                const formData = new FormData();
+                formData.append('user_id', id);
+
+                // Send delete request
+                fetch(`/admin/employee/delete/${id}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.status === 'success') {
+                            alert(result.message);
+                            location.reload(); // Reload to reflect changes
+                        } else {
+                            alert(result.message); // Show error message
+                        }
+                    })
+                    .catch(error => {
+                        alert('An error occurred while deactivating employee ❌');
+                        console.error('Error:', error);
+                    });
+            }
+        });
+    });
+}
+
+// ============================
+// View Employee Details
+// ============================
+function initViewEmployee() {
+
+    const viewBtns = document.querySelectorAll(".view-emp-btn");
+
+    viewBtns.forEach(btn => {
+        btn.addEventListener("click", function () {
+
+            const empId = this.dataset.id;
+            const modal = new bootstrap.Modal(document.getElementById('viewEmpModal'));
+
+            // Show loading
+            document.getElementById('viewEmpDetails').innerHTML = `
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            `;
+
+            modal.show();
+
+            // Fetch employee details
+            fetch(`/admin/api/employee/${empId}`)
+                .then(res => res.json())
+                .then(data => {
+
+                    // Check if error occurred
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    // Projects HTML
+                    let projectsHtml = '';
+                    if (data.projects && data.projects.length > 0) {
+                        data.projects.forEach(p => {
+                            projectsHtml += `<span class="badge bg-info me-1 mb-1">${p.project_name} (${p.status})</span>`;
+                        });
+                    } else {
+                        projectsHtml = '<span class="text-muted">Not assigned to any project</span>';
+                    }
+
+                    // Team Members HTML with CSS classes
+                    // Team Members HTML (compact version)
+                    let teamHtml = '';
+                    if (data.team_members && data.team_members.length > 0) {
+                        teamHtml = '<div style="max-height: 400px; overflow-y: auto;">';
+                        data.team_members.forEach(m => {
+                            teamHtml += `
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="user-avatar me-2" style="width: 32px; height: 32px; font-size: 0.8rem; flex-shrink: 0;">
+                                        ${m.name ? m.name[0].toUpperCase() : '?'}
+                                    </div>
+                                    <div>
+                                        <strong style="font-size: 0.9rem;">${m.name || 'Unknown'}</strong>
+                                        <small class="text-muted d-block" style="font-size: 0.8rem;">${m.role || 'employee'} (${m.project_role || 'Member'})</small>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        teamHtml += '</div>';
+                    } else {
+                        teamHtml = '<p class="text-muted">No team members found</p>';
+                    }
+                    // Last Login HTML
+                    let lastLoginHtml = 'Never';
+                    if (data.last_login) {
+                        try {
+                            const date = new Date(data.last_login);
+                            lastLoginHtml = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                        } catch (e) {
+                            lastLoginHtml = 'Invalid date';
+                        }
+                    }
+
+                    document.getElementById('viewEmpDetails').innerHTML = `
+                        <div class="row">
+                            <!-- Left Column - Employee Details -->
+                            <div class="col-md-6 border-end">
+                                <div class="pe-3">
+                                    <label class="fw-bold text-muted small">Full Name</label>
+                                    <p class="mb-2">${data.employee?.name || '-'}</p>
+                                    
+                                    <label class="fw-bold text-muted small">Username</label>
+                                    <p class="mb-2">${data.employee?.username || '-'}</p>
+                                    
+                                    <label class="fw-bold text-muted small">Email</label>
+                                    <p class="mb-2">${data.employee?.email || '-'}</p>
+                                    
+                                    <label class="fw-bold text-muted small">Designation</label>
+                                    <p class="mb-2">${data.employee?.designation || '-'}</p>
+                                    
+                                    <label class="fw-bold text-muted small">Role</label>
+                                    <p class="mb-2">${data.employee?.role || '-'}</p>
+                                    
+                                    <label class="fw-bold text-muted small">Working On</label>
+                                    <p class="mb-2">${projectsHtml}</p>
+                                    
+                                    <label class="fw-bold text-muted small mt-2">Last Active</label>
+                                    <p class="mb-0">${lastLoginHtml}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column - Team Members -->
+                            <div class="col-md-6">
+                                <div class="ps-3">
+                                    <label class="fw-bold text-muted small">Team Members</label>
+                                    ${teamHtml}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                })
+                .catch(err => {
+                    console.error('View employee error:', err);
+                    document.getElementById('viewEmpDetails').innerHTML = `
+                        <div class="alert alert-danger mb-0">
+                            Error loading employee details: ${err.message || 'Something went wrong'} ❌
+                        </div>
+                    `;
+                });
+        });
+    });
+}

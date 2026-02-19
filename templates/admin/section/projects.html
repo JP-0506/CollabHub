@@ -213,142 +213,143 @@
         </div>
 
 
+        <div class="table-container">
+            <table class="custom-table">
 
-        <table class="custom-table">
+                <thead>
 
-            <thead>
+                    <tr>
+                        <th>Project Name</th>
+                        <th>Team Leader</th>
+                        <th>Team Members</th>
+                        <th>Progress</th>
+                        <th>Status</th>
+                        <th>Due Date</th>
+                        <th>Actions</th>
+                    </tr>
 
-                <tr>
-                    <th>Project Name</th>
-                    <th>Team Leader</th>
-                    <th>Team Members</th>
-                    <th>Progress</th>
-                    <th>Status</th>
-                    <th>Due Date</th>
-                    <th>Actions</th>
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                {% for p in projects %}
-
-                <tr>
-
-                    <!-- Name -->
-                    <td>
-
-                        <div class="d-flex align-items-center">
-
-                            <div class="user-avatar me-3"
-                                style="width:36px;height:36px;font-size:0.9rem;background:#3b82f6;">
-
-                                {{ p.project_name[:1]|upper }}
-
-                            </div>
-
-                            <div>
-
-                                <div class="fw-bold">{{ p.project_name }}</div>
-
-                                <small class="text-muted">Project Team</small>
-
-                            </div>
-
-                        </div>
-
-                    </td>
+                </thead>
 
 
-                    <!-- Leader -->
-                    <td>{{ p.leader_name or "-" }}</td>
+                <tbody>
 
+                    {% for p in projects %}
 
-                    <!-- Members -->
-                    <td>{{ p.member_count or 0 }}</td>
+                    <tr>
 
+                        <!-- Name -->
+                        <td>
 
-                    <!-- Progress -->
-                    <td>
+                            <div class="d-flex align-items-center">
 
-                        <div class="d-flex align-items-center">
+                                <div class="user-avatar me-3 view-project-btn" data-id="{{ p.project_id }}"
+                                    data-name="{{ p.project_name }}" style="cursor: pointer; background:#3b82f6;"
+                                    title="Click to view project details">
+                                    {{ p.project_name[:1]|upper }}
+                                </div>
 
-                            <div class="progress-container me-2" style="flex:1;">
+                                <div>
 
-                                <div class="progress-bar" data-width="{{ p.progress or 0 }}"></div>
+                                    <div class="fw-bold">{{ p.project_name }}</div>
+
+                                    <small class="text-muted">Project Team</small>
+
+                                </div>
 
                             </div>
 
-                            <small>{{ p.progress or 0 }}%</small>
-
-                        </div>
-
-                    </td>
+                        </td>
 
 
-                    <!-- Status -->
-                    <td>
-
-                        <span class="status-badge status-{{ p.status }}">
-                            {{ p.status|capitalize }}
-                        </span>
-
-                    </td>
+                        <!-- Leader -->
+                        <td>{{ p.leader_name or "-" }}</td>
 
 
-                    <!-- Due -->
-                    <td>{{ p.end_date or "-" }}</td>
+                        <!-- Members -->
+                        <td>{{ p.member_count or 0 }}</td>
 
 
-                    <!-- Actions -->
-                    <td>
+                        <!-- Progress -->
+                        <td>
 
-                        <div class="d-flex gap-2">
+                            <div class="d-flex align-items-center">
+
+                                <div class="progress-container me-2" style="flex:1;">
+
+                                    <div class="progress-bar" data-width="{{ p.progress or 0 }}"></div>
+
+                                </div>
+
+                                <small>{{ p.progress or 0 }}%</small>
+
+                            </div>
+
+                        </td>
 
 
-                            <!-- EDIT -->
-                            <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
-                                data-id="{{ p.project_id }}" data-name="{{ p.project_name }}"
-                                data-status="{{ p.status }}" data-progress="{{ p.progress }}"
-                                data-start="{{ p.start_date }}" data-end="{{ p.end_date }}" data-desc="{{ p.features }}"
-                                data-leader="{{ p.leader_id }}">
+                        <!-- Status -->
+                        <td>
 
-                                <i class="fas fa-edit"></i>
-                            </button>
+                            <span class="status-badge status-{{ p.status }}">
+                                {{ p.status|capitalize }}
+                            </span>
+
+                        </td>
 
 
-                            <!-- DELETE -->
-                            <form method="POST" action="{{ url_for('admin.delete_project', project_id=p.project_id) }}"
-                                style="display:inline;" onsubmit="return confirm('Delete this project?')">
+                        <!-- Due -->
+                        <td>{{ p.end_date or "-" }}</td>
 
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    <i class="fas fa-trash"></i>
+
+                        <!-- Actions -->
+                        <td>
+
+                            <div class="d-flex gap-2">
+
+
+                                <!-- EDIT -->
+                                <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                                    data-id="{{ p.project_id }}" data-name="{{ p.project_name }}"
+                                    data-status="{{ p.status }}" data-progress="{{ p.progress }}"
+                                    data-start="{{ p.start_date }}" data-end="{{ p.end_date }}"
+                                    data-desc="{{ p.features }}" data-leader="{{ p.leader_id }}">
+
+                                    <i class="fas fa-edit"></i>
                                 </button>
 
-                            </form>
+
+                                <!-- DELETE -->
+                                <form method="POST"
+                                    action="{{ url_for('admin.delete_project', project_id=p.project_id) }}"
+                                    style="display:inline;" onsubmit="return confirm('Delete this project?')">
+
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+
+                                </form>
 
 
-                        </div>
+                            </div>
 
-                    </td>
+                        </td>
 
-                </tr>
+                    </tr>
 
-                {% else %}
+                    {% else %}
 
-                <tr>
-                    <td colspan="7" class="text-center text-muted">
-                        No projects found
-                    </td>
-                </tr>
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">
+                            No projects found
+                        </td>
+                    </tr>
 
-                {% endfor %}
+                    {% endfor %}
 
-            </tbody>
+                </tbody>
 
-        </table>
+            </table>
+        </div>
 
     </div>
 
@@ -437,7 +438,7 @@
 
 
                         <!-- Status -->
-                        <div class="col-md-6">
+                        <!-- <div class="col-md-6">
 
                             <label class="form-label">Status</label>
 
@@ -450,7 +451,7 @@
 
                             </select>
 
-                        </div>
+                        </div> -->
 
 
                         <!-- Progress -->
@@ -554,7 +555,8 @@
                                 Leader
                             </label>
 
-                            <select class="form-select" name="leader_id" id="editProjectLeader">
+                            <input type="hidden" name="leader_id" id="hiddenLeaderId">
+                            <select class="form-select" id="editProjectLeader">
 
                                 <option value="" hidden>
                                     Select Leader
@@ -598,7 +600,7 @@
 
 
                         <!-- Status -->
-                        <div class="col-md-6">
+                        <!-- <div class="col-md-6">
 
                             <label class="form-label">
                                 Status
@@ -613,7 +615,7 @@
 
                             </select>
 
-                        </div>
+                        </div> -->
 
 
                         <!-- Progress -->
@@ -671,6 +673,26 @@
 
     </div>
 
+</div>
+
+<!-- ================= VIEW PROJECT MODAL ================= -->
+<div class="modal fade" id="viewProjectModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewProjectModalTitle">Project Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="viewProjectDetails">
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

@@ -1,5 +1,11 @@
 from flask import (
-    Blueprint, render_template, request, redirect, url_for, jsonify, session
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    jsonify,
+    session,
 )
 from database.db import get_db
 from psycopg2.extras import RealDictCursor
@@ -47,11 +53,14 @@ def dashboard():
     # -----------------------------
     # User Info
     # -----------------------------
-    cur.execute("""
+    cur.execute(
+        """
         SELECT name, email, role
         FROM users
         WHERE user_id = %s
-    """, (user_id,))
+    """,
+        (user_id,),
+    )
     user = cur.fetchone() or {}
 
     # ==========================================================
@@ -62,7 +71,8 @@ def dashboard():
     # -----------------------------
     # Task Stats (ONLY non-deleted projects)
     # -----------------------------
-    cur.execute("""
+    cur.execute(
+        """
         SELECT
             COUNT(*) AS total_tasks,
             COUNT(*) FILTER (WHERE t.status = 'completed') AS completed_tasks,
@@ -72,25 +82,31 @@ def dashboard():
         JOIN projects p ON p.project_id = t.project_id
         WHERE t.assigned_to = %s
           AND p.is_deleted = FALSE
-    """, (user_id,))
+    """,
+        (user_id,),
+    )
     stats = cur.fetchone() or {}
 
     # -----------------------------
     # Project Count (ONLY non-deleted projects)
     # -----------------------------
-    cur.execute("""
+    cur.execute(
+        """
         SELECT COUNT(DISTINCT pm.project_id) AS project_count
         FROM project_members pm
         JOIN projects p ON p.project_id = pm.project_id
         WHERE pm.user_id = %s
           AND p.is_deleted = FALSE
-    """, (user_id,))
+    """,
+        (user_id,),
+    )
     project_count = (cur.fetchone() or {}).get("project_count", 0) or 0
 
     # -----------------------------
     # Weekly Completed Tasks (ONLY non-deleted projects)
     # -----------------------------
-    cur.execute("""
+    cur.execute(
+        """
         SELECT
             EXTRACT(DOW FROM t.due_date) AS dow,
             COUNT(*) FILTER (WHERE t.status = 'completed') AS completed_count
@@ -101,7 +117,9 @@ def dashboard():
           AND p.is_deleted = FALSE
         GROUP BY dow
         ORDER BY dow
-    """, (user_id,))
+    """,
+        (user_id,),
+    )
     weekly_db_data = cur.fetchall() or []
 
     week_days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -130,6 +148,7 @@ def dashboard():
         active_page="dashboard",
     )
 
+
 # ============================
 # MY WORK
 # ============================
@@ -143,7 +162,8 @@ def my_work():
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    cur.execute("""
+    cur.execute(
+        """
     SELECT 
         t.task_id,
         t.title,
@@ -155,10 +175,13 @@ def my_work():
     WHERE t.assigned_to = %s
     AND p.is_deleted = FALSE   -- 🔥 hide deleted project tasks
     ORDER BY t.due_date ASC NULLS LAST
-    """, (user_id,))
+    """,
+        (user_id,),
+    )
     project = cur.fetchone()
 
-    cur.execute("""
+    cur.execute(
+        """
     SELECT 
         t.task_id,
         t.title,
@@ -170,7 +193,9 @@ def my_work():
     WHERE t.assigned_to = %s
     AND p.is_deleted = FALSE   -- 🔥 hide deleted project tasks
     ORDER BY t.due_date ASC NULLS LAST
-    """, (user_id,))
+    """,
+        (user_id,),
+    )
     tasks = cur.fetchall() or []
 
     total_tasks = len(tasks)
@@ -204,36 +229,42 @@ def submit_task(task_id):
     cur = conn.cursor()
 
     # Check current status first
-    cur.execute("""
+    cur.execute(
+        """
         SELECT status FROM tasks 
         WHERE task_id = %s AND assigned_to = %s
-    """, (task_id, user_id))
-    
+    """,
+        (task_id, user_id),
+    )
+
     task = cur.fetchone()
     if not task:
         cur.close()
         conn.close()
         return jsonify({"success": False, "message": "Task not found"}), 404
-    
-    if task[0] == 'submitted':
+
+    if task[0] == "submitted":
         cur.close()
         conn.close()
         return jsonify({"success": False, "message": "Task already submitted"}), 400
-    
-    if task[0] == 'approved':
+
+    if task[0] == "approved":
         cur.close()
         conn.close()
         return jsonify({"success": False, "message": "Task already approved"}), 400
 
     # Update to submitted status
-    cur.execute("""
+    cur.execute(
+        """
         UPDATE tasks
         SET status = 'submitted', 
             submitted_at = CURRENT_TIMESTAMP,
             last_action_by = %s,
             last_action_at = CURRENT_TIMESTAMP
         WHERE task_id = %s AND assigned_to = %s
-    """, (user_id, task_id, user_id))
+    """,
+        (user_id, task_id, user_id),
+    )
 
     conn.commit()
     updated = cur.rowcount
@@ -242,7 +273,10 @@ def submit_task(task_id):
     conn.close()
 
     if updated == 0:
-        return jsonify({"success": False, "message": "Task not found / not allowed"}), 403
+        return (
+            jsonify({"success": False, "message": "Task not found / not allowed"}),
+            403,
+        )
 
     return jsonify({"success": True, "message": "Task submitted for review"})
 
@@ -265,11 +299,14 @@ def profile():
         email = (request.form.get("email") or "").strip()
 
         # update ONLY name & email
-        cur.execute("""
+        cur.execute(
+            """
             UPDATE users
             SET name=%s, email=%s, updated_at=CURRENT_TIMESTAMP
             WHERE user_id=%s
-        """, (name, email, user_id))
+        """,
+            (name, email, user_id),
+        )
         conn.commit()
 
         # keep sidebar name updated
@@ -278,18 +315,22 @@ def profile():
 
         return redirect(url_for("employee.profile"))
 
-    cur.execute("""
+    cur.execute(
+        """
         SELECT name, email, role, designation, avatar
         FROM users
         WHERE user_id = %s
-    """, (user_id,))
+    """,
+        (user_id,),
+    )
     user = cur.fetchone() or {}
 
     cur.close()
     conn.close()
 
-    return render_template("employees/employee_profile.html", user=user, active_page="profile")
-
+    return render_template(
+        "employees/employee_profile.html", user=user, active_page="profile"
+    )
 
 
 # ============================
@@ -311,7 +352,12 @@ def change_password():
         return jsonify({"success": False, "message": "All fields are required"}), 400
 
     if len(new_password) < 8:
-        return jsonify({"success": False, "message": "Password must be at least 8 characters"}), 400
+        return (
+            jsonify(
+                {"success": False, "message": "Password must be at least 8 characters"}
+            ),
+            400,
+        )
 
     if new_password != confirm_password:
         return jsonify({"success": False, "message": "Passwords do not match"}), 400
@@ -324,22 +370,32 @@ def change_password():
     cur.execute("SELECT password_hash FROM auth WHERE user_id=%s", (user_id,))
     row = cur.fetchone()
     if not row:
-        cur.close(); conn.close()
+        cur.close()
+        conn.close()
         return jsonify({"success": False, "message": "Auth record not found"}), 404
 
     if row[0] != current_password:
-        cur.close(); conn.close()
+        cur.close()
+        conn.close()
         return jsonify({"success": False, "message": "Current password is wrong"}), 400
 
-    cur.execute("""
+    cur.execute(
+        """
         UPDATE auth
         SET password_hash=%s, updated_at=CURRENT_TIMESTAMP
         WHERE user_id=%s
-    """, (new_password, user_id))
+    """,
+        (new_password, user_id),
+    )
     conn.commit()
 
-    cur.close(); conn.close()
-    return jsonify({"success": True, "message": "Password changed successfully ✅"}), 200
+    cur.close()
+    conn.close()
+    return (
+        jsonify({"success": True, "message": "Password changed successfully ✅"}),
+        200,
+    )
+
 
 # ============================
 # TEAM
@@ -355,24 +411,29 @@ def my_team():
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     # ✅ Only take project_ids that are NOT deleted
-    cur.execute("""
+    cur.execute(
+        """
         SELECT pm.project_id
         FROM project_members pm
         JOIN projects p ON pm.project_id = p.project_id
         WHERE pm.user_id = %s
           AND p.is_deleted = FALSE
           AND pm.is_deleted = FALSE
-    """, (user_id,))
+    """,
+        (user_id,),
+    )
     project_ids = [row["project_id"] for row in (cur.fetchall() or [])]
 
     if not project_ids:
-        cur.close(); conn.close()
-        return render_template("employees/employee_team.html",
-                               team_members=[],
-                               active_page="team")
+        cur.close()
+        conn.close()
+        return render_template(
+            "employees/employee_team.html", team_members=[], active_page="team"
+        )
 
     # ✅ Also ensure members come only from NOT deleted projects
-    cur.execute("""
+    cur.execute(
+        """
         SELECT u.user_id, u.name, u.email, u.designation, u.avatar,
                pm.role_in_project, pm.project_id
         FROM users u
@@ -382,12 +443,14 @@ def my_team():
           AND p.is_deleted = FALSE
           AND pm.is_deleted = FALSE
         ORDER BY pm.project_id, u.name
-    """, (project_ids,))
+    """,
+        (project_ids,),
+    )
     team_members = cur.fetchall() or []
 
     cur.close()
     conn.close()
 
-    return render_template("employees/employee_team.html",
-                           team_members=team_members,
-                           active_page="team")
+    return render_template(
+        "employees/employee_team.html", team_members=team_members, active_page="team"
+    )

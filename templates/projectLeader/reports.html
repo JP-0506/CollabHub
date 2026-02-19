@@ -38,9 +38,9 @@
             <div class="report-stat-icon bg-soft-primary">
                 <i class="fas fa-tasks"></i>
             </div>
-            <span class="report-stat-value">{{ task_stats[0] or 0 }}</span>
+            <span class="report-stat-value">{{ task_stats[0] if task_stats else 0 }}</span>
             <span class="report-stat-label">Total Tasks</span>
-            <small class="text-muted d-block mt-2">{{ task_stats[2] or 0 }} in progress</small>
+            <small class="text-muted d-block mt-2">{{ task_stats[2] if task_stats else 0 }} in progress</small>
         </div>
     </div>
     <div class="col-md-3">
@@ -48,7 +48,7 @@
             <div class="report-stat-icon bg-soft-success">
                 <i class="fas fa-check-circle"></i>
             </div>
-            <span class="report-stat-value">{{ task_stats[1] or 0 }}</span>
+            <span class="report-stat-value">{{ task_stats[1] if task_stats else 0 }}</span>
             <span class="report-stat-label">Completed</span>
             <small class="text-success d-block mt-2">{{ completion_rate }}% completion rate</small>
         </div>
@@ -58,7 +58,7 @@
             <div class="report-stat-icon bg-soft-warning">
                 <i class="fas fa-users"></i>
             </div>
-            <span class="report-stat-value">{{ team_count }}</span>
+            <span class="report-stat-value">{{ team_count if team_count else 0 }}</span>
             <span class="report-stat-label">Team Members</span>
             <small class="text-muted d-block mt-2">Active members</small>
         </div>
@@ -68,7 +68,7 @@
             <div class="report-stat-icon bg-soft-danger">
                 <i class="fas fa-clock"></i>
             </div>
-            <span class="report-stat-value">{{ task_stats[4] or 0 }}</span>
+            <span class="report-stat-value">{{ task_stats[4] if task_stats else 0 }}</span>
             <span class="report-stat-label">Overdue Tasks</span>
             <small class="text-danger d-block mt-2">Need attention</small>
         </div>
@@ -146,13 +146,13 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="report-summary-box">
-                        <div class="report-summary-value">{{ task_stats[2] or 0 }}</div>
+                        <div class="report-summary-value">{{ task_stats[2] if task_stats else 0 }}</div>
                         <div class="report-summary-label">In Progress</div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="report-summary-box">
-                        <div class="report-summary-value">{{ task_stats[3] or 0 }}</div>
+                        <div class="report-summary-value">{{ task_stats[3] if task_stats else 0 }}</div>
                         <div class="report-summary-label">Pending Review</div>
                     </div>
                 </div>
@@ -231,7 +231,8 @@
     <div class="report-timeline">
         {% for activity in recent_activities %}
         <div class="report-timeline-item">
-            <div class="report-timeline-dot {% if activity[0] == 'task_completed' %}task{% else %}user{% endif %}"></div>
+            <div class="report-timeline-dot {% if activity[0] == 'task_completed' %}task{% else %}user{% endif %}">
+            </div>
             <div>
                 <p class="mb-1">
                     <strong>{{ activity[2] }}</strong>
@@ -263,19 +264,19 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">To <span class="text-danger">*</span></label>
-                        <input type="email" name="recipients" class="form-control" 
-                               placeholder="email@example.com" multiple required>
+                        <input type="email" name="recipients" class="form-control" placeholder="email@example.com"
+                            multiple required>
                         <small class="text-muted">Separate multiple emails with commas</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Subject</label>
-                        <input type="text" name="subject" class="form-control" 
-                               value="Project Report: {{ project[1] if project else 'Project' }}">
+                        <input type="text" name="subject" class="form-control"
+                            value="Project Report: {{ project[1] if project else 'Project' }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Message (optional)</label>
-                        <textarea name="message" class="form-control" rows="3" 
-                                  placeholder="Add a personal message..."></textarea>
+                        <textarea name="message" class="form-control" rows="3"
+                            placeholder="Add a personal message..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

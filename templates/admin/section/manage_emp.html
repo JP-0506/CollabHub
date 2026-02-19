@@ -121,167 +121,269 @@
 
         </div>
 
+        <div class="table-container">
+            <table class="custom-table">
 
-        <table class="custom-table">
+                <thead>
+                    <tr>
 
-            <thead>
-                <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Designation</th>
+                        <th>Role</th>
 
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Designation</th>
-                    <th>Role</th>
+                        <th>Working On</th> <!-- Project Name -->
 
-                    <th>Working On</th> <!-- Project Name -->
+                        <th>Status</th>
+                        <th>Last Active</th>
+                        <th>Actions</th>
 
-                    <th>Status</th>
-                    <th>Last Active</th>
-                    <th>Actions</th>
-
-                </tr>
-            </thead>
+                    </tr>
+                </thead>
 
 
-            <tbody>
+                <tbody>
 
-                {% for emp in employees %}
+                    {% for emp in employees %}
 
-                <tr>
+                    <tr>
 
-                    <!-- Name -->
-                    <td>
-                        <div class="d-flex align-items-center">
+                        <!-- Name -->
+                        <td>
+                            <div class="d-flex align-items-center">
 
-                            <div class="user-avatar me-3">
-                                {{ emp.name[:1]|upper }}
+                                <!-- <div class="user-avatar me-3">
+                                    {{ emp.name[:1]|upper }}
+                                </div> -->
+                                <div class="user-avatar me-3 view-emp-btn" data-id="{{ emp.user_id }}"
+                                    style="cursor: pointer;" title="Click to view details">
+                                    {{ emp.name[:1]|upper }}
+                                </div>
+
+                                <div class="fw-bold">
+                                    {{ emp.name }}
+                                </div>
+
                             </div>
-
-                            <div class="fw-bold">
-                                {{ emp.name }}
-                            </div>
-
-                        </div>
-                    </td>
+                        </td>
 
 
-                    <!-- Email -->
-                    <td>
-                        {{ emp.email }}
-                    </td>
+                        <!-- Email -->
+                        <td>
+                            {{ emp.email }}
+                        </td>
 
 
-                    <!-- Designation -->
-                    <td>
-                        {{ emp.designation }}
-                    </td>
+                        <!-- Designation -->
+                        <td>
+                            {{ emp.designation }}
+                        </td>
 
 
-                    <!-- Role -->
-                    <td>
-                        {{ emp.role|capitalize }}
-                    </td>
+                        <!-- Role -->
+                        <td>
+                            {{ emp.role|capitalize }}
+                        </td>
 
 
-                    <!-- Working On (Project) -->
-                    <td>
+                        <!-- Working On (Project) -->
+                        <td>
 
-                        {% if emp.project_name is not none %}
+                            {% if emp.project_name is not none %}
 
-                        <span class="badge bg-info">
-                            {{ emp.project_name }}
-                        </span>
+                            <span class="badge bg-info">
+                                {{ emp.project_name }}
+                            </span>
 
-                        {% else %}
+                            {% else %}
 
-                        <span class="text-muted">
-                            Not Assigned
-                        </span>
+                            <span class="text-muted">
+                                Not Assigned
+                            </span>
 
-                        {% endif %}
+                            {% endif %}
 
-                    </td>
-
-
-                    <!-- Status -->
-                    <td>
-
-                        {% if emp.is_active %}
-
-                        <span class="status-badge status-active">
-                            Active
-                        </span>
-
-                        {% else %}
-
-                        <span class="status-badge status-inactive">
-                            Inactive
-                        </span>
-
-                        {% endif %}
-
-                    </td>
+                        </td>
 
 
-                    <!-- Created Date -->
-                    <td>
-                        {{ emp.created_at.strftime('%d %b %Y') if emp.created_at else '-' }}
-                    </td>
+                        <!-- Status -->
+                        <td>
+
+                            {% if emp.is_active and not emp.is_registered %}
+
+                            <span class="status-badge status-inactive">
+                                registered
+                            </span>
+
+                            {% elif emp.is_active and emp.is_registered %}
+
+                            <span class="status-badge status-active">
+                                Active
+                            </span>
+
+                            {% else %}
+
+                            <span class="status-badge status-inactive">
+                                Inactive
+                            </span>
+
+                            {% endif %}
+
+                        </td>
 
 
-                    <!-- Actions -->
-                    <td>
-
-                        <div class="d-flex gap-2">
-
-                            <!-- Edit -->
-                            <!-- TODO: below button is temparay bc we will not give route here -->
-                            <button class="btn btn-sm btn-outline-primary edit-emp-btn" data-id="{{ emp.user_id }}"
-                                data-name="{{ emp.name }}" data-email="{{ emp.email }}"
-                                data-designation="{{ emp.designation }}" data-role="{{ emp.role }}"
-                                data-status="{{ 1 if emp.is_active else 0 }}">
-                                <i class="fas fa-edit"></i>
-                            </button>
+                        <!-- Created Date -->
+                        <td>
+                            {{ emp.created_at.strftime('%d %b %Y') if emp.created_at else '-' }}
+                        </td>
 
 
-                            <!-- Delete -->
-                            <!-- TODO: below button is temparay bc we will not give route here -->
-                            <!-- <a href="{{ url_for('admin.delete_employee', id=emp.user_id) }}"
-                                    class="btn btn-sm btn-outline-danger" title="Delete"
-                                    onclick="return confirm('Delete this employee?')" disabled>
+                        <!-- Actions -->
+                        <td>
+
+                            <div class="d-flex gap-2">
+
+                                <!-- Edit -->
+                                <button class="btn btn-sm btn-outline-primary edit-emp-btn" data-id="{{ emp.user_id }}"
+                                    data-name="{{ emp.name }}" data-email="{{ emp.email }}"
+                                    data-designation="{{ emp.designation }}" data-role="{{ emp.role }}"
+                                    data-status="{{ 1 if emp.is_active else 0 }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+
+                                <!-- Delete -->
+                                <button class="btn btn-sm btn-outline-danger delete-emp-btn" data-id="{{ emp.user_id }}"
+                                    data-name="{{ emp.name }}">
 
                                     <i class="fas fa-trash"></i>
+                                </button>
 
-                                </a> -->
+                            </div>
 
-                            <button class="btn btn-sm btn-outline-danger" disabled>
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        </td>
 
-                        </div>
-
-                    </td>
-
-                </tr>
+                    </tr>
 
 
-                {% else %}
+                    {% else %}
 
-                <tr>
+                    <tr>
 
-                    <td colspan="7" class="text-center text-muted">
+                        <td colspan="7" class="text-center text-muted">
 
-                        No employees found
+                            No employees found
 
-                    </td>
+                        </td>
 
-                </tr>
+                    </tr>
 
-                {% endfor %}
+                    {% endfor %}
 
-            </tbody>
+                </tbody>
 
-        </table>
+            </table>
+        </div>
 
+    </div>
+
+    <!-- ================= PAST MEMBERS TABLE ================= -->
+
+    <div class="past-members-section">
+        <div class="section-header">
+            <h5>
+                <i class="fas fa-user-slash"></i>
+                Past Members (Removed from Company)
+            </h5>
+            <span class="member-count-badge">{{ past_employees_count|default(0) }} members</span>
+        </div>
+
+        <!-- Scrollable container -->
+        <div class="past-members-container">
+            <table class="past-members-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Designation</th>
+                        <th>Role</th>
+                        <th>Last Project</th>
+                        <th>Removed On</th>
+                        <th>Last Active</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for emp in past_employees %}
+                    <tr>
+                        <!-- Name -->
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="past-member-avatar">
+                                    {{ emp.name[:1]|upper }}
+                                </div>
+                                <div class="fw-bold">
+                                    {{ emp.name }}
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Email -->
+                        <td>
+                            {{ emp.email }}
+                        </td>
+
+                        <!-- Designation -->
+                        <td>
+                            {{ emp.designation }}
+                        </td>
+
+                        <!-- Role -->
+                        <td>
+                            {{ emp.role|capitalize }}
+                        </td>
+
+                        <!-- Last Project (if any) -->
+                        <td>
+                            {% if emp.last_project %}
+                            <span class="last-project-badge">
+                                {{ emp.last_project }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">
+                                No project
+                            </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Removed On (when is_active became false) -->
+                        <td>
+                            {% if emp.updated_at %}
+                            <span class="date-text">{{ emp.updated_at.strftime('%d %b %Y') }}</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Last Active (from login_logs) -->
+                        <td>
+                            {% if emp.last_login %}
+                            <span class="date-text">{{ emp.last_login.strftime('%d %b %Y') }}</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="no-past-members">
+                            <i class="fas fa-user-slash"></i>
+                            No past members found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>
@@ -372,7 +474,7 @@
 
                         </div>
 
-                        <div class="col-md-6">
+                        <!-- <div class="col-md-6">
 
                             <label class="form-label">
                                 Status
@@ -390,7 +492,7 @@
 
                             </select>
 
-                        </div>
+                        </div> -->
 
                     </div>
 
@@ -422,22 +524,20 @@
 
 </div>
 
+
 <!-- ================= EDIT EMPLOYEE MODAL ================= -->
 
 <div class="modal fade" id="editEmpModal" tabindex="-1">
 
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-md">
 
         <div class="modal-content">
 
             <div class="modal-header">
-
                 <h5 class="modal-title fw-bold">
                     Edit Employee
                 </h5>
-
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-
             </div>
 
             <form method="POST" id="editEmpForm">
@@ -447,41 +547,22 @@
                     <div class="row g-3">
 
                         <!-- Hidden ID -->
-                        <input type="hidden" id="editEmpId">
-
-                        <!-- Name -->
-                        <div class="col-md-6">
-                            <label class="form-label">Full Name *</label>
-                            <input type="text" name="name" id="editEmpName" class="form-control" required>
-                        </div>
-
-                        <!-- Email -->
-                        <div class="col-md-6">
-                            <label class="form-label">Email *</label>
-                            <input type="email" name="email" id="editEmpEmail" class="form-control" required>
-                        </div>
+                        <input type="hidden" name="user_id" id="editEmpId">
 
                         <!-- Designation -->
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label class="form-label">Designation *</label>
                             <input type="text" name="designation" id="editEmpDesignation" class="form-control" required>
                         </div>
 
                         <!-- Role -->
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label class="form-label">Role *</label>
                             <select name="role" id="editEmpRole" class="form-select" required>
-                                <option value="project_leader">Project Leader</option>
-                                <option value="employee">Employee</option>
-                            </select>
-                        </div>
 
-                        <!-- Status -->
-                        <div class="col-md-6">
-                            <label class="form-label">Status</label>
-                            <select name="status" id="editEmpStatus" class="form-select">
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
+                                <option value="employee">Employee</option>
+                                <option value="project_leader">Project Leader</option>
+
                             </select>
                         </div>
 
@@ -490,15 +571,13 @@
                 </div>
 
                 <div class="modal-footer">
-
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         Cancel
                     </button>
 
                     <button type="submit" class="btn btn-primary">
-                        Update Employee
+                        Update
                     </button>
-
                 </div>
 
             </form>
@@ -509,7 +588,32 @@
 
 </div>
 
+<!-- View Employee Details Modal -->
+<div class="modal fade" id="viewEmpModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable"> <!-- Changed here -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Employee Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="viewEmpDetails" style="max-height: 70vh;"> <!-- Added max-height -->
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
+
+{% block extra_js %}
 <script src="{{ url_for('static', filename='js/admin/manage_emp.js') }}"></script>
+{% endblock %}
+
 
 {% endblock %}

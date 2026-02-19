@@ -28,16 +28,16 @@ def admin_login_required():
     return True
 
 
-# ============================
-# ADMIN HOME
-# ============================
-@admin_bp.route("/")
-def admin_home():
+# # ============================
+# # ADMIN HOME
+# # ============================
+# @admin_bp.route("/")
+# def admin_home():
 
-    if not admin_login_required():
-        return redirect(url_for("auth.login"))
+#     if not admin_login_required():
+#         return redirect(url_for("auth.login"))
 
-    return render_template("admin.html")
+#     return render_template("admin.html")
 
 
 @admin_bp.route("/dashboard")
@@ -314,7 +314,7 @@ def projects():
 
         project_name = request.form.get("project_name")
         leader_id = request.form.get("leader_id")
-        status = request.form.get("status")
+        # status = request.form.get("status")
         progress = request.form.get("progress") or 0
         start_date = request.form.get("start_date")
         end_date = request.form.get("end_date")
@@ -322,6 +322,14 @@ def projects():
 
         # Allow NULL leader
         leader_id = leader_id if leader_id else None
+
+        # 🔥 AUTO STATUS
+        if progress == 100:
+            status = "completed"
+        elif leader_id and progress > 0:
+            status = "ongoing"
+        else:
+            status = "planning"
 
         # Validation
         if not project_name:
@@ -342,6 +350,7 @@ def projects():
                 created_at
             )
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+            RETURNING project_id
             """,
             (
                 project_name,
@@ -354,6 +363,18 @@ def projects():
                 session["user_id"],
             ),
         )
+
+        project_id = cur.fetchone()["project_id"]
+
+        if leader_id:
+            cur.execute(
+                """
+                INSERT INTO project_members (project_id, user_id, role_in_project)
+                VALUES (%s, %s, 'leader')
+                ON CONFLICT DO NOTHING
+                """,
+                (project_id, leader_id),
+            )
 
         conn.commit()
 
@@ -526,7 +547,167 @@ def projects():
     )
 
 
-@admin_bp.route("/projects/edit/<int:project_id>", methods=["GET", "POST"])
+# to print details on avtar click
+@admin_bp.route("/api/project/<int:project_id>")
+def get_project_details(project_id):
+
+    if not admin_login_required():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Get project details with leader info
+    cur.execute(
+        """
+        SELECT 
+            p.project_id,
+            p.project_name,
+            p.features as description,
+            p.progress,
+            p.start_date,
+            p.end_date,
+            p.leader_id,
+            u.name as leader_name,
+            u.designation as leader_designation
+        FROM projects p
+        LEFT JOIN users u ON p.leader_id = u.user_id
+        WHERE p.project_id = %s AND p.is_deleted = FALSE
+    """,
+        (project_id,),
+    )
+
+    project = cur.fetchone()
+
+    if not project:
+        return jsonify({"error": "Project not found"}), 404
+
+    # Get team members
+    cur.execute(
+        """
+        SELECT 
+            u.name,
+            u.designation,
+            CASE WHEN p.leader_id = u.user_id THEN true ELSE false END as is_leader
+        FROM project_members pm
+        JOIN users u ON pm.user_id = u.user_id
+        JOIN projects p ON pm.project_id = p.project_id
+        WHERE pm.project_id = %s AND u.is_active = TRUE
+        ORDER BY is_leader DESC, u.name
+    """,
+        (project_id,),
+    )
+
+    members = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({"project": project, "members": members})
+
+
+# @admin_bp.route("/projects/edit/<int:project_id>", methods=["GET", "POST"])
+# # js will pass url like this: http://127.0.0.1:5000/admin/projects/edit/projectid(eg., 1,2,5,18,...)
+# def edit_project(project_id):
+
+#     if not admin_login_required():
+#         return redirect(url_for("auth.login"))
+
+#     conn = get_db()
+#     cur = conn.cursor(cursor_factory=RealDictCursor)
+
+#     # =====================
+#     # Fetch ACTIVE project
+#     # =====================
+#     cur.execute(
+#         """
+#         SELECT *
+#         FROM projects
+#         WHERE project_id = %s
+#         AND is_deleted = FALSE
+#     """,
+#         (project_id,),
+#     )
+
+#     project = cur.fetchone()
+
+#     if not project:
+#         cur.close()
+#         conn.close()
+#         return "Project not found or deleted ❌"
+
+#     # =====================
+#     # Fetch FREE Leaders
+#     # (Except leaders assigned to other projects)
+#     # =====================
+#     cur.execute(
+#         """
+#         SELECT user_id, name
+#         FROM users
+#         WHERE role = 'leader'
+#         AND is_active = TRUE
+#         AND user_id NOT IN (
+#             SELECT leader_id
+#             FROM projects
+#             WHERE project_id != %s
+#             AND leader_id IS NOT NULL
+#             AND is_deleted = FALSE
+#         )
+#     """,
+#         (project_id,),
+#     )
+
+#     free_leaders = cur.fetchall()
+
+#     # =====================
+#     # UPDATE PROJECT
+#     # =====================
+#     if request.method == "POST":
+
+#         name = request.form.get("project_name")
+#         status = request.form.get("status")
+#         progress = request.form.get("progress") or 0
+#         end_date = request.form.get("end_date")
+#         description = request.form.get("description")
+#         leader_id = request.form.get("leader_id")
+
+#     if leader_id is None or leader_id == "":
+#         leader_id = project["leader_id"]  # old value preserve
+#     else:
+#         leader_id = int(leader_id)
+
+#         cur.execute(
+#             """
+#             UPDATE projects
+#             SET
+#                 project_name = %s,
+#                 status = %s,
+#                 progress = %s,
+#                 end_date = %s,
+#                 features = %s,
+#                 leader_id = %s,
+#                 updated_at = NOW()
+#             WHERE project_id = %s
+#             AND is_deleted = FALSE
+#         """,
+#             (name, status, progress, end_date, description, leader_id, project_id),
+#         )
+
+#         conn.commit()
+
+#         cur.close()
+#         conn.close()
+
+#         return redirect(url_for("admin.projects"))
+
+#     # cur.close()
+#     # conn.close()
+
+
+#     # return render_template(
+#     #     "section/edit_project.html", project=project, free_leaders=free_leaders
+#     # )
+@admin_bp.route("/projects/edit/<int:project_id>", methods=["POST"])
 # js will pass url like this: http://127.0.0.1:5000/admin/projects/edit/projectid(eg., 1,2,5,18,...)
 def edit_project(project_id):
 
@@ -554,80 +735,72 @@ def edit_project(project_id):
     if not project:
         cur.close()
         conn.close()
-        return "Project not found or deleted ❌"
+        return redirect(url_for("admin.projects"))
 
-    # =====================
-    # Fetch FREE Leaders
-    # (Except leaders assigned to other projects)
-    # =====================
+    # Since route only POST, no need for request.method check
+    name = request.form.get("project_name")
+    # status = request.form.get("status")
+    progress = int(request.form.get("progress") or 0)
+    end_date = request.form.get("end_date")
+    description = request.form.get("description")
+
+    leader_id = request.form.get("leader_id")
+
+    if leader_id is None or leader_id == "":
+        leader_id = project["leader_id"]
+    else:
+        leader_id = int(leader_id)
+
+    # 🔥 AUTO STATUS
+    if progress == 100:
+        status = "completed"
+    elif leader_id and progress > 0:
+        status = "ongoing"
+    else:
+        status = "planning"
+
     cur.execute(
         """
-        SELECT user_id, name
-        FROM users
-        WHERE role = 'leader'
-        AND is_active = TRUE
-        AND user_id NOT IN (
-            SELECT leader_id
-            FROM projects
-            WHERE project_id != %s
-            AND leader_id IS NOT NULL
-            AND is_deleted = FALSE
-        )
+        UPDATE projects
+        SET
+            project_name = %s,
+            status = %s,
+            progress = %s,
+            end_date = %s,
+            features = %s,
+            leader_id = %s,
+            updated_at = NOW()
+        WHERE project_id = %s
+        AND is_deleted = FALSE
     """,
-        (project_id,),
+        (name, status, progress, end_date, description, leader_id, project_id),
     )
-
-    free_leaders = cur.fetchall()
-
-    # =====================
-    # UPDATE PROJECT
-    # =====================
-    if request.method == "POST":
-
-        name = request.form.get("project_name")
-        status = request.form.get("status")
-        progress = request.form.get("progress") or 0
-        end_date = request.form.get("end_date")
-        description = request.form.get("description")
-        leader_id = request.form.get("leader_id")  # 👈 NEW
-
+    # Insert leader into project_members also
+    if leader_id:
         cur.execute(
             """
-            UPDATE projects
-            SET
-                project_name = %s,
-                status = %s,
-                progress = %s,
-                end_date = %s,
-                features = %s,
-                leader_id = %s,
-                updated_at = NOW()
-            WHERE project_id = %s
-            AND is_deleted = FALSE
-        """,
-            (name, status, progress, end_date, description, leader_id, project_id),
+            INSERT INTO project_members (project_id, user_id, role_in_project)
+            VALUES (%s, %s, 'leader')
+            ON CONFLICT DO NOTHING
+            """,
+            (project_id, leader_id),
         )
-# If project marked as completed → free all members
+        # If project marked as completed → free all members
         if status == "completed":
-            cur.execute("""
+            cur.execute(
+                """
         UPDATE project_members
         SET is_deleted = TRUE
         WHERE project_id = %s
-    """, (project_id,))
+    """,
+                (project_id,),
+            )
 
-        conn.commit()
-
-        cur.close()
-        conn.close()
-
-        return redirect(url_for("admin.projects"))
-
+    conn.commit()
     cur.close()
     conn.close()
 
-    return render_template(
-        "section/edit_project.html", project=project, free_leaders=free_leaders
-    )
+    return redirect(url_for("admin.projects"))
 
 
 @admin_bp.route("/projects/delete/<int:project_id>", methods=["POST"])
@@ -661,162 +834,6 @@ def delete_project(project_id):
     return redirect(url_for("admin.projects"))
 
 
-# # ============================
-# # PROJECTS (GET + POST)
-# # ============================
-# @admin_bp.route("/projects", methods=["GET", "POST"])
-# def projects():
-
-#     if not admin_login_required():
-#         return redirect(url_for("auth.login"))
-
-#     conn = get_db()
-#     cur = conn.cursor(cursor_factory=RealDictCursor)
-
-#     # =====================
-#     # POST → ADD PROJECT
-#     # =====================
-#     if request.method == "POST":
-
-#         project_name = request.form.get("project_name")
-#         leader_id = request.form.get("leader_id")
-#         status = request.form.get("status")
-#         progress = request.form.get("progress") or 0
-#         start_date = request.form.get("start_date")
-#         end_date = request.form.get("end_date")
-#         description = request.form.get("description")
-
-#         leader_id = leader_id if leader_id else None
-
-#         # Validation
-#         if not project_name:
-#             return redirect(url_for("admin.projects"))
-
-#         cur.execute(
-#             """
-#             INSERT INTO projects
-#             (
-#                 project_name,
-#                 leader_id,
-#                 status,
-#                 progress,
-#                 start_date,
-#                 end_date,
-#                 features,
-#                 created_by,
-#                 created_at
-#             )
-#             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,NOW())
-#             """,
-#             (
-#                 project_name,
-#                 leader_id,
-#                 status,
-#                 progress,
-#                 start_date,
-#                 end_date,
-#                 description,
-#                 session["user_id"],
-#             ),
-#         )
-
-#         conn.commit()
-
-#         cur.close()
-#         conn.close()
-
-#         return redirect(url_for("admin.projects"))
-
-#     # =====================
-#     # GET → LOAD PAGE
-#     # =====================
-
-#     # Fetch projects
-#     cur.execute(
-#         """
-#         SELECT
-#             p.project_id,
-#             p.project_name,
-#             p.status,
-#             p.progress,
-#             p.start_date,
-#             p.end_date,
-#             p.features,
-#             u.name AS leader_name,
-
-#             COUNT(pm.user_id) AS member_count
-
-#         FROM projects p
-
-#         LEFT JOIN users u
-#             ON p.leader_id = u.user_id
-
-#         LEFT JOIN project_members pm
-#             ON p.project_id = pm.project_id
-
-#         GROUP BY
-#             p.project_id,
-#             u.name
-
-#         ORDER BY p.created_at DESC
-#     """
-#     )
-
-#     projects = cur.fetchall()
-
-#     # Fetch only FREE + ACTIVE + REGISTERED leaders
-#     cur.execute(
-#         """
-#         SELECT u.user_id, u.name
-#         FROM users u
-#         WHERE u.role = 'project_leader'
-#         AND u.is_active = TRUE
-#         AND u.is_registered = TRUE
-#         AND u.user_id NOT IN (
-
-#             SELECT leader_id
-#             FROM projects
-#             WHERE leader_id IS NOT NULL
-#             AND status IN ('ongoing', 'planning', 'on_hold')
-
-#         )
-#         ORDER BY u.name
-#     """
-#     )
-
-#     leaders = cur.fetchall()
-
-#     # Fetch counts
-#     cur.execute("SELECT COUNT(*) FROM projects")
-#     total = cur.fetchone()["count"]
-
-#     cur.execute("SELECT COUNT(*) FROM projects WHERE status='ongoing'")
-#     ongoing = cur.fetchone()["count"]
-
-#     cur.execute("SELECT COUNT(*) FROM projects WHERE status='completed'")
-#     completed = cur.fetchone()["count"]
-
-#     cur.execute("SELECT COUNT(*) FROM projects WHERE status='on_hold'")
-#     onhold = cur.fetchone()["count"]
-
-#     cur.execute("SELECT COUNT(*) FROM projects WHERE status='planning'")
-#     planning = cur.fetchone()["count"]
-
-#     cur.close()
-#     conn.close()
-
-#     return render_template(
-#         "section/projects.html",
-#         projects=projects,
-#         leaders=leaders,
-#         total_count=total,
-#         ongoing_count=ongoing,
-#         completed_count=completed,
-#         onhold_count=onhold,
-#         planning_count=planning,
-#     )
-
-
 # ============================
 # EMPLOYEES
 # ============================
@@ -838,9 +855,9 @@ def employees():
         email = request.form.get("email")
         designation = request.form.get("designation")
         role = request.form.get("role")
-        status = request.form.get("status")
+        # status = request.form.get("status")
 
-        is_active = True if status == "1" else False
+        is_active = True  # if status == "1" else False
 
         # Basic validation
         if not name or not email or not role:
@@ -878,6 +895,7 @@ def employees():
         u.designation,
         u.role,
         u.is_active,
+        u.is_registered,
         u.created_at,
 
         (
@@ -894,12 +912,61 @@ def employees():
     FROM users u
 
     WHERE u.role != 'admin'
+        AND u.is_active = true
 
     ORDER BY u.created_at DESC
     """
     )
 
     employees = cur.fetchall()
+
+    # ============================
+    # FETCH PAST MEMBERS (INACTIVE OR UNREGISTERED)
+    # ============================
+
+    cur.execute(
+        """
+    SELECT
+        u.user_id,
+        u.name,
+        u.email,
+        u.designation,
+        u.role,
+        u.is_active,
+        u.is_registered,
+        u.created_at,
+        u.updated_at,
+
+        (
+            SELECT p.project_name
+            FROM project_members pm
+            JOIN projects p
+                ON pm.project_id = p.project_id
+            WHERE pm.user_id = u.user_id
+              AND p.is_deleted = FALSE
+            ORDER BY p.created_at DESC
+            LIMIT 1
+        ) AS last_project,
+
+        (
+            SELECT login_time
+            FROM login_logs
+            WHERE user_id = u.user_id
+            ORDER BY login_time DESC
+            LIMIT 1
+        ) AS last_login
+
+    FROM users u
+
+    WHERE u.role != 'admin'
+        AND (u.is_active = FALSE AND u.is_registered = FALSE)
+
+    ORDER BY u.updated_at DESC
+    """
+    )
+
+    past_employees = cur.fetchall()
+    past_employees_count = len(past_employees)
 
     # ============================
     # STATS
@@ -911,6 +978,7 @@ def employees():
         SELECT COUNT(*) AS total
         FROM users
         WHERE role != 'admin'
+        AND is_active = TRUE
     """
     )
 
@@ -923,6 +991,7 @@ def employees():
         FROM users
         WHERE role != 'admin'
         AND is_active = TRUE
+        AND is_registered = TRUE
     """
     )
 
@@ -940,6 +1009,18 @@ def employees():
     )
 
     new_employees = cur.fetchone()["total"]
+
+    # Total past members count
+    cur.execute(
+        """
+        SELECT COUNT(*) AS total
+        FROM users
+        WHERE role != 'admin'
+        AND (is_active = FALSE AND is_registered = FALSE)
+    """
+    )
+
+    total_past = cur.fetchone()["total"]
 
     # ============================
     # DEPARTMENTS (DESIGNATION)
@@ -963,14 +1044,46 @@ def employees():
     return render_template(
         "section/manage_emp.html",
         employees=employees,
+        past_employees=past_employees,  # Add this
+        past_employees_count=past_employees_count,  # Add this
         total_employees=total_employees,
         active_employees=active_employees,
         new_employees=new_employees,
+        total_past=total_past,  # Add this
         departments=departments,
     )
 
 
-@admin_bp.route("/employee/edit/<int:id>", methods=["GET", "POST"])
+# @admin_bp.route("/employee/edit/<int:id>", methods=["POST"])
+# def edit_employee(id):
+
+#     if not admin_login_required():
+#         return redirect(url_for("auth.login"))
+
+#     conn = get_db()
+#     cur = conn.cursor()
+
+#     designation = request.form.get("designation")
+#     role = request.form.get("role")
+
+#     cur.execute(
+#         """
+#         UPDATE users
+#         SET designation = %s,
+#             role = %s
+#         WHERE user_id = %s
+#         """,
+#         (designation, role, id),
+#     )
+
+#     conn.commit()
+#     cur.close()
+#     conn.close()
+
+#     return redirect(url_for("admin.employees"))
+
+
+@admin_bp.route("/employee/edit/<int:id>", methods=["POST"])
 def edit_employee(id):
 
     if not admin_login_required():
@@ -979,100 +1092,347 @@ def edit_employee(id):
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    # Fetch employee
+    # ================================
+    # CHECK IF EMPLOYEE EXISTS
+    # ================================
     cur.execute(
         """
-        SELECT user_id, name, email, designation, role, is_active
-        FROM users
+        SELECT role FROM users
         WHERE user_id = %s
-    """,
+        """,
         (id,),
     )
 
-    employee = cur.fetchone()
-
-    if not employee:
+    user = cur.fetchone()
+    if not user:
         cur.close()
         conn.close()
-        return "Employee Not Found ❌"
+        return jsonify({"status": "error", "message": "Employee not found ❌"}), 404
 
-    # Update employee
-    if request.method == "POST":
+    # Get the new role from form
+    new_role = request.form.get("role")
+    current_role = user["role"]
 
-        name = request.form.get("name")
-        email = request.form.get("email")
-        designation = request.form.get("designation")
-        role = request.form.get("role")
-        status = request.form.get("status")
-
-        is_active = True if status == "1" else False
-
+    # ================================
+    # ONLY VALIDATE IF ROLE IS ACTUALLY CHANGING
+    # ================================
+    if new_role != current_role:
+        # Check if user is leader of any active project
         cur.execute(
             """
-            UPDATE users
-            SET name=%s,
-                email=%s,
-                designation=%s,
-                role=%s,
-                is_active=%s
-            WHERE user_id=%s
-        """,
-            (name, email, designation, role, is_active, id),
+            SELECT COUNT(*) as count
+            FROM projects
+            WHERE leader_id = %s
+              AND status IN ('ongoing', 'planning')
+              AND is_deleted = FALSE
+            """,
+            (id,),
         )
 
-        conn.commit()
+        leader_result = cur.fetchone()
+        is_project_leader = leader_result["count"] > 0 if leader_result else False
 
-        cur.close()
-        conn.close()
+        # Check if user is member of any active project
+        cur.execute(
+            """
+            SELECT COUNT(*) as count
+            FROM project_members pm
+            JOIN projects p ON pm.project_id = p.project_id
+            WHERE pm.user_id = %s
+              AND p.status IN ('ongoing', 'planning')
+              AND p.is_deleted = FALSE
+            """,
+            (id,),
+        )
 
-        return redirect(url_for("admin.employees"))
+        member_result = cur.fetchone()
+        is_project_member = member_result["count"] > 0 if member_result else False
 
+        # If employee is assigned to any active project, block the role update
+        if is_project_leader or is_project_member:
+            cur.close()
+            conn.close()
+
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": "Cannot change role: Employee is currently assigned to an active project ❌",
+                    }
+                ),
+                400,
+            )
+
+    # ================================
+    # PROCEED WITH UPDATE (BOTH DESIGNATION AND ROLE)
+    # ================================
+    designation = request.form.get("designation")
+    role = new_role
+
+    cur.execute(
+        """
+        UPDATE users
+        SET designation = %s,
+            role = %s
+        WHERE user_id = %s
+        """,
+        (designation, role, id),
+    )
+
+    conn.commit()
     cur.close()
     conn.close()
 
-    return render_template("admin/section/edit_employee.html", emp=employee)
+    return jsonify({"status": "success", "message": "Employee updated successfully ✅"})
 
 
-@admin_bp.route("/employee/delete/<int:id>")
+@admin_bp.route("/employee/delete/<int:id>", methods=["POST"])
 def delete_employee(id):
 
     if not admin_login_required():
         return redirect(url_for("auth.login"))
 
     conn = get_db()
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    # Prevent deleting admin
+    # ================================
+    # CHECK IF EMPLOYEE EXISTS AND IS NOT ADMIN
+    # ================================
     cur.execute(
         """
-        SELECT role FROM users
+        SELECT role, name FROM users
         WHERE user_id = %s
-    """,
+        """,
         (id,),
     )
 
     user = cur.fetchone()
 
-    if user and user[0] == "admin":
+    if not user:
         cur.close()
         conn.close()
-        return "Cannot delete Admin ❌"
+        return jsonify({"status": "error", "message": "Employee not found ❌"}), 404
 
-    # Delete employee
+    # Prevent deleting admin
+    if user and user["role"] == "admin":
+        cur.close()
+        conn.close()
+        return jsonify({"status": "error", "message": "Cannot delete Admin ❌"}), 400
+
+    # ================================
+    # CHECK IF EMPLOYEE IS ASSIGNED TO ANY ACTIVE PROJECT
+    # ================================
+
+    # Check if user is leader of any active project
     cur.execute(
         """
-        DELETE FROM users
+        SELECT COUNT(*) as count,
+               STRING_AGG(project_name, ', ') as project_names
+        FROM projects
+        WHERE leader_id = %s
+          AND status IN ('ongoing', 'planning')
+          AND is_deleted = FALSE
+        """,
+        (id,),
+    )
+
+    leader_result = cur.fetchone()
+    is_project_leader = leader_result["count"] > 0 if leader_result else False
+    leader_project_names = (
+        leader_result["project_names"]
+        if leader_result and leader_result["project_names"]
+        else ""
+    )
+
+    # Check if user is member of any active project
+    cur.execute(
+        """
+        SELECT COUNT(*) as count,
+               STRING_AGG(p.project_name, ', ') as project_names
+        FROM project_members pm
+        JOIN projects p ON pm.project_id = p.project_id
+        WHERE pm.user_id = %s
+          AND p.status IN ('ongoing', 'planning')
+          AND p.is_deleted = FALSE
+        """,
+        (id,),
+    )
+
+    member_result = cur.fetchone()
+    is_project_member = member_result["count"] > 0 if member_result else False
+    member_project_names = (
+        member_result["project_names"]
+        if member_result and member_result["project_names"]
+        else ""
+    )
+
+    # Check for tasks assigned to this user in active projects
+    cur.execute(
+        """
+        SELECT COUNT(*) as count
+        FROM tasks t
+        JOIN projects p ON t.project_id = p.project_id
+        WHERE t.assigned_to = %s
+          AND p.status IN ('ongoing', 'planning')
+          AND p.is_deleted = FALSE
+          AND t.status != 'completed'
+        """,
+        (id,),
+    )
+
+    task_result = cur.fetchone()
+    has_active_tasks = task_result["count"] > 0 if task_result else False
+
+    # If employee is assigned to any active project or has active tasks, block deletion
+    if is_project_leader or is_project_member or has_active_tasks:
+        cur.close()
+        conn.close()
+
+        message = "❌ Cannot deactivate: "
+        if is_project_leader:
+            message += f"User is leading project(s): {leader_project_names}. "
+        if is_project_member:
+            message += f"User is working on project(s): {member_project_names}. "
+        if has_active_tasks:
+            message += "User has pending tasks. "
+
+        return jsonify({"status": "error", "message": message}), 400
+
+    # ================================
+    # PROCEED WITH SOFT DELETE
+    # (Set is_active = FALSE and is_registered = FALSE)
+    # ================================
+
+    cur.execute(
+        """
+        UPDATE users
+        SET is_active = FALSE,
+            is_registered = FALSE,
+            updated_at = NOW()
         WHERE user_id = %s
-    """,
+        """,
         (id,),
     )
 
     conn.commit()
-
     cur.close()
     conn.close()
 
-    return redirect(url_for("admin.employees"))
+    return jsonify(
+        {
+            "status": "success",
+            "message": f"Employee {user['name']} has been deactivated successfully ✅",
+        }
+    )
+
+
+# to print emp details on modal
+@admin_bp.route("/api/employee/<int:id>")
+def get_employee_details(id):
+
+    if not admin_login_required():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    conn = None
+    cur = None
+
+    try:
+        conn = get_db()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+
+        # Get basic employee info (including is_active and is_registered)
+        cur.execute(
+            """
+            SELECT name, username, email, role, designation, is_active, is_registered
+            FROM users
+            WHERE user_id = %s
+        """,
+            (id,),
+        )
+
+        employee = cur.fetchone()
+        if not employee:
+            return jsonify({"error": "Employee not found"}), 404
+
+        # Get projects they're working on (as leader or member)
+        cur.execute(
+            """
+            SELECT DISTINCT p.project_id, p.project_name, p.status
+            FROM projects p
+            LEFT JOIN project_members pm ON p.project_id = pm.project_id
+            WHERE (p.leader_id = %s OR pm.user_id = %s)
+              AND p.status IN ('planning', 'ongoing')
+              AND p.is_deleted = FALSE
+            ORDER BY p.project_name
+        """,
+            (id, id),
+        )
+
+        projects = cur.fetchall()
+
+        # Get team members (colleagues in same projects) - only active AND registered users
+        team_members = []
+        if projects:
+            project_ids = [p["project_id"] for p in projects]
+
+            cur.execute(
+                """
+                SELECT DISTINCT u.user_id, u.name, u.role, 
+                      (CASE WHEN p.leader_id = u.user_id THEN 'Leader' ELSE 'Member' END) as project_role
+                FROM users u
+                JOIN project_members pm ON u.user_id = pm.user_id
+                JOIN projects p ON pm.project_id = p.project_id
+                WHERE p.project_id = ANY(%s)
+                  AND u.user_id != %s
+                  AND u.is_active = TRUE      -- Admin added/activated
+                  AND u.is_registered = TRUE  -- User activated their account
+                UNION
+                SELECT DISTINCT u.user_id, u.name, u.role, 'Leader' as project_role
+                FROM users u
+                JOIN projects p ON u.user_id = p.leader_id
+                WHERE p.project_id = ANY(%s)
+                  AND u.user_id != %s
+                  AND u.is_active = TRUE      -- Admin added/activated
+                  AND u.is_registered = TRUE  -- User activated their account
+                ORDER BY name
+            """,
+                (project_ids, id, project_ids, id),
+            )
+
+            team_members = cur.fetchall()
+
+        # Get last login
+        cur.execute(
+            """
+            SELECT login_time
+            FROM login_logs
+            WHERE user_id = %s
+            ORDER BY login_time DESC
+            LIMIT 1
+        """,
+            (id,),
+        )
+
+        last_login = cur.fetchone()
+
+        return jsonify(
+            {
+                "employee": employee,
+                "projects": projects,
+                "team_members": team_members,
+                "last_login": last_login["login_time"] if last_login else None,
+            }
+        )
+
+    except Exception as e:
+        print("Error in get_employee_details:", str(e))
+        return jsonify({"error": "Something went wrong"}), 500
+
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 # ============================
