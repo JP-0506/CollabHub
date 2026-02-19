@@ -789,10 +789,11 @@ def edit_project(project_id):
         if status == "completed":
             cur.execute(
                 """
-        UPDATE project_members
-        SET is_deleted = TRUE
-        WHERE project_id = %s
-    """,
+                UPDATE project_members
+                SET 
+                    is_deleted = TRUE
+                WHERE project_id = %s
+            """,
                 (project_id,),
             )
 
@@ -851,35 +852,94 @@ def employees():
     # ============================
     if request.method == "POST":
 
-        name = request.form.get("name")
-        email = request.form.get("email")
-        designation = request.form.get("designation")
-        role = request.form.get("role")
-        # status = request.form.get("status")
+        try:
+            name = request.form.get("name")
+            email = request.form.get("email")
+            designation = request.form.get("designation")
+            role = request.form.get("role")
+            # status = request.form.get("status")
 
-        is_active = True  # if status == "1" else False
+            is_active = True  # if status == "1" else False
 
-        # Basic validation
-        if not name or not email or not role:
-            return redirect(url_for("admin.employees"))
+            # Basic validation
+            if not name or not email or not role:
+                return (
+                    jsonify(
+                        {
+                            "status": "error",
+                            "message": "Name, email and role are required fields",
+                        }
+                    ),
+                    400,
+                )
 
-        # Insert user
-        cur.execute(
-            """
-            INSERT INTO users
-            (name, email, role, designation, is_active, created_at)
+            # ============================
+            # CHECK IF EMAIL ALREADY EXISTS
+            # ============================
+            cur.execute(
+                """
+                SELECT user_id FROM users
+                WHERE email = %s
+                """,
+                (email,),
+            )
 
-            VALUES (%s,%s,%s,%s,%s,NOW())
-            """,
-            (name, email, role, designation, is_active),
-        )
+            existing_user = cur.fetchone()
 
-        conn.commit()
+            if existing_user:
+                return (
+                    jsonify(
+                        {
+                            "status": "error",
+                            "message": "Email already exists! Please use a different email.",
+                        }
+                    ),
+                    400,
+                )
 
-        cur.close()
-        conn.close()
+            # Insert user
+            cur.execute(
+                """
+                INSERT INTO users
+                (name, email, role, designation, is_active, created_at)
+                VALUES (%s,%s,%s,%s,%s,NOW())
+                RETURNING user_id
+                """,
+                (name, email, role, designation, is_active),
+            )
 
-        return redirect(url_for("admin.employees"))
+            new_user = cur.fetchone()
+            conn.commit()
+
+            return (
+                jsonify(
+                    {
+                        "status": "success",
+                        "message": "Employee added successfully!",
+                        "user_id": new_user["user_id"] if new_user else None,
+                    }
+                ),
+                200,
+            )
+
+        except Exception as e:
+            conn.rollback()
+            print("Error adding employee:", str(e))
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": "Something went wrong while adding employee. Please try again.",
+                    }
+                ),
+                500,
+            )
+
+        finally:
+            if cur:
+                cur.close()
+            if conn:
+                conn.close()
 
     # ============================
     # GET → FETCH EMPLOYEES
