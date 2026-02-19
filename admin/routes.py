@@ -607,6 +607,13 @@ def edit_project(project_id):
         """,
             (name, status, progress, end_date, description, leader_id, project_id),
         )
+# If project marked as completed → free all members
+        if status == "completed":
+            cur.execute("""
+        UPDATE project_members
+        SET is_deleted = TRUE
+        WHERE project_id = %s
+    """, (project_id,))
 
         conn.commit()
 
