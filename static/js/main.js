@@ -18,3 +18,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+ // Approve task function
+let currentTaskId = null;
+
+function approveTask(taskId) {
+    currentTaskId = taskId;
+    let approveModal = new bootstrap.Modal(document.getElementById('approveTaskModal'));
+    approveModal.show();
+}
