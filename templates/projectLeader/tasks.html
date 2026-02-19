@@ -6,14 +6,15 @@
 <div class="top-bar">
     <div class="search-container">
         <i class="fas fa-search text-muted"></i>
-        <input type="text" id="searchTasks" placeholder="Search projects, tasks, or team members..." onkeyup="filterTasks()">
+        <input type="text" id="searchTasks" placeholder="Search projects, tasks, or team members..."
+            onkeyup="filterTasks()">
     </div>
     <div class="d-flex gap-3 align-items-center">
         <div class="notification-btn" data-bs-toggle="dropdown">
             <i class="fas fa-bell fa-lg"></i>
             <span class="notification-badge">3</span>
         </div>
-        <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
+        <div class="dropdown-menu dropdown-menu-end p-0"="min-width: 320px;" style>
             <div class="p-3 border-bottom">
                 <h6 class="mb-0">Notifications</h6>
             </div>
@@ -64,128 +65,152 @@
 </div>
 
 
-    <div>
-        <div class="table-card">
-            <h5 class="fw-bold mb-4">All Tasks</h5>
-            <table class="custom-table" id="tasksTable">
-                <thead>
-                    <tr>
-                        <th>Task</th>
-                        <th>Project</th>
-                        <th>Assignee</th>
-                        <th>Priority</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if tasks and tasks|length > 0 %}
-                    {% for task in tasks %}
-                    <tr class="task-row priority-{{ task[3]|lower }}" data-task-id="{{ task[0] }}">
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <div class="task-avatar me-3">
-                                    {{ task[7][0] if task[7] else 'T' }}
-                                </div>
-                                <div>
-                                    <div class="task-title">{{ task[1] }}</div>
-                                    <small class="task-description">{{ task[2][:50] + '...' if task[2] and task[2]|length > 50 else task[2] }}</small>
-                                </div>
+<div>
+    <div class="table-card">
+        <h5 class="fw-bold mb-4">All Tasks</h5>
+        <table class="custom-table" id="tasksTable">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Project</th>
+                    <th>Assignee</th>
+                    <th>Priority</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if tasks and tasks|length > 0 %}
+                {% for task in tasks %}
+                <tr class="task-row priority-{{ task[3]|lower }}" data-task-id="{{ task[0] }}">
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="task-avatar me-3">
+                                {{ task[7][0] if task[7] else 'T' }}
                             </div>
-                        </td>
-                        <td>{{ task[6] }}</td>
-                        <td>{{ task[7] }}</td>
-                        <td>
-                            {% if task[3] == 'High' %}
-                            <span class="priority-badge priority-high">{{ task[3] }}</span>
-                            {% elif task[3] == 'Medium' %}
-                            <span class="priority-badge priority-medium">{{ task[3] }}</span>
-                            {% elif task[3] == 'Low' %}
-                            <span class="priority-badge priority-low">{{ task[3] }}</span>
-                            {% else %}
-                            <span class="priority-badge">{{ task[3] }}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if task[5] %}
-                                <span class="due-date {% if task[5] < now %}overdue{% endif %}">{{ task[5] }}</span>
-                            {% else %}
-                                <span class="text-muted">No date</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if task[4] == 'Completed' %}
-                            <span class="status-badge status-completed">{{ task[4] }}</span>
-                            {% elif task[4] == 'In Progress' %}
-                            <span class="status-badge status-progress">{{ task[4] }}</span>
-                            {% elif task[4] == 'Pending Review' %}
-                            <span class="status-badge status-pending">{{ task[4] }}</span>
-                            {% else %}
-                            <span class="status-badge">{{ task[4] }}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm btn-outline-primary" onclick="editTask({{ task[0] }})" title="Edit Task">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteTask({{ task[0] }}, '{{ task[1] }}')" title="Delete Task">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            <div>
+                                <div class="task-title">{{ task[1] }}</div>
+                                <small class="task-description">{{ task[2][:50] + '...' if task[2] and task[2]|length >
+                                    50 else task[2] }}</small>
                             </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    {% else %}
-                    <tr>
-                        <td colspan="7" class="text-center text-muted py-5">
-                            <div class="empty-state">
-                                <i class="fas fa-tasks fa-3x mb-3"></i>
-                                <p>No tasks found. Click "Create New Task" to add one.</p>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div>
+                        </div>
+                    </td>
+                    <td>{{ task[6] }}</td>
+                    <td>{{ task[7] }}</td>
+                    <td>
+                        {% if task[3]|lower == 'high' %} <!-- Use |lower filter -->
+                        <span class="priority-badge priority-high">{{ task[3] }}</span>
+                        {% elif task[3]|lower == 'medium' %} <!-- Use |lower filter -->
+                        <span class="priority-badge priority-medium">{{ task[3] }}</span>
+                        {% elif task[3]|lower == 'low' %} <!-- Use |lower filter -->
+                        <span class="priority-badge priority-low">{{ task[3] }}</span>
+                        {% else %}
+                        <span class="priority-badge">{{ task[3] }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if task[5] %}
+                        <span class="due-date {% if task[5] < now %}overdue{% endif %}">{{ task[5] }}</span>
+                        {% else %}
+                        <span class="text-muted">No date</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if task[4] == 'approved' %}
+                        <span class="status-badge" style="background: #d1fae5; color: #065f46;">Approved</span>
+                        {% elif task[4] == 'submitted' %}
+                        <span class="status-badge" style="background: #fef3c7; color: #92400e;">Pending Review</span>
+                        {% elif task[4] == 'in_progress' %}
+                        <span class="status-badge" style="background: #dbeafe; color: #1e40af;">In Progress</span>
+                        {% elif task[4] == 'rejected' %}
+                        <span class="status-badge" style="background: #fee2e2; color: #991b1b;">Rejected</span>
+                        {% else %}
+                        <span class="status-badge">{{ task[4] }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <!-- Show different actions based on status -->
+                            {% if task[4] == 'submitted' %}
+                            <button class="btn btn-sm btn-success approve-task" data-task-id="{{ task[0] }}"
+                                title="Approve Task">
+                                <i class="fas fa-check-circle"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger reject-task" data-task-id="{{ task[0] }}"
+                                title="Reject Task">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                            {% elif task[4] == 'rejected' %}
+                            <span class="badge bg-secondary me-2" title="Rejection reason: {{ task[8] }}">
+                                <i class="fas fa-info-circle"></i> Rejected
+                            </span>
+                            {% endif %}
+
+                            <!-- Always show edit/delete -->
+                            <button class="btn btn-sm btn-outline-primary edit-task" data-task-id="{{ task[0] }}"
+                                onclick="editTask({{ task[0] }})" title="Edit Task">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger delete-task" data-task-id="{{ task[0] }}"
+                                data-task-name="{{ task[1] }}" title="Delete Task">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-tasks fa-3x mb-3"></i>
+                            <p>No tasks found. Click "Create New Task" to add one.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
     </div>
-    <div>
-        <div class="table-card mb-4">
-            <h5 class="fw-bold mb-4">Task Summary</h5>
-            <div class="activity-timeline">
-                <div class="activity-item">
-                    <div class="activity-dot task"></div>
-                    <div>
-                        <p class="mb-1"><strong>{{ task_summary[0] }} Tasks Completed</strong></p>
-                        <small class="text-muted">This week</small>
-                    </div>
+</div>
+<div>
+    <div class="table-card mb-4">
+        <h5 class="fw-bold mb-4">Task Summary</h5>
+        <div class="activity-timeline">
+            <div class="activity-item">
+                <div class="activity-dot task"></div>
+                <div>
+                    <p class="mb-1"><strong>{{ task_summary[0] }} Tasks Completed</strong></p>
+                    <small class="text-muted">This week</small>
                 </div>
-                <div class="activity-item">
-                    <div class="activity-dot task"></div>
-                    <div>
-                        <p class="mb-1"><strong>{{ task_summary[1] }} Tasks Overdue</strong></p>
-                        <small class="text-muted">Need attention</small>
-                    </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-dot task"></div>
+                <div>
+                    <p class="mb-1"><strong>{{ task_summary[1] }} Tasks Overdue</strong></p>
+                    <small class="text-muted">Need attention</small>
                 </div>
-                <div class="activity-item">
-                    <div class="activity-dot task"></div>
-                    <div>
-                        <p class="mb-1"><strong>{{ task_summary[2] }} Tasks In Progress</strong></p>
-                        <small class="text-muted">Active tasks</small>
-                    </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-dot task"></div>
+                <div>
+                    <p class="mb-1"><strong>{{ task_summary[2] }} Tasks In Progress</strong></p>
+                    <small class="text-muted">Active tasks</small>
                 </div>
-                <div class="activity-item">
-                    <div class="activity-dot task"></div>
-                    <div>
-                        <p class="mb-1"><strong>{{ task_summary[3] }} Pending Review</strong></p>
-                        <small class="text-muted">Awaiting approval</small>
-                    </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-dot task"></div>
+                <div>
+                    <p class="mb-1"><strong>{{ task_summary[3] }} Pending Review</strong></p>
+                    <small class="text-muted">Awaiting approval</small>
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block modals %}
@@ -205,7 +230,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="3" placeholder="Task description"></textarea>
+                        <textarea name="description" class="form-control" rows="3"
+                            placeholder="Task description"></textarea>
                     </div>
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -230,14 +256,6 @@
                         <div class="col-md-6">
                             <label class="form-label">Due Date</label>
                             <input type="date" name="due_date" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Status</label>
-                            <select name="status" class="form-select">
-                                <option>In Progress</option>
-                                <option>Pending Review</option>
-                                <option>Completed</option>
-                            </select>
                         </div>
                     </div>
                     <div class="mt-3">
@@ -296,14 +314,6 @@
                                 <option>High</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Status</label>
-                            <select name="status" id="edit_status" class="form-select">
-                                <option>In Progress</option>
-                                <option>Pending Review</option>
-                                <option>Completed</option>
-                            </select>
-                        </div>
                     </div>
                     <div class="row g-3 mt-2">
                         <div class="col-md-12">
@@ -342,8 +352,52 @@
         </div>
     </div>
 </div>
+<!-- Approve Confirmation Modal -->
+<div class="modal fade" id="approveTaskModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Approve Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                <p class="mb-0">Approve this task?</p>
+                <small class="text-muted">Employee will be notified</small>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmApproveBtn">Approve</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Task Modal with Reason -->
+<div class="modal fade" id="rejectTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Reject Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Reason for rejection <span class="text-danger">*</span></label>
+                    <textarea id="rejectionReason" class="form-control" rows="4"
+                        placeholder="Explain why this task is being rejected..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmRejectBtn">Reject Task</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{{ url_for('static', filename='js/projectLeader/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/projectLeader/main.js') }}"></script>
 {% endblock %}
