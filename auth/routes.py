@@ -17,94 +17,93 @@ auth_bp = Blueprint("auth", __name__)
 # -----------------------------
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    # GET Request: લોગિન પેજ બતાવો
+
+    # GET → show login page
     if request.method == "GET":
         return render_template("auth/login.html")
 
-    # POST Request: ડેટા પ્રોસેસ કરો (AJAX)
+    # POST → process login
     if request.method == "POST":
         try:
-            # Frontend માંથી JSON ડેટા મેળવો
+
             data = request.get_json()
+
             email_or_username = data.get("email", "").strip()
             password = data.get("password", "").strip()
 
-            # 1. Empty Check (જો ખાલી હોય તો)
+            # Empty check
             if not email_or_username or not password:
-                return jsonify({"success": False, "message": "Please fill all fields"})
+                return jsonify({
+                    "success": False,
+                    "message": "Please fill all fields"
+                })
 
             conn = get_db()
             cur = conn.cursor()
 
-            # 2. Database Query (PostgreSQL Syntax)
-            cur.execute(
-                """
-                SELECT u.user_id, u.role, a.password_hash, u.is_active, u.is_registered
+            # Fetch user INCLUDING NAME
+            cur.execute("""
+                SELECT 
+                    u.user_id,
+                    u.name,
+                    u.role,
+                    a.password_hash,
+                    u.is_active,
+                    u.is_registered
                 FROM users u
                 JOIN auth a ON u.user_id = a.user_id
                 WHERE u.email = %s OR u.username = %s
-                """,
-                (email_or_username, email_or_username),
-            )
+            """, (email_or_username, email_or_username))
 
             user = cur.fetchone()
+
             cur.close()
             conn.close()
 
-            # 3. User Not Found Check
+            # User not found
             if not user:
-                return jsonify(
-                    {
-                        "success": False,
-                        "message": "You are not registered",
-                        "error_type": "user",
-                    }
-                )
+                return jsonify({
+                    "success": False,
+                    "message": "You are not registered",
+                    "error_type": "user"
+                })
 
-            # ડેટા છૂટો પાડો (Unpack)
-            user_id, role, db_password, active, registered = user
+            # CORRECT unpack
+            user_id, name, role, db_password, active, registered = user
 
-            # 4. Registration Check
+            # Registration check
             if not registered:
-                return jsonify(
-                    {
-                        "success": False,
-                        "message": "Activate Your account First",
-                        "error_type": "status",
-                    }
-                )
+                return jsonify({
+                    "success": False,
+                    "message": "Activate Your account First",
+                    "error_type": "status"
+                })
 
-            # 5. Active Check
+            # Active check
             if not active:
-                return jsonify(
-                    {
-                        "success": False,
-                        "message": "Account blocked ❌",
-                        "error_type": "status",
-                    }
-                )
+                return jsonify({
+                    "success": False,
+                    "message": "Account blocked ❌",
+                    "error_type": "status"
+                })
 
-            # 6. Password Check (Plain Text Comparison)
-            # TOOD
-            # =========================================
-            # TODO (FUTURE IMPROVEMENT):
-            # Replace plain password check with hashing
-
+            # Password check
             if db_password != password:
-                return jsonify(
-                    {
-                        "success": False,
-                        "message": "Password wrong",
-                        "error_type": "password",
-                    }
-                )
+                return jsonify({
+                    "success": False,
+                    "message": "Password wrong",
+                    "error_type": "password"
+                })
 
-            # --- LOGIN SUCCESS ---
+            # ✅ LOGIN SUCCESS
+            session.clear()
+
             session["user_id"] = user_id
+            session["name"] = name          # THIS FIXES SIDEBAR
             session["role"] = role
             session["username"] = email_or_username
 
-            # 7. Role મુજબ Redirect URL નક્કી કરો
+            # Redirect based on role
             if role == "admin":
                 redirect_url = url_for("admin.dashboard")
 
@@ -117,18 +116,21 @@ def login():
             else:
                 redirect_url = url_for("home")
 
-            return jsonify(
-                {
-                    "success": True,
-                    "message": "Login Successful!",
-                    "redirect_url": redirect_url,
-                }
-            )
+            return jsonify({
+                "success": True,
+                "message": "Login Successful!",
+                "redirect_url": redirect_url
+            })
 
         except Exception as e:
-            print(f"Error: {e}")
-            raise e
-            return jsonify({"success": False, "message": "Server Error"})
+
+            print("LOGIN ERROR:", e)
+
+            return jsonify({
+                "success": False,
+                "message": "Server Error"
+            })
+
 
 
 # -----------------------------
