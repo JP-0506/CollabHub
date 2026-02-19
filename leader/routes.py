@@ -1412,20 +1412,19 @@ def update_task(task_id):
 
     cur.execute(
         """
-        UPDATE tasks 
-        SET title = %s, description = %s, assigned_to = %s, project_id = %s,
-            priority = %s, status = %s, due_date = %s, updated_at = CURRENT_TIMESTAMP
-        WHERE task_id = %s
+    UPDATE tasks 
+    SET title = %s, description = %s, assigned_to = %s, project_id = %s,
+        priority = %s, due_date = %s, updated_at = CURRENT_TIMESTAMP
+    WHERE task_id = %s
     """,
-        (
-            request.form["title"],
-            request.form.get("description", ""),
-            int(request.form["assigned_to"]),
-            int(request.form["project_id"]),
-            request.form["priority"],
-            request.form["status"],
-            request.form.get("due_date"),
-            task_id,
+    (
+        request.form["title"],
+        request.form.get("description", ""),
+        int(request.form["assigned_to"]),
+        int(request.form["project_id"]),
+        request.form["priority"],
+        request.form.get("due_date"),
+        task_id,
         ),
     )
 
