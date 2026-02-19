@@ -11,7 +11,7 @@
 <div class="row g-4 mb-5">
     <div class="col-lg-8">
         <div class="project-card p-4 bg-white shadow-sm rounded">
-            
+
             <h5 class="fw-bold">{{ project.project_name }}</h5>
 
             <p class="text-muted small">
@@ -20,12 +20,8 @@
 
             <!-- ✅ Progress comes from backend -->
             <div class="progress mb-2">
-                <div class="progress-bar bg-primary"
-                     role="progressbar"
-                     style="width: {{ progress }}%;"
-                     aria-valuenow="{{ progress }}"
-                     aria-valuemin="0"
-                     aria-valuemax="100">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ progress }}%;"
+                    aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">
                     {{ progress }}%
                 </div>
             </div>
@@ -62,7 +58,7 @@
 
                 <tbody>
 
-                {% if tasks %}
+                    {% if tasks %}
                     {% for task in tasks %}
                     <tr>
                         <td><strong>{{ task.title }}</strong></td>
@@ -70,24 +66,24 @@
                         <!-- Priority -->
                         <td>
                             {% if task.priority == "high" %}
-                                <span class="badge bg-danger">High</span>
+                            <span class="badge bg-danger">High</span>
                             {% elif task.priority == "medium" %}
-                                <span class="badge bg-warning text-dark">Medium</span>
+                            <span class="badge bg-warning text-dark">Medium</span>
                             {% else %}
-                                <span class="badge bg-success">Low</span>
+                            <span class="badge bg-success">Low</span>
                             {% endif %}
                         </td>
 
                         <!-- Status -->
                         <td>
                             {% if task.status == "completed" %}
-                                <span class="badge bg-success">Completed</span>
+                            <span class="badge bg-success">Completed</span>
                             {% elif task.status == "in_progress" %}
-                                <span class="badge bg-primary">In Progress</span>
+                            <span class="badge bg-primary">In Progress</span>
                             {% else %}
-                                <span class="badge bg-info text-dark">
-                                    {{ task.status | replace("_", " ") | capitalize }}
-                                </span>
+                            <span class="badge bg-info text-dark">
+                                {{ task.status | replace("_", " ") | capitalize }}
+                            </span>
                             {% endif %}
                         </td>
 
@@ -95,30 +91,46 @@
                         <td>
                             {{ task.due_date.strftime('%d %b %Y') if task.due_date else "No Due Date" }}
                         </td>
-
                         <!-- Action -->
                         <td class="text-center">
-                            {% if task.status != "completed" %}
-                            <form method="POST"
-                                  action="{{ url_for('employee.complete_task', task_id=task.task_id) }}">
-                                <button class="btn btn-success complete-btn" data-task-id="{{ task.task_id }}">
-                                    Mark Completed</button>
+                            {% if task.status == "in_progress" %}
+                            <form method="POST" action="{{ url_for('employee.submit_task', task_id=task.task_id) }}">
+                                <button class="btn btn-warning submit-btn" data-task-id="{{ task.task_id }}">
+                                    <i class="fas fa-paper-plane me-1"></i>Submit
+                                </button>
                             </form>
+                            {% elif task.status == "submitted" %}
+                            <button class="btn btn-info" disabled>
+                                <i class="fas fa-hourglass-half me-1"></i>Pending
+                            </button>
+                            {% elif task.status == "approved" %}
+                            <button class="btn btn-success" disabled>
+                                <i class="fas fa-check-circle me-1"></i>Approved
+                            </button>
+                            {% elif task.status == "rejected" %}
+                            <button class="btn btn-danger" disabled>
+                                <i class="fas fa-times-circle me-1"></i>Rejected
+                            </button>
+                            {% if task.rejection_reason %}
+                            <button class="btn btn-sm btn-link" onclick="showReason('{{ task.rejection_reason }}')">
+                                View
+                            </button>
+                            {% endif %}
                             {% else %}
-                            <button class="btn btn-sm btn-secondary" disabled>
-                                Completed
+                            <button class="btn btn-secondary" disabled>
+                                {{ task.status }}
                             </button>
                             {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
-                {% else %}
-                        <tr>
-                         <td colspan="5" class="text-center text-muted">
-                                    Currently no task scheduled.
-                         </td>
-                        </tr>
-                  {% endif %}
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">
+                            Currently no task scheduled.
+                        </td>
+                    </tr>
+                    {% endif %}
 
                 </tbody>
             </table>
@@ -126,5 +138,38 @@
 
     </div>
 </div>
+{% block extra_js %}
+<script>
+function showReason(reason) {
+    alert("Rejection reason: " + reason);
+}
 
+// Handle form submission with AJAX
+document.querySelectorAll('.submit-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const form = this.closest('form');
+        const taskId = this.dataset.taskId;
+        
+        if (confirm('Submit this task for leader review?')) {
+            fetch(form.action, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Task submitted successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error submitting task');
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
 {% endblock %}

@@ -6,48 +6,12 @@
 <div class="top-bar">
     <div class="search-container">
         <i class="fas fa-search text-muted"></i>
-        <input type="text" placeholder="Search projects, tasks, or team members...">
+        <input type="text" id="teamSearch" placeholder="Search team members..." onkeyup="filterTeam()">
     </div>
     <div class="d-flex gap-3 align-items-center">
         <div class="notification-btn" data-bs-toggle="dropdown">
             <i class="fas fa-bell fa-lg"></i>
             <span class="notification-badge">3</span>
-        </div>
-        <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
-            <div class="p-3 border-bottom">
-                <h6 class="mb-0">Notifications</h6>
-            </div>
-            <div class="p-0">
-                <div class="p-3 border-bottom">
-                    <div class="d-flex">
-                        <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">M</div>
-                        <div>
-                            <p class="mb-1"><strong>Mike Chen</strong> completed a task</p>
-                            <small class="text-muted">30 minutes ago</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-3 border-bottom">
-                    <div class="d-flex">
-                        <div class="user-avatar me-3"
-                            style="width: 36px; height: 36px; font-size: 0.9rem; background: #f59e0b;">S</div>
-                        <div>
-                            <p class="mb-1"><strong>Sarah</strong> added a comment</p>
-                            <small class="text-muted">2 hours ago</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-3">
-                    <div class="d-flex">
-                        <div class="user-avatar me-3"
-                            style="width: 36px; height: 36px; font-size: 0.9rem; background: #10b981;">A</div>
-                        <div>
-                            <p class="mb-1">Project <strong>Website Redesign</strong> milestone reached</p>
-                            <small class="text-muted">1 day ago</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -63,30 +27,41 @@
     </button>
 </div>
 
-<!-- Update the stats cards in my_team.html -->
-
+<!-- Stats Cards -->
 <div class="row g-4 mb-4">
     <div class="col-md-3">
         <div class="stat-card text-center">
-            <span class="stat-value">{{ team|length }}</span>  <!-- Team Members count -->
+            <div class="stat-icon mx-auto" style="background: #e0f2fe; color: #0284c7;">
+                <i class="fas fa-users"></i>
+            </div>
+            <span class="stat-value">{{ total_members }}</span>
             <span class="stat-label">Team Members</span>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stat-card text-center">
-            <span class="stat-value">{{ team|length }}</span>  <!-- You can change this to active now count -->
+            <div class="stat-icon mx-auto" style="background: #dcfce7; color: #16a34a;">
+                <i class="fas fa-clock"></i>
+            </div>
+            <span class="stat-value">{{ active_now }}</span>
             <span class="stat-label">Active Now</span>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stat-card text-center">
-            <span class="stat-value">42</span>  <!-- You'll need to calculate this -->
-            <span class="stat-label">Avg. Productivity</span>
+            <div class="stat-icon mx-auto" style="background: #fef9c3; color: #ca8a04;">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <span class="stat-value">{{ avg_productivity }}</span>
+            <span class="stat-label">Avg. Tasks/Member</span>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stat-card text-center">
-            <span class="stat-value">92%</span>  <!-- You'll need to calculate this -->
+            <div class="stat-icon mx-auto" style="background: #ffe4e6; color: #e11d48;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <span class="stat-value">{{ on_time_rate }}%</span>
             <span class="stat-label">On-time Delivery</span>
         </div>
     </div>
@@ -96,55 +71,74 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h5 class="fw-bold mb-0">Team Members</h5>
         <div class="d-flex gap-2">
-            <input type="text" class="form-control form-control-sm" placeholder="Search team..."
-                style="max-width: 200px;">
-            <select class="form-select form-select-sm" style="max-width: 150px;">
-                <option>All Roles</option>
-                <option>Developer</option>
-                <option>Designer</option>
-                <option>Tester</option>
+            <input type="text" id="tableSearch" class="form-control form-control-sm" placeholder="Search team..."
+                onkeyup="filterTeamTable()" style="max-width: 200px;">
+            <select class="form-select form-select-sm" id="roleFilter" onchange="filterByRole()"
+                style="max-width: 150px;">
+                <option value="">All Roles</option>
+                <option value="Developer">Developer</option>
+                <option value="Designer">Designer</option>
+                <option value="Tester">Tester</option>
             </select>
         </div>
     </div>
-    <table class="custom-table">
+
+    <table class="custom-table" id="teamTable">
         <thead>
             <tr>
                 <th>Name</th>
                 <th>Role</th>
                 <th>Tasks</th>
-                <th>Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
-        <!-- Update your my_team.html file - replace the table body section -->
-
-        <tbody>
+        <tbody id="teamTableBody">
             {% if team and team|length > 0 %}
             {% for member in team %}
-            <tr>
+            {% set member_id = member[0] %}
+            {% set task_count = task_counts.get(member_id, {'total': 0, 'completed': 0}) %}
+            <tr class="team-member-row" data-name="{{ member[1]|lower }}" data-role="{{ member[3]|lower }}">
                 <td>
                     <div class="d-flex align-items-center">
-                        <div class="user-avatar me-3">
+                        <div class="user-avatar me-3"
+                            style="background: linear-gradient(135deg, {% if loop.index % 3 == 0 %}#6366f1{% elif loop.index % 3 == 1 %}#10b981{% else %}#f59e0b{% endif %} 0%, {% if loop.index % 3 == 0 %}#a855f7{% elif loop.index % 3 == 1 %}#34d399{% else %}#fbbf24{% endif %} 100%);">
                             {{ member[1][0] if member[1] else 'U' }}
                         </div>
                         <div>
-                            <div class="fw-bold">{{ member[1] }}</div> <!-- name -->
-                            <small class="text-muted">{{ member[3] }}</small> <!-- designation -->
+                            <div class="fw-bold">{{ member[1] }}</div>
+                            <small class="text-muted">{{ member[3] }}</small>
                         </div>
                     </div>
                 </td>
-                <td>{{ member[3] }}</td> <!-- designation/role -->
                 <td>
-                    <small>0/0</small> <!-- You'll need to add task count query later -->
+                    <span class="role-badge">{{ member[3] }}</span>
                 </td>
-                <td><span class="status-badge status-active">Active</span></td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold">{{ task_count.completed }}/{{ task_count.total }}</span>
+                        {% if task_count.total > 0 %}
+                        <div class="progress-container" style="width: 80px;">
+                            <div class="progress-bar"
+                                style="width: {{ (task_count.completed / task_count.total * 100)|int if task_count.total > 0 else 0 }}%">
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </td>
                 <td>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-outline-primary">
+                        <button class="btn btn-sm btn-outline-primary" onclick="messageMember({{ member_id }})"
+                            title="Send Message">
                             <i class="fas fa-comment"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-primary">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="openMemberOverview({{ member_id }})"
+                            title="View Details">
                             <i class="fas fa-eye"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-outline-danger"
+                            onclick="removeMember({{ member_id }}, '{{ member[1] }}')" title="Remove from Team">
+                            <i class="fas fa-user-minus"></i>
                         </button>
                     </div>
                 </td>
@@ -152,21 +146,62 @@
             {% endfor %}
             {% else %}
             <tr>
-                <td colspan="6" class="text-center text-muted py-4">
-                    No team members found in your projects.
+                <td colspan="4" class="text-center text-muted py-4">
+                    <div class="empty-state">
+                        <i class="fas fa-users fa-3x mb-3"></i>
+                        <p>No team members found in your projects.</p>
+                    </div>
                 </td>
             </tr>
             {% endif %}
         </tbody>
-
     </table>
+</div>
+
+<!-- Message Modal -->
+<div class="modal fade" id="messageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Send Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="messageForm">
+                    <div class="mb-3">
+                        <label class="form-label">Message</label>
+                        <textarea class="form-control" rows="4" id="messageText" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Remove Member Modal -->
+<div class="modal fade" id="removeMemberModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remove Team Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="removeMemberMessage">Are you sure you want to remove <span id="removeMemberName"></span> from the
+                    team?</p>
+                <form id="removeMemberForm" method="POST" action="{{ url_for('project_leader.remove_team_member') }}">
+                    <input type="hidden" name="user_id" id="removeUserId">
+                    <button type="submit" class="btn btn-danger w-100">Remove</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block modals %}
-<!-- Modals -->
-<!-- Update the Add Member modal in my_team.html -->
-
+<!-- Add Member Modal -->
 <div class="modal fade" id="addMember" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -187,7 +222,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Role in Project</label>
-                        <input type="text" name="role" class="form-control" placeholder="e.g., Frontend Developer" required>
+                        <input type="text" name="role" class="form-control" placeholder="e.g., Frontend Developer"
+                            required>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 py-2">Add to Team</button>
                 </form>
@@ -195,4 +231,70 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="memberOverviewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Member Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <h6 class="fw-bold mb-3" id="m_name"></h6>
+
+                <div class="row mb-2">
+                    <div class="col-5">Email:</div>
+                    <div class="col-7" id="m_email"></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-5">Designation:</div>
+                    <div class="col-7" id="m_designation"></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-5">System Role:</div>
+                    <div class="col-7" id="m_role"></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-5">Joined System:</div>
+                    <div class="col-7" id="m_joined_system"></div>
+                </div>
+
+                <hr>
+                <h6 class="fw-bold">Task Summary</h6>
+
+                <div class="row mb-1">
+                    <div class="col-6">Total:</div>
+                    <div class="col-6" id="m_total"></div>
+                </div>
+
+                <div class="row mb-1 text-success">
+                    <div class="col-6">Completed:</div>
+                    <div class="col-6" id="m_completed"></div>
+                </div>
+
+                <div class="row mb-1 text-warning">
+                    <div class="col-6">Pending:</div>
+                    <div class="col-6" id="m_pending"></div>
+                </div>
+
+                <div class="row mb-2 text-danger">
+                    <div class="col-6">Overdue:</div>
+                    <div class="col-6" id="m_overdue"></div>
+                </div>
+
+                <div class="progress">
+                    <div class="progress-bar" id="m_progress" style="width:0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/projectLeader/main.js') }}"></script>
 {% endblock %}

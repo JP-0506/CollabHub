@@ -2,12 +2,6 @@
 
 {% block title %}My Profile{% endblock %}
 
-{% block extra_css %}
-<style src="../../static/css/projectLeader/style.css">
-
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="top-bar">
     <div class="search-container">
@@ -76,7 +70,8 @@
                     <small class="fw-bold">{{ user.profile_completion }}%</small>
                 </div>
                 <div class="profile-completion">
-                    <div class="profile-completion-bar" style="width: {{ user.profile_completion }}%;"></div>
+                     <!--The below line will show error but nothing is wrong . Safe to Ignore-->
+                    <div class="profile-completion-bar" style="width: {{ user.profile_completion }}%;"></div> 
                 </div>
             </div>
             
@@ -281,9 +276,6 @@
     </div>
 </div>
 {% endblock %}
-
-{% block extra_js %}
-<script src="../../static/js/projectLeader/main.js">
-
-</script>
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/projectLeader/style.css') }}">
 {% endblock %}

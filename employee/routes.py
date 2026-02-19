@@ -145,16 +145,17 @@ def my_work():
 
     cur.execute("""
     SELECT 
-        p.project_id,
-        p.project_name,
-        p.status,
-        p.features
-    FROM projects p
-    JOIN project_members pm ON p.project_id = pm.project_id
-    WHERE pm.user_id = %s
-    AND p.is_deleted = FALSE   -- 🔥 IMPORTANT
-    LIMIT 1
-""", (user_id,))
+        t.task_id,
+        t.title,
+        t.status,
+        t.priority,
+        t.due_date
+    FROM tasks t
+    JOIN projects p ON t.project_id = p.project_id
+    WHERE t.assigned_to = %s
+    AND p.is_deleted = FALSE   -- 🔥 hide deleted project tasks
+    ORDER BY t.due_date ASC NULLS LAST
+    """, (user_id,))
     project = cur.fetchone()
 
     cur.execute("""
@@ -189,11 +190,11 @@ def my_work():
 
 
 # ============================
-# COMPLETE TASK (API -> JSON)
+# SUBMIT TASK FOR REVIEW (instead of complete)
 # ============================
-@employee_bp.route("/complete-task/<int:task_id>", methods=["POST"])
-def complete_task(task_id):
-    # For fetch() APIs return JSON, don’t redirect
+@employee_bp.route("/submit-task/<int:task_id>", methods=["POST"])
+def submit_task(task_id):
+    # For fetch() APIs return JSON, don't redirect
     if not employee_login_required():
         return jsonify({"success": False, "message": "Not logged in"}), 401
 
@@ -202,11 +203,37 @@ def complete_task(task_id):
     conn = get_db()
     cur = conn.cursor()
 
+    # Check current status first
     cur.execute("""
-        UPDATE tasks
-        SET status = 'completed', completed_at = CURRENT_TIMESTAMP
+        SELECT status FROM tasks 
         WHERE task_id = %s AND assigned_to = %s
     """, (task_id, user_id))
+    
+    task = cur.fetchone()
+    if not task:
+        cur.close()
+        conn.close()
+        return jsonify({"success": False, "message": "Task not found"}), 404
+    
+    if task[0] == 'submitted':
+        cur.close()
+        conn.close()
+        return jsonify({"success": False, "message": "Task already submitted"}), 400
+    
+    if task[0] == 'approved':
+        cur.close()
+        conn.close()
+        return jsonify({"success": False, "message": "Task already approved"}), 400
+
+    # Update to submitted status
+    cur.execute("""
+        UPDATE tasks
+        SET status = 'submitted', 
+            submitted_at = CURRENT_TIMESTAMP,
+            last_action_by = %s,
+            last_action_at = CURRENT_TIMESTAMP
+        WHERE task_id = %s AND assigned_to = %s
+    """, (user_id, task_id, user_id))
 
     conn.commit()
     updated = cur.rowcount
@@ -217,7 +244,7 @@ def complete_task(task_id):
     if updated == 0:
         return jsonify({"success": False, "message": "Task not found / not allowed"}), 403
 
-    return jsonify({"success": True})
+    return jsonify({"success": True, "message": "Task submitted for review"})
 
 
 # ============================
@@ -334,6 +361,7 @@ def my_team():
         JOIN projects p ON pm.project_id = p.project_id
         WHERE pm.user_id = %s
           AND p.is_deleted = FALSE
+          AND pm.is_deleted = FALSE
     """, (user_id,))
     project_ids = [row["project_id"] for row in (cur.fetchall() or [])]
 
@@ -352,6 +380,7 @@ def my_team():
         JOIN projects p ON pm.project_id = p.project_id
         WHERE pm.project_id = ANY(%s)
           AND p.is_deleted = FALSE
+          AND pm.is_deleted = FALSE
         ORDER BY pm.project_id, u.name
     """, (project_ids,))
     team_members = cur.fetchall() or []
