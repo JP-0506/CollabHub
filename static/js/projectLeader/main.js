@@ -26,7 +26,33 @@ function downloadCSV() {
     window.location.href = "/projectleader/export_csv";
 }
 
-function sendReportEmail() {
+// function sendReportEmail() {
+//     const form = document.getElementById('emailReportForm');
+//     const formData = new FormData(form);
+
+//     fetch("/projectleader/email_report", {
+//         method: 'POST',
+//         body: formData
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             alert('Report sent successfully!');
+//             bootstrap.Modal.getInstance(document.getElementById('emailModal')).hide();
+//         } else {
+//             alert('Error: ' + data.error);
+//         }
+//     })
+//     .catch(error => {
+//         alert('Error sending email: ' + error);
+//     });
+// }
+
+// main.js
+
+function sendReportEmail(event) {
+    event.preventDefault(); // Prevent the default form submission
+
     const form = document.getElementById('emailReportForm');
     const formData = new FormData(form);
 
@@ -34,19 +60,27 @@ function sendReportEmail() {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Report sent successfully!');
-            bootstrap.Modal.getInstance(document.getElementById('emailModal')).hide();
-        } else {
-            alert('Error: ' + data.error);
-        }
-    })
-    .catch(error => {
-        alert('Error sending email: ' + error);
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Report sent successfully!');
+                // Close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('emailModal'));
+                if (modal) {
+                    modal.hide();
+                }
+                // Optional: Reset the form
+                form.reset();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error sending email: ' + error);
+        });
 }
+
+// You can add other project leader related JavaScript functions here
 
 // ========== TASKS PAGE ==========
 function filterTasks() {
@@ -254,18 +288,18 @@ function saveProfile() {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('✅ Profile updated successfully!');
-            location.reload();
-        } else {
-            alert('❌ Error: ' + data.error);
-        }
-    })
-    .catch(error => {
-        alert('❌ Error: ' + error);
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Profile updated successfully!');
+                location.reload();
+            } else {
+                alert('❌ Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('❌ Error: ' + error);
+        });
 }
 
 function changePassword(event) {
@@ -294,22 +328,22 @@ function changePassword(event) {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('✅ Password changed successfully!');
-            document.getElementById('passwordForm').reset();
-        } else {
-            alert('❌ Error: ' + data.error);
-        }
-    })
-    .catch(error => {
-        alert('❌ Error: ' + error);
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Password changed successfully!');
+                document.getElementById('passwordForm').reset();
+            } else {
+                alert('❌ Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('❌ Error: ' + error);
+        });
 }
 
 // ========== DOM CONTENT LOADED ==========
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
 
     // ---- Message form submission (my_team) ----
     const messageForm = document.getElementById('messageForm');
@@ -330,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ---- Email report form ----
     const emailForm = document.getElementById('emailReportForm');
     if (emailForm) {
-        emailForm.onsubmit = function(e) {
+        emailForm.onsubmit = function (e) {
             e.preventDefault();
 
             const formData = new FormData(emailForm);
@@ -344,24 +378,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('✅ Report sent successfully!');
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('emailModal'));
-                    if (modal) modal.hide();
-                    emailForm.reset();
-                } else {
-                    alert('❌ Error: ' + data.error);
-                }
-            })
-            .catch(error => {
-                alert('❌ Error: ' + error);
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Report sent successfully!');
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('emailModal'));
+                        if (modal) modal.hide();
+                        emailForm.reset();
+                    } else {
+                        alert('❌ Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    alert('❌ Error: ' + error);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
 
             return false;
         };
@@ -474,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ---- Photo upload handling ----
     const photoUpload = document.getElementById('photoUpload');
     if (photoUpload) {
-        photoUpload.addEventListener('change', function(e) {
+        photoUpload.addEventListener('change', function (e) {
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
                 const formData = new FormData();
@@ -484,13 +518,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('✅ Photo updated!');
-                        location.reload();
-                    }
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('✅ Photo updated!');
+                            location.reload();
+                        }
+                    });
             }
         });
     }
