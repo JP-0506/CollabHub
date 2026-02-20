@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, session, url_for
+from flask_mail import Mail, Message
 
 from auth import auth_bp
 from admin import admin_bp
@@ -8,7 +9,6 @@ from employee.routes import employee_bp
 app = Flask(__name__)
 
 app.secret_key = "collabhub_secret_key"
-from flask_mail import Mail, Message
 
 # Mail configuration
 app.config["MAIL_SERVER"] = "smtp.gmail.com"  # or your SMTP server
