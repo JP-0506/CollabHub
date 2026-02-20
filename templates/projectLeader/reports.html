@@ -260,7 +260,8 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="emailReportForm" method="POST" action="{{ url_for('project_leader.email_report') }}">
+            <form id="emailReportForm" onsubmit="sendReportEmail(event)" method="POST"
+                action="{{ url_for('project_leader.email_report') }}">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">To <span class="text-danger">*</span></label>
@@ -293,7 +294,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="main.js">
+<script src="{{ url_for('static', filename='js/projectLeader/main.js') }}"></script>
 
 </script>
 {% endblock %}
