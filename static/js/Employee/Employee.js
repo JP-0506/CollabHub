@@ -1,37 +1,37 @@
 let isEditing = false;
 
 function editProfile() {
-    const nameSpan = document.getElementById("profile-name");
-    const emailSpan = document.getElementById("profile-email");
+  const nameSpan = document.getElementById("profile-name");
+  const emailSpan = document.getElementById("profile-email");
 
-    const nameInput = document.getElementById("edit-name");
-    const emailInput = document.getElementById("edit-email");
+  const nameInput = document.getElementById("edit-name");
+  const emailInput = document.getElementById("edit-email");
 
-    const btn = document.getElementById("editBtn");
+  const btn = document.getElementById("editBtn");
 
-    if (!nameSpan || !emailSpan || !nameInput || !emailInput || !btn) return;
+  if (!nameSpan || !emailSpan || !nameInput || !emailInput || !btn) return;
 
-    if (!isEditing) {
-        // 👉 ENTER EDIT MODE
-        nameInput.value = nameSpan.textContent.trim();
-        emailInput.value = emailSpan.textContent.trim();
+  if (!isEditing) {
+    // 👉 ENTER EDIT MODE
+    nameInput.value = nameSpan.textContent.trim();
+    emailInput.value = emailSpan.textContent.trim();
 
-        nameSpan.classList.add("d-none");
-        emailSpan.classList.add("d-none");
+    nameSpan.classList.add("d-none");
+    emailSpan.classList.add("d-none");
 
-        nameInput.classList.remove("d-none");
-        emailInput.classList.remove("d-none");
+    nameInput.classList.remove("d-none");
+    emailInput.classList.remove("d-none");
 
-        btn.innerHTML = '<i class="fa fa-save me-1"></i> Save Changes';
-        btn.classList.replace("btn-primary", "btn-success");
+    btn.innerHTML = '<i class="fa fa-save me-1"></i> Save Changes';
+    btn.classList.replace("btn-primary", "btn-success");
 
-        isEditing = true;
+    isEditing = true;
 
-    } else {
-        // 👉 SAVE TO BACKEND
-        const form = document.getElementById("profileForm");
-        if (form) form.submit();   // backend will reload page
-    }
+  } else {
+    // 👉 SAVE TO BACKEND
+    const form = document.getElementById("profileForm");
+    if (form) form.submit();   // backend will reload page
+  }
 }
 /* ================= Change password security ================= */
 
@@ -102,9 +102,34 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ================= SIDEBAR ================= */
 
 function toggleSidebar() {
-    const sidebar = document.getElementById("sidebar");
-    const mainContent = document.querySelector(".main-content");
+  const sb = document.getElementById('sidebar');
+  const mc = document.getElementById('main-content');
+  const icon = document.getElementById('toggle-icon');
 
-    sidebar.classList.toggle("collapsed");
-    mainContent.classList.toggle("expanded");
+  sb.classList.toggle('collapsed');
+  mc.classList.toggle('expanded');
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".submit-btn").forEach((btn) => {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      const form = this.closest("form");
+      const taskId = this.dataset.taskId;
+
+      if (confirm("Submit this task for leader review?")) {
+        fetch(form.action, { method: "POST" })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Task submitted successfully!");
+              location.reload();
+            } else {
+              alert("Error: " + data.message);
+            }
+          })
+          .catch(() => alert("Error submitting task"));
+      }
+    });
+  });
+});
