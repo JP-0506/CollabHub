@@ -326,7 +326,7 @@ def projects():
         # 🔥 AUTO STATUS
         if progress == 100:
             status = "completed"
-        elif leader_id and progress > 0:
+        elif leader_id and int(progress or 0) > 0:
             status = "ongoing"
         else:
             status = "planning"
@@ -414,6 +414,7 @@ def projects():
         ON p.project_id = pm.project_id
 
     WHERE p.is_deleted = FALSE
+    AND p.status != 'closed'
 
     GROUP BY
         p.project_id,
@@ -1336,7 +1337,7 @@ def delete_employee(id):
           AND p.status IN ('ongoing', 'planning')
           AND p.is_deleted = FALSE
           AND t.status != 'completed'
-        """,
+        """, 
         (id,),
     )
 
@@ -1585,3 +1586,184 @@ def profile():
             cur.close()
         if conn:
             conn.close()
+# ============================
+# REVIEW PROJECT (Admin accepts or rejects)
+# ADD THIS ROUTE to admin routes.py
+# ============================
+
+@admin_bp.route("/review_project/<int:project_id>", methods=["POST"])
+def review_project(project_id):
+    if not admin_login_required():
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+
+    data = request.get_json()
+    action = data.get("action")  # 'accept' or 'reject'
+
+    if action not in ("accept", "reject"):
+        return jsonify({"status": "error", "message": "Invalid action"}), 400
+
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    try:
+        # Get project and leader info
+        cur.execute(
+            """
+            SELECT p.project_id, p.project_name, p.leader_id, u.name as leader_name
+            FROM projects p
+            JOIN users u ON p.leader_id = u.user_id
+            WHERE p.project_id = %s AND p.status = 'completed'
+            """,
+            (project_id,),
+        )
+        project = cur.fetchone()
+
+        if not project:
+            return jsonify({"status": "error", "message": "Project not found or not in completed status"}), 404
+
+        admin_id = session["user_id"]
+
+        if action == "accept":
+            # Set status to 'closed'
+            cur.execute(
+                """
+                UPDATE projects
+                SET status = 'closed', updated_at = NOW()
+                WHERE project_id = %s
+                """,
+                (project_id,),
+            )
+            notif_title = "Project Accepted"
+            notif_message = f"Congratulations! Your project '{project['project_name']}' has been reviewed and accepted by the admin."
+
+        else:
+            reason = data.get("reason", "").strip()
+            # Set status back to 'ongoing'
+            cur.execute(
+                """
+                UPDATE projects
+                SET status = 'ongoing', updated_at = NOW()
+                WHERE project_id = %s
+                """,
+                (project_id,),
+            )
+            notif_title = "Project Sent Back for Revision"
+            notif_message = f"Your project '{project['project_name']}' was rejected by the admin and needs further work."
+            if reason:
+                notif_message += f" Reason: {reason}"
+
+        # Notify the leader
+        cur.execute(
+            """
+            INSERT INTO notifications (sender_id, receiver_id, title, message, type, is_read, sent_at)
+            VALUES (%s, %s, %s, %s, %s, false, NOW())
+            """,
+            (
+                admin_id,
+                project["leader_id"],
+                notif_title,
+                notif_message,
+                "project_review",
+            ),
+        )
+
+        conn.commit()
+        return jsonify({"status": "success", "message": f"Project {action}ed successfully!"})
+
+    except Exception as e:
+        conn.rollback()
+        print("Error in review_project:", str(e))
+        return jsonify({"status": "error", "message": "Something went wrong"}), 500
+
+    finally:
+        cur.close()
+        conn.close()
+
+
+# ============================
+# CLOSED PROJECTS (Admin sees all closed projects)
+# ADD THIS ROUTE to admin routes.py
+# ============================
+
+@admin_bp.route("/closed_projects")
+def closed_projects():
+    if not admin_login_required():
+        return redirect(url_for("auth.login"))
+
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute(
+        """
+        SELECT p.project_id, p.project_name, p.progress, p.start_date, p.end_date,
+               p.updated_at as closed_at,
+               u.name as leader_name
+        FROM projects p
+        LEFT JOIN users u ON p.leader_id = u.user_id
+        WHERE p.status = 'closed' AND p.is_deleted = FALSE
+        ORDER BY p.updated_at DESC
+        """
+    )
+    closed = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template("admin/section/closed_projects.html", closed_projects=closed)
+
+
+# ============================
+# API: Projects pending review (for admin projects page)
+# ADD THIS ROUTE to admin routes.py
+# ============================
+
+@admin_bp.route("/api/pending_review_projects")
+def pending_review_projects():
+    if not admin_login_required():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute(
+        """
+        SELECT p.project_id, p.project_name, p.progress, p.start_date, p.end_date,
+               u.name as leader_name
+        FROM projects p
+        LEFT JOIN users u ON p.leader_id = u.user_id
+        WHERE p.status = 'completed' AND p.is_deleted = FALSE
+        ORDER BY p.updated_at DESC
+        """
+    )
+    projects = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify(projects)
+
+@admin_bp.route("/api/closed_projects")
+def api_closed_projects():
+    if not admin_login_required():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute(
+        """
+        SELECT p.project_id, p.project_name, p.progress, p.start_date, p.end_date,
+               TO_CHAR(p.updated_at, 'Mon DD, YYYY') as closed_at,
+               u.name as leader_name
+        FROM projects p
+        LEFT JOIN users u ON p.leader_id = u.user_id
+        WHERE p.status = 'closed' AND p.is_deleted = FALSE
+        ORDER BY p.updated_at DESC
+        """
+    )
+    projects = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify(projects)
