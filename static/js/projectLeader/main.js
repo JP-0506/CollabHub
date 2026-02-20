@@ -529,3 +529,216 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+// ========== PROJECT COMPLETION (Leader - Mark as Complete) ==========
+document.addEventListener("DOMContentLoaded", function () {
+
+    const submitBtn = document.getElementById("submitProjectBtn");
+
+    if (!submitBtn) return;
+
+    submitBtn.addEventListener("click", function () {
+
+        const projectId = this.dataset.projectId;
+
+        const confirmed = confirm(
+            "Are you sure you want to mark this project as complete and send it for admin review?"
+        );
+
+        if (!confirmed) return;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+
+        fetch(`/projectleader/submit_project/${projectId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+        })
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+            if (data.success) {
+                alert("Project submitted for admin review successfully!");
+                window.location.reload();
+            } else {
+                alert("Error: " + data.error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Mark as Complete';
+            }
+        })
+        .catch(function () {
+            alert("Something went wrong. Please try again.");
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Mark as Complete';
+        });
+    });
+});
+// ========== ADD TEAM MEMBER FORM ==========
+const addMemberForm = document.querySelector('#addMember form');
+if (addMemberForm) {
+    addMemberForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Adding...';
+
+        try {
+            const res = await fetch(this.action, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('✅ ' + data.message);
+                bootstrap.Modal.getInstance(document.getElementById('addMember')).hide();
+                location.reload(); // or update the table dynamically
+            } else {
+                alert('❌ ' + (data.error || 'Something went wrong'));
+            }
+        } catch (err) {
+            alert('❌ Network error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    });
+}
+
+// ========== CREATE TASK FORM (from both dashboard and tasks page) ==========
+document.querySelectorAll('#createTask form').forEach(form => {
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Creating...';
+
+        try {
+            const res = await fetch(this.action, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('✅ ' + data.message);
+                bootstrap.Modal.getInstance(document.getElementById('createTask')).hide();
+                location.reload();
+            } else {
+                alert('❌ ' + (data.error || 'Something went wrong'));
+            }
+        } catch (err) {
+            alert('❌ Network error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    });
+});
+
+// ========== DELETE TASK FORM ==========
+const deleteTaskForm = document.getElementById('deleteTaskForm');
+if (deleteTaskForm) {
+    deleteTaskForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Deleting...';
+
+        try {
+            const res = await fetch(this.action, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('✅ ' + data.message);
+                bootstrap.Modal.getInstance(document.getElementById('deleteTaskModal')).hide();
+                location.reload();
+            } else {
+                alert('❌ ' + (data.error || 'Something went wrong'));
+            }
+        } catch (err) {
+            alert('❌ Network error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    });
+}
+
+// ========== EDIT TASK FORM ==========
+const editTaskForm = document.getElementById('editTaskForm');
+if (editTaskForm) {
+    editTaskForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Updating...';
+
+        try {
+            const res = await fetch(this.action, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('✅ ' + data.message);
+                bootstrap.Modal.getInstance(document.getElementById('editTaskModal')).hide();
+                location.reload();
+            } else {
+                alert('❌ ' + (data.error || 'Something went wrong'));
+            }
+        } catch (err) {
+            alert('❌ Network error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    });
+}
+
+// ========== REMOVE TEAM MEMBER FORM ==========
+const removeMemberForm = document.getElementById('removeMemberForm');
+if (removeMemberForm) {
+    removeMemberForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Removing...';
+
+        try {
+            const res = await fetch(this.action, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('✅ ' + data.message);
+                bootstrap.Modal.getInstance(document.getElementById('removeMemberModal')).hide();
+                location.reload();
+            } else {
+                alert('❌ ' + (data.error || 'Something went wrong'));
+            }
+        } catch (err) {
+            alert('❌ Network error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    });
+}

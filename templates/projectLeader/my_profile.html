@@ -28,7 +28,13 @@
                         </div>
                         <div>
                             <p class="mb-1">{{ notif.message }}</p>
-                            <small class="text-muted">{{ notif.sent_at }}</small>
+                            <small class="text-muted">
+                                {% if notif.sent_at %}
+                                {{ notif.sent_at.strftime('%I:%M %p, %b %d') }}
+                                {% else %}
+                                Recently
+                                {% endif %}
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -52,17 +58,17 @@
                 <div class="user-avatar mx-auto" style="width: 120px; height: 120px; font-size: 3rem;">
                     {{ user.name[0:2]|upper }}
                 </div>
-                <button class="btn btn-sm btn-light position-absolute bottom-0 end-0 rounded-circle" 
-                        style="width: 36px; height: 36px;" onclick="document.getElementById('photoUpload').click()">
+                <button class="btn btn-sm btn-light position-absolute bottom-0 end-0 rounded-circle"
+                    style="width: 36px; height: 36px;" onclick="document.getElementById('photoUpload').click()">
                     <i class="fas fa-camera"></i>
                 </button>
                 <input type="file" id="photoUpload" accept="image/*" style="display: none;">
             </div>
-            
+
             <!-- Name & Role -->
             <h4 class="fw-bold mb-1">{{ user.name }}</h4>
             <p class="text-muted mb-2">{{ user.role|replace('_', ' ')|title }}</p>
-            
+
             <!-- Profile Completion -->
             <div class="text-start mb-4">
                 <div class="d-flex justify-content-between mb-2">
@@ -70,11 +76,11 @@
                     <small class="fw-bold">{{ user.profile_completion }}%</small>
                 </div>
                 <div class="profile-completion">
-                     <!--The below line will show error but nothing is wrong . Safe to Ignore-->
-                    <div class="profile-completion-bar" style="width: {{ user.profile_completion }}%;"></div> 
+                    <!--The below line will show error but nothing is wrong . Safe to Ignore-->
+                    <div class="profile-completion-bar" style="width: {{ user.profile_completion }}%;"></div>
                 </div>
             </div>
-            
+
             <!-- Quick Stats -->
             <div class="d-flex gap-2 mb-4">
                 <div class="stat-box">
@@ -90,14 +96,14 @@
                     <div class="stat-label">Done</div>
                 </div>
             </div>
-            
+
             <!-- Edit Profile Button -->
             <button class="btn btn-primary w-100 mb-3" onclick="toggleEditMode()" id="editToggleBtn">
                 <i class="fas fa-edit me-2"></i>Edit Profile
             </button>
         </div>
     </div>
-    
+
     <!-- Right Column - Personal & Account Info -->
     <div class="col-lg-8">
         <!-- Personal Information -->
@@ -106,7 +112,7 @@
                 <h5 class="fw-bold mb-0">Personal Information</h5>
                 <span class="badge bg-light text-dark" id="editModeBadge" style="display: none;">Edit Mode</span>
             </div>
-            
+
             <form id="profileUpdateForm">
                 <div class="row g-4">
                     <div class="col-md-6 view-only">
@@ -119,7 +125,7 @@
                         <label class="form-label fw-600 small text-muted">FULL NAME</label>
                         <input type="text" class="form-control" name="name" value="{{ user.name }}">
                     </div>
-                    
+
                     <div class="col-md-6 view-only">
                         <label class="form-label fw-600 small text-muted">EMAIL</label>
                         <div class="editable-field" onclick="enableEdit('email')" id="view_email">
@@ -130,7 +136,7 @@
                         <label class="form-label fw-600 small text-muted">EMAIL</label>
                         <input type="email" class="form-control" name="email" value="{{ user.email }}">
                     </div>
-                    
+
                     <div class="col-md-6 view-only">
                         <label class="form-label fw-600 small text-muted">PHONE NUMBER</label>
                         <div class="editable-field" onclick="enableEdit('phone')" id="view_phone">
@@ -141,7 +147,7 @@
                         <label class="form-label fw-600 small text-muted">PHONE NUMBER</label>
                         <input type="tel" class="form-control" name="phone" value="{{ user.phone }}">
                     </div>
-                    
+
                     <div class="col-md-6 view-only">
                         <label class="form-label fw-600 small text-muted">ROLE</label>
                         <div>
@@ -150,9 +156,10 @@
                     </div>
                     <div class="col-md-6 edit-only">
                         <label class="form-label fw-600 small text-muted">ROLE</label>
-                        <input type="text" class="form-control" value="{{ user.role|replace('_', ' ')|title }}" readonly>
+                        <input type="text" class="form-control" value="{{ user.role|replace('_', ' ')|title }}"
+                            readonly>
                     </div>
-                    
+
                     <div class="col-md-6 view-only">
                         <label class="form-label fw-600 small text-muted">DESIGNATION</label>
                         <div class="editable-field" onclick="enableEdit('designation')" id="view_designation">
@@ -163,14 +170,14 @@
                         <label class="form-label fw-600 small text-muted">DESIGNATION</label>
                         <input type="text" class="form-control" name="designation" value="{{ user.designation or '' }}">
                     </div>
-                    
+
                     <div class="col-md-6">
                         <label class="form-label fw-600 small text-muted">JOINING DATE</label>
                         <div>
                             <i class="fas fa-calendar me-2 text-muted"></i>{{ user.joining_date }}
                         </div>
                     </div>
-                    
+
                     <div class="col-12 view-only">
                         <label class="form-label fw-600 small text-muted">BIO</label>
                         <div class="editable-field p-3 bg-light rounded" onclick="enableEdit('bio')" id="view_bio">
@@ -181,7 +188,7 @@
                         <label class="form-label fw-600 small text-muted">BIO</label>
                         <textarea class="form-control" name="bio" rows="4">{{ user.bio }}</textarea>
                     </div>
-                    
+
                     <div class="col-12 edit-only">
                         <button type="button" class="btn btn-primary px-4" onclick="saveProfile()">
                             <i class="fas fa-save me-2"></i>Save Changes
@@ -193,7 +200,7 @@
                 </div>
             </form>
         </div>
-        
+
         <!-- Change Password -->
         <div class="table-card mt-4">
             <h5 class="fw-bold mb-4">Change Password</h5>
@@ -249,7 +256,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-6">
         <div class="table-card">
             <h5 class="fw-bold mb-3">Recent Activity</h5>
