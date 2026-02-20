@@ -68,114 +68,119 @@
 <div>
     <div class="table-card">
         <h5 class="fw-bold mb-4">All Tasks</h5>
-        <table class="custom-table" id="tasksTable">
-            <thead>
-                <tr>
-                    <th>Task</th>
-                    <th>Project</th>
-                    <th>Assignee</th>
-                    <th>Priority</th>
-                    <th>Due Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if tasks and tasks|length > 0 %}
-                {% for task in tasks %}
-                <tr class="task-row priority-{{ task[3]|lower }}" data-task-id="{{ task[0] }}">
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="task-avatar me-3">
-                                {{ task[7][0] if task[7] else 'T' }}
-                            </div>
-                            <div>
-                                <div class="task-title">{{ task[1] }}</div>
-                                <small class="task-description">{{ task[2][:50] + '...' if task[2] and task[2]|length >
-                                    50 else task[2] }}</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td>{{ task[6] }}</td>
-                    <td>{{ task[7] }}</td>
-                    <td>
-                        {% if task[3]|lower == 'high' %} <!-- Use |lower filter -->
-                        <span class="priority-badge priority-high">{{ task[3] }}</span>
-                        {% elif task[3]|lower == 'medium' %} <!-- Use |lower filter -->
-                        <span class="priority-badge priority-medium">{{ task[3] }}</span>
-                        {% elif task[3]|lower == 'low' %} <!-- Use |lower filter -->
-                        <span class="priority-badge priority-low">{{ task[3] }}</span>
-                        {% else %}
-                        <span class="priority-badge">{{ task[3] }}</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if task[5] %}
-                        <span class="due-date {% if task[5] < now %}overdue{% endif %}">{{ task[5] }}</span>
-                        {% else %}
-                        <span class="text-muted">No date</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if task[4] == 'approved' %}
-                        <span class="status-badge" style="background: #d1fae5; color: #065f46;">Approved</span>
-                        {% elif task[4] == 'submitted' %}
-                        <span class="status-badge" style="background: #fef3c7; color: #92400e;">Pending Review</span>
-                        {% elif task[4] == 'in_progress' %}
-                        <span class="status-badge" style="background: #dbeafe; color: #1e40af;">In Progress</span>
-                        {% elif task[4] == 'rejected' %}
-                        <span class="status-badge" style="background: #fee2e2; color: #991b1b;">Rejected</span>
-                        {% else %}
-                        <span class="status-badge">{{ task[4] }}</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                    <td>
-                        <div class="d-flex gap-2">
-                            <!-- Show different actions based on status -->
-                            {% if task[4] == 'submitted' %}
-                            <button class="btn btn-sm btn-success approve-task" data-task-id="{{ task[0] }}"
-                                title="Approve Task">
-                                <i class="fas fa-check-circle"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger reject-task" data-task-id="{{ task[0] }}"
-                                title="Reject Task">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
-                            {% elif task[4] == 'rejected' %}
-                            <span class="badge bg-secondary me-2" title="Rejection reason: {{ task[8] }}">
-                                <i class="fas fa-info-circle"></i> Rejected
-                            </span>
-                            {% endif %}
 
-                            <!-- Always show edit/delete -->
-                            <button class="btn btn-sm btn-outline-primary edit-task" data-task-id="{{ task[0] }}"
-                                onclick="editTask({{ task[0] }})" title="Edit Task">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger delete-task" data-task-id="{{ task[0] }}"
-                                data-task-name="{{ task[1] }}" title="Delete Task">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                    </td>
-                </tr>
-                {% endfor %}
-                {% else %}
-                <tr>
-                    <td colspan="7" class="text-center text-muted py-5">
-                        <div class="empty-state">
-                            <i class="fas fa-tasks fa-3x mb-3"></i>
-                            <p>No tasks found. Click "Create New Task" to add one.</p>
-                        </div>
-                    </td>
-                </tr>
-                {% endif %}
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table class="custom-table" id="tasksTable">
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Project</th>
+                        <th>Assignee</th>
+                        <th>Priority</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if tasks and tasks|length > 0 %}
+                    {% for task in tasks %}
+                    <tr class="task-row priority-{{ task[3]|lower }}" data-task-id="{{ task[0] }}">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="task-avatar me-3">
+                                    {{ task[7][0] if task[7] else 'T' }}
+                                </div>
+                                <div>
+                                    <div class="task-title">{{ task[1] }}</div>
+                                    <small class="task-description">{{ task[2][:50] + '...' if task[2] and task[2]|length >
+                                    50 else task[2] }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ task[6] }}</td>
+                        <td>{{ task[7] }}</td>
+                        <td>
+                            {% if task[3]|lower == 'high' %} <!-- Use |lower filter -->
+                            <span class="priority-badge priority-high">{{ task[3] }}</span>
+                            {% elif task[3]|lower == 'medium' %} <!-- Use |lower filter -->
+                            <span class="priority-badge priority-medium">{{ task[3] }}</span>
+                            {% elif task[3]|lower == 'low' %} <!-- Use |lower filter -->
+                            <span class="priority-badge priority-low">{{ task[3] }}</span>
+                            {% else %}
+                            <span class="priority-badge">{{ task[3] }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task[5] %}
+                            <span class="due-date {% if task[5] < now %}overdue{% endif %}">{{ task[5] }}</span>
+                            {% else %}
+                            <span class="text-muted">No date</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task[4] == 'approved' %}
+                            <span class="status-badge" style="background: #d1fae5; color: #065f46;">Approved</span>
+                            {% elif task[4] == 'submitted' %}
+                            <span class="status-badge" style="background: #fef3c7; color: #92400e;">Pending
+                                Review</span>
+                            {% elif task[4] == 'in_progress' %}
+                            <span class="status-badge" style="background: #dbeafe; color: #1e40af;">In Progress</span>
+                            {% elif task[4] == 'rejected' %}
+                            <span class="status-badge" style="background: #fee2e2; color: #991b1b;">Rejected</span>
+                            {% else %}
+                            <span class="status-badge">{{ task[4] }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <!-- Show different actions based on status -->
+                                {% if task[4] == 'submitted' %}
+                                <button class="btn btn-sm btn-success approve-task" data-task-id="{{ task[0] }}"
+                                    title="Approve Task">
+                                    <i class="fas fa-check-circle"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger reject-task" data-task-id="{{ task[0] }}"
+                                    title="Reject Task">
+                                    <i class="fas fa-times-circle"></i>
+                                </button>
+                                {% elif task[4] == 'rejected' %}
+                                <span class="badge bg-secondary me-2" title="Rejection reason: {{ task[8] }}">
+                                    <i class="fas fa-info-circle"></i> Rejected
+                                </span>
+                                {% endif %}
+
+                                <!-- Always show edit/delete -->
+                                <button class="btn btn-sm btn-outline-primary edit-task" data-task-id="{{ task[0] }}"
+                                    onclick="editTask({{ task[0] }})" title="Edit Task">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger delete-task" data-task-id="{{ task[0] }}"
+                                    data-task-name="{{ task[1] }}" title="Delete Task">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-5">
+                            <div class="empty-state">
+                                <i class="fas fa-tasks fa-3x mb-3"></i>
+                                <p>No tasks found. Click "Create New Task" to add one.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
 <div>
     <div class="table-card mb-4">
         <h5 class="fw-bold mb-4">Task Summary</h5>
