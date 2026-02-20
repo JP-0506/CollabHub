@@ -9,6 +9,7 @@ from flask import (
 )
 from database.db import get_db
 from psycopg2.extras import RealDictCursor
+from DS.TaskPriorityQueue import TaskPriorityQueue
 
 employee_bp = Blueprint("employee", __name__)
 
@@ -162,19 +163,20 @@ def my_work():
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
+    # ✅ Fetch assigned project info
     cur.execute(
         """
     SELECT 
-        t.task_id,
-        t.title,
-        t.status,
-        t.priority,
-        t.due_date
-    FROM tasks t
-    JOIN projects p ON t.project_id = p.project_id
-    WHERE t.assigned_to = %s
-    AND p.is_deleted = FALSE   -- 🔥 hide deleted project tasks
-    ORDER BY t.due_date ASC NULLS LAST
+        p.project_id,
+        p.project_name,
+        p.features,
+        p.status
+    FROM projects p
+    JOIN project_members pm ON p.project_id = pm.project_id
+    WHERE pm.user_id = %s
+    AND p.is_deleted = FALSE
+    AND pm.is_deleted = FALSE
+    LIMIT 1
     """,
         (user_id,),
     )
@@ -196,7 +198,12 @@ def my_work():
     """,
         (user_id,),
     )
-    tasks = cur.fetchall() or []
+    raw_tasks = cur.fetchall() or []
+
+    # 🔢 Apply Priority Queue — sort tasks: high → medium → low
+    pq = TaskPriorityQueue()
+    pq.push_all(raw_tasks)
+    tasks = pq.get_all()
 
     total_tasks = len(tasks)
     completed_tasks = sum(1 for t in tasks if t.get("status") == "completed")
