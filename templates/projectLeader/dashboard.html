@@ -3,95 +3,99 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block extra_css %}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block content %}
-    <div class="top-bar">
-        <div class="search-container">
-            <i class="fas fa-search text-muted"></i>
-            <input type="text" placeholder="Search projects, tasks, or team members...">
-        </div>
+<div class="top-bar">
+    <div class="search-container">
+        <i class="fas fa-search text-muted"></i>
+        <input type="text" placeholder="Search projects, tasks, or team members...">
+    </div>
+    <div class="d-flex gap-3 align-items-center">
         <div class="d-flex gap-3 align-items-center">
-<div class="d-flex gap-3 align-items-center">
-    <div class="notification-btn" data-bs-toggle="dropdown">
-        <i class="fas fa-bell fa-lg"></i>
-        {% if notification_count > 0 %}
-        <span class="notification-badge">{{ notification_count }}</span>
-        {% endif %}
-    </div>
-    <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
-        <div class="p-3 border-bottom">
-            <h6 class="mb-0">Notifications</h6>
-        </div>
-        <div class="p-0">
-            {% for notif in recent_notifications %}
-            <div class="p-3 border-bottom">
-                <div class="d-flex">
-                    <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">
-                        {{ notif.sender_name[0] if notif.sender_name else '?' }}
-                    </div>
-                    <div>
-                        <p class="mb-1"><strong>{{ notif.sender_name }}</strong> {{ notif.title }}</p>
-                        <small class="text-muted">{{ notif.message|truncate(30) }}</small>
-                        <small class="text-muted d-block">
-                            {% if notif.sent_at %}
-                                {{ notif.sent_at.strftime('%I:%M %p, %b %d') }}
-                            {% endif %}
-                        </small>
-                    </div>
-                </div>
+            <div class="notification-btn" data-bs-toggle="dropdown">
+                <i class="fas fa-bell fa-lg"></i>
+                {% if notification_count > 0 %}
+                <span class="notification-badge">{{ notification_count }}</span>
+                {% endif %}
             </div>
-            {% else %}
-            <div class="p-3 text-center text-muted">
-                <p class="mb-0">No new notifications</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
             <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
                 <div class="p-3 border-bottom">
                     <h6 class="mb-0">Notifications</h6>
                 </div>
                 <div class="p-0">
+                    {% for notif in recent_notifications %}
                     <div class="p-3 border-bottom">
                         <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">M</div>
+                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                                {{ notif.sender_name[0] if notif.sender_name else '?' }}
+                            </div>
                             <div>
-                                <p class="mb-1"><strong>Mike Chen</strong> completed a task</p>
-                                <small class="text-muted">30 minutes ago</small>
+                                <p class="mb-1"><strong>{{ notif.sender_name }}</strong> {{ notif.title }}</p>
+                                <small class="text-muted">{{ notif.message|truncate(30) }}</small>
+                                <small class="text-muted d-block">
+                                    {% if notif.sent_at %}
+                                    {{ notif.sent_at.strftime('%I:%M %p, %b %d') }}
+                                    {% else %}
+                                    Recently
+                                    {% endif %} 
+                                </small>
                             </div>
                         </div>
                     </div>
-                    <div class="p-3 border-bottom">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #f59e0b;">S</div>
-                            <div>
-                                <p class="mb-1"><strong>Sarah</strong> added a comment</p>
-                                <small class="text-muted">2 hours ago</small>
-                            </div>
+                    {% else %}
+                    <div class="p-3 text-center text-muted">
+                        <p class="mb-0">No new notifications</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
+            <div class="p-3 border-bottom">
+                <h6 class="mb-0">Notifications</h6>
+            </div>
+            <div class="p-0">
+                <div class="p-3 border-bottom">
+                    <div class="d-flex">
+                        <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem;">M</div>
+                        <div>
+                            <p class="mb-1"><strong>Mike Chen</strong> completed a task</p>
+                            <small class="text-muted">30 minutes ago</small>
                         </div>
                     </div>
-                    <div class="p-3">
-                        <div class="d-flex">
-                            <div class="user-avatar me-3" style="width: 36px; height: 36px; font-size: 0.9rem; background: #10b981;">A</div>
-                            <div>
-                                <p class="mb-1">Project <strong>Website Redesign</strong> milestone reached</p>
-                                <small class="text-muted">1 day ago</small>
-                            </div>
+                </div>
+                <div class="p-3 border-bottom">
+                    <div class="d-flex">
+                        <div class="user-avatar me-3"
+                            style="width: 36px; height: 36px; font-size: 0.9rem; background: #f59e0b;">S</div>
+                        <div>
+                            <p class="mb-1"><strong>Sarah</strong> added a comment</p>
+                            <small class="text-muted">2 hours ago</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3">
+                    <div class="d-flex">
+                        <div class="user-avatar me-3"
+                            style="width: 36px; height: 36px; font-size: 0.9rem; background: #10b981;">A</div>
+                        <div>
+                            <p class="mb-1">Project <strong>Website Redesign</strong> milestone reached</p>
+                            <small class="text-muted">1 day ago</small>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Dashboard Content -->
-    <h2 class="fw-bold mb-4">Welcome back, {{ user_name }} 👋</h2>
-    <p class="text-muted mb-4">Here's an overview of your projects and team progress.</p>
+<!-- Dashboard Content -->
+<h2 class="fw-bold mb-4">Welcome back, {{ user_name }} 👋</h2>
+<p class="text-muted mb-4">Here's an overview of your projects and team progress.</p>
 
-   <!-- Stats Cards -->
+<!-- Stats Cards -->
 <div class="row g-4 mb-5">
     <div class="col-md-4">
         <div class="stat-card">
@@ -134,64 +138,64 @@
     </div>
 </div>
 
-    <!-- Charts and Recent Activity -->
-    <div class="row g-4 mb-5">
-        <div class="col-lg-8">
-            <div class="chart-container">
-                <div class="chart-header">
-                    <h5 class="fw-bold mb-0">Project Progress Overview</h5>
-                    <select class="form-select form-select-sm" style="max-width: 150px;">
-                        <option>Last 7 days</option>
-                        <option>Last 30 days</option>
-                        <option>Last quarter</option>
-                    </select>
-                </div>
-                <canvas id="projectProgressChart"></canvas>
+<!-- Charts and Recent Activity -->
+<div class="row g-4 mb-5">
+    <div class="col-lg-8">
+        <div class="chart-container">
+            <div class="chart-header">
+                <h5 class="fw-bold mb-0">Project Progress Overview</h5>
+                <select class="form-select form-select-sm" style="max-width: 150px;">
+                    <option>Last 7 days</option>
+                    <option>Last 30 days</option>
+                    <option>Last quarter</option>
+                </select>
             </div>
+            <canvas id="projectProgressChart"></canvas>
         </div>
-        <div class="col-lg-4">
-    <div class="table-card">
-        <h5 class="fw-bold mb-4">Recent Activity</h5>
-        <div class="activity-timeline">
-            {% for activity in recent_activities %}
-            <div class="activity-item">
-                <div class="activity-dot 
+    </div>
+    <div class="col-lg-4">
+        <div class="table-card">
+            <h5 class="fw-bold mb-4">Recent Activity</h5>
+            <div class="activity-timeline">
+                {% for activity in recent_activities %}
+                <div class="activity-item">
+                    <div class="activity-dot 
                     {% if activity.type == 'task_completed' %}task
                     {% elif activity.type == 'member_joined' %}user
                     {% else %}project{% endif %}">
-                </div>
-                <div>
-                    <p class="mb-1">
-                        {% if activity.type == 'task_completed' %}
+                    </div>
+                    <div>
+                        <p class="mb-1">
+                            {% if activity.type == 'task_completed' %}
                             <strong>Task completed</strong> by {{ activity.user_name }}
-                        {% elif activity.type == 'member_joined' %}
+                            {% elif activity.type == 'member_joined' %}
                             <strong>New member joined</strong> as {{ activity.description }}
-                        {% else %}
+                            {% else %}
                             <strong>Project updated</strong>
-                        {% endif %}
-                    </p>
-                    <small class="text-muted">{{ activity.project_name }}</small>
-                    {% if activity.type == 'task_completed' and activity.description %}
+                            {% endif %}
+                        </p>
+                        <small class="text-muted">{{ activity.project_name }}</small>
+                        {% if activity.type == 'task_completed' and activity.description %}
                         <small class="text-muted d-block">{{ activity.description|truncate(30) }}</small>
-                    {% endif %}
-                    <small class="text-muted d-block">
-                        {% if activity.created_at %}
-                            {{ activity.created_at.strftime('%b %d, %Y at %I:%M %p') }}
-                        {% else %}
-                            Recently
                         {% endif %}
-                    </small>
+                        <small class="text-muted d-block">
+                            {% if activity.created_at %}
+                            {{ activity.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                            {% else %}
+                            Recently
+                            {% endif %}
+                        </small>
+                    </div>
                 </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-history fa-2x mb-3 opacity-50"></i>
+                    <p>No recent activities found</p>
+                </div>
+                {% endfor %}
             </div>
-            {% else %}
-            <div class="text-center text-muted py-4">
-                <i class="fas fa-history fa-2x mb-3 opacity-50"></i>
-                <p>No recent activities found</p>
-            </div>
-            {% endfor %}
         </div>
     </div>
-</div>
 
     <!-- Quick Actions -->
     <div class="mt-5">
@@ -227,9 +231,9 @@
             </div>
         </div>
     </div>
-{% endblock %}
+    {% endblock %}
 
-{% block modals %}
+    {% block modals %}
     <!-- Modals -->
     <div class="modal fade" id="createTask" tabindex="-1">
         <div class="modal-dialog">
@@ -239,56 +243,57 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                                    <form method="POST" action="/projectleader/create_task">
-                    <div class="mb-3">
-                        <label class="form-label">Task Title</label>
-                        <input type="text" name="title" class="form-control" placeholder="Enter task title" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="3"
-                            placeholder="Task description"></textarea>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Assignee</label>
-                            <select name="assigned_to" class="form-select" required>
-                                <option value="" selected>Select team member</option>
-                                {% for u in users %}
-                                <option value="{{ u[0] }}">{{ u[1] }}</option>
-                                {% endfor %}
-                            </select>
+                    <form method="POST" action="/projectleader/create_task">
+                        <div class="mb-3">
+                            <label class="form-label">Task Title</label>
+                            <input type="text" name="title" class="form-control" placeholder="Enter task title"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3"
+                                placeholder="Task description"></textarea>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Assignee</label>
+                                <select name="assigned_to" class="form-select" required>
+                                    <option value="" selected>Select team member</option>
+                                    {% for u in users %}
+                                    <option value="{{ u[0] }}">{{ u[1] }}</option>
+                                    {% endfor %}
+                                </select>
 
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Project</label>
-                            <select name="project_id" class="form-select" required>
-                                <option value="" selected>Select project</option>
-                                {% for p in projects %}
-                                <option value="{{ p[0] }}">{{ p[1] }}</option>
-                                {% endfor %}
-                            </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Project</label>
+                                <select name="project_id" class="form-select" required>
+                                    <option value="" selected>Select project</option>
+                                    {% for p in projects %}
+                                    <option value="{{ p[0] }}">{{ p[1] }}</option>
+                                    {% endfor %}
+                                </select>
 
+                            </div>
                         </div>
-                    </div>
-                    <div class="row g-3 mt-2">
-                        <div class="col-md-6">
-                            <label class="form-label">Priority</label>
-                            <select name="priority" class="form-select">
-                                <option>Low</option>
-                                <option selected>Medium</option>
-                                <option>High</option>
-                            </select>
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Priority</label>
+                                <select name="priority" class="form-select">
+                                    <option>Low</option>
+                                    <option selected>Medium</option>
+                                    <option>High</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Due Date</label>
+                                <input type="date" name="due_date" class="form-control">
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Due Date</label>
-                            <input type="date" name="due_date" class="form-control">
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary w-100 py-2">Create Task</button>
                         </div>
-                    </div>
-                    <div class="mt-3">
-                        <button type="submit" class="btn btn-primary w-100 py-2">Create Task</button>
-                    </div>
-                </form>
+                    </form>
                 </div>
             </div>
         </div>
@@ -356,7 +361,8 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Message</label>
-                            <textarea class="form-control" rows="4" placeholder="Enter your update message" required></textarea>
+                            <textarea class="form-control" rows="4" placeholder="Enter your update message"
+                                required></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Recipients</label>
@@ -372,8 +378,8 @@
             </div>
         </div>
     </div>
-{% endblock %}
+    {% endblock %}
 
-{% block extra_js %}
+    {% block extra_js %}
     <script src="{{ url_for('static', filename='js/projectLeader/charts.js') }}"></script>
-{% endblock %}
+    {% endblock %}
