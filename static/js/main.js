@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
- // Approve task function
+// Approve task function
 let currentTaskId = null;
 
 function approveTask(taskId) {
