@@ -1,98 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CollabHub | {% block title %}Project Leader{% endblock %}</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CollabHub | {% block title %}Project Leader{% endblock %}</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    {% block extra_css %}{% endblock %}
+        {% block extra_css %}{% endblock %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/projectLeader/style.css') }}">
-</head>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/projectLeader/style.css') }}">
+    </head>
 
-<body>
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h1 class="brand-name">CollabHub</h1>
-            <div class="toggle-btn" onclick="toggleSidebar()" id="sidebar-toggle">
-                <img src="{{ url_for('static', filename='images_videos/logo.jpeg') }}" alt="Logo"
-                    class="sidebar-logo-img">
-                <i class="bi bi-layout-sidebar" id="toggle-icon"></i>
-            </div>
-        </div>
-
-        <nav class="mt-3">
-            <a class="nav-item {% if request.endpoint and 'dashboard' in request.endpoint %}active{% endif %}"
-                href="{{ url_for('project_leader.dashboard') }}" data-tooltip="Dashboard">
-                <i class="fas fa-th-large"></i>
-                <span>Dashboard</span>
-            </a>
-            <a class="nav-item {% if request.endpoint and 'my_project' in request.endpoint %}active{% endif %}"
-                href="{{ url_for('project_leader.my_project') }}" data-tooltip="Project Details">
-                <i class="bi bi-folder-fill"></i>
-                <span>Project Details</span>
-            </a>
-            <a class="nav-item {% if request.endpoint and 'my_team_page' in request.endpoint %}active{% endif %}"
-                href="{{ url_for('project_leader.my_team_page') }}" data-tooltip="My Team">
-                <i class="bi bi-people-fill"></i>
-                <span>My Team</span>
-            </a>
-            <a class="nav-item {% if request.endpoint and 'tasks' in request.endpoint %}active{% endif %}"
-                href="{{ url_for('project_leader.tasks') }}" data-tooltip="Tasks">
-                <i class="bi bi-check-circle-fill"></i>
-                <span>Tasks</span>
-            </a>
-            <a class="nav-item {% if request.endpoint and 'reports' in request.endpoint %}active{% endif %}"
-                href="{{ url_for('project_leader.reports') }}" data-tooltip="Reports">
-                <i class="bi bi-bar-chart-fill"></i>
-                <span>Reports</span>
-            </a>
-            <a class="nav-item {% if request.endpoint and 'my_profile' in request.endpoint %}active{% endif %}"
-                href="{{ url_for('project_leader.my_profile') }}" data-tooltip="My Profile">
-                <i class="bi bi-person-badge-fill"></i>
-                <span>My Profile</span>
-            </a>
-            <a class="nav-item" href="{{ url_for('logout') }}" data-tooltip="Logout">
-                <i class="bi bi-box-arrow-left"></i>
-                <span>Logout</span>
-            </a>
-        </nav>
-
-        <div class="user-section">
-
-            <div class="user-avatar">
-                {{ session.name[0:2]|upper if session.name else 'PL' }}
+    <body>
+        <aside class="sidebar collapsed" id="sidebar">
+            <div class="sidebar-header">
+                <h1 class="brand-name">CollabHub</h1>
+                <div class="toggle-btn" onclick="toggleSidebar()" id="sidebar-toggle">
+                    <img src="{{ url_for('static', filename='images_videos/logo.jpeg') }}" alt="Logo"
+                        class="sidebar-logo-img">
+                    <i class="bi bi-layout-sidebar" id="toggle-icon"></i>
+                </div>
             </div>
 
-            <div class="user-details">
-                <p class="user-name">
-                    {{ session.name if session.name else 'Project Leader' }}
-                </p>
+            <nav class="mt-3">
+                <a class="nav-item {% if request.endpoint and 'dashboard' in request.endpoint %}active{% endif %}"
+                    href="{{ url_for('project_leader.dashboard') }}" data-tooltip="Dashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-item {% if request.endpoint and 'my_project' in request.endpoint %}active{% endif %}"
+                    href="{{ url_for('project_leader.my_project') }}" data-tooltip="Project Details">
+                    <i class="bi bi-folder-fill"></i>
+                    <span>Project Details</span>
+                </a>
+                <a class="nav-item {% if request.endpoint and 'my_team_page' in request.endpoint %}active{% endif %}"
+                    href="{{ url_for('project_leader.my_team_page') }}" data-tooltip="My Team">
+                    <i class="bi bi-people-fill"></i>
+                    <span>My Team</span>
+                </a>
+                <a class="nav-item {% if request.endpoint and 'tasks' in request.endpoint %}active{% endif %}"
+                    href="{{ url_for('project_leader.tasks') }}" data-tooltip="Tasks">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>Tasks</span>
+                </a>
+                <a class="nav-item {% if request.endpoint and 'reports' in request.endpoint %}active{% endif %}"
+                    href="{{ url_for('project_leader.reports') }}" data-tooltip="Reports">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    <span>Reports</span>
+                </a>
+                <a class="nav-item {% if request.endpoint and 'my_profile' in request.endpoint %}active{% endif %}"
+                    href="{{ url_for('project_leader.my_profile') }}" data-tooltip="My Profile">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>My Profile</span>
+                </a>
+                <a class="nav-item" href="{{ url_for('logout') }}" data-tooltip="Logout">
+                    <i class="bi bi-box-arrow-left"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
 
-                <p class="user-role">
-                    {{ session.role|replace('_',' ')|title if session.role else 'Project Leader' }}
-                </p>
+            <div class="user-section">
+
+                <div class="user-avatar">
+                    {{ session.name[0:2]|upper if session.name else 'PL' }}
+                </div>
+
+                <div class="user-details">
+                    <p class="user-name">
+                        {{ session.name if session.name else 'Project Leader' }}
+                    </p>
+
+                    <p class="user-role">
+                        {{ session.role|replace('_',' ')|title if session.role else 'Project Leader' }}
+                    </p>
+                </div>
+
             </div>
+        </aside>
 
-        </div>
-    </aside>
+        <main class="main-content expanded" id="main-content">
+            {% block content %}{% endblock %}
+        </main>
 
-    <main class="main-content" id="main-content">
-        {% block content %}{% endblock %}
-    </main>
+        {% block modals %}{% endblock %}
 
-    {% block modals %}{% endblock %}
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="{{ url_for('static', filename='js/projectLeader/sidebar.js') }}"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/projectLeader/sidebar.js') }}"></script>
-
-    {% block extra_js %}{% endblock %}
-</body>
+        {% block extra_js %}{% endblock %}
+    </body>
 
 </html>
