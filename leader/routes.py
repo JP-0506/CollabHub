@@ -1417,14 +1417,14 @@ def update_task(task_id):
         priority = %s, due_date = %s, updated_at = CURRENT_TIMESTAMP
     WHERE task_id = %s
     """,
-    (
-        request.form["title"],
-        request.form.get("description", ""),
-        int(request.form["assigned_to"]),
-        int(request.form["project_id"]),
-        request.form["priority"],
-        request.form.get("due_date"),
-        task_id,
+        (
+            request.form["title"],
+            request.form.get("description", ""),
+            int(request.form["assigned_to"]),
+            int(request.form["project_id"]),
+            request.form["priority"],
+            request.form.get("due_date"),
+            task_id,
         ),
     )
 
