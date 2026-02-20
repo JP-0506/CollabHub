@@ -34,7 +34,8 @@ def get_leader_project(leader_id, cur):
         """
         SELECT project_id, project_name 
         FROM projects 
-        WHERE leader_id = %s 
+        WHERE leader_id = %s
+        ORDER BY CASE WHEN status != 'closed' THEN 0 ELSE 1 END, created_at DESC
         LIMIT 1
     """,
         (leader_id,),
@@ -68,13 +69,13 @@ def get_notifications(leader_id, cur):
     notifications = cur.fetchall()
 
     recent_notifications = [
-        {
-            "message": notif[0],
-            "sent_at": notif[1].strftime("%b %d, %Y") if notif[1] else "Recently",
-            "sender_name": notif[2],
-        }
-        for notif in notifications
-    ]
+    {
+        "message": notif[0],
+        "sent_at": notif[1],          # raw datetime or None
+        "sender_name": notif[2],
+    }
+    for notif in notifications
+]
     return notification_count, recent_notifications
 
 
@@ -566,7 +567,7 @@ def tasks():
 @project_leader_bp.route("/add_team_member", methods=["POST"])
 def add_team_member():
     if "user_id" not in session:
-        return "Login required"
+        return jsonify({"success": False, "error": "Login required"}), 401
 
     leader_id = session["user_id"]
     user_id = request.form["user_id"]
@@ -579,7 +580,15 @@ def add_team_member():
     if not project:
         cur.close()
         conn.close()
-        return "No project found for this leader"
+        return jsonify({"success": False, "error": "No project found for this leader"}), 404
+
+    # Check if project is closed
+    cur.execute("SELECT status FROM projects WHERE project_id = %s", (project[0],))
+    status = cur.fetchone()[0]
+    if status == 'closed':
+        cur.close()
+        conn.close()
+        return jsonify({"success": False, "error": "Project is closed. Cannot add team members."}), 400
 
     cur.execute(
         """
@@ -598,7 +607,7 @@ def add_team_member():
     cur.close()
     conn.close()
 
-    return redirect(url_for("project_leader.my_team_page"))
+    return jsonify({"success": True, "message": "Team member added successfully"})
 
 
 @project_leader_bp.route("/reports")
@@ -1019,7 +1028,7 @@ def dashboard():
 @project_leader_bp.route("/create_task", methods=["POST"])
 def create_task():
     if "user_id" not in session:
-        return "Login required"
+       return jsonify({"success": False, "error": "Login required"}), 401
 
     leader_id = session["user_id"]
     conn = get_db()
@@ -1029,7 +1038,15 @@ def create_task():
     if not project:
         cur.close()
         conn.close()
-        return "No project found for this leader"
+        return jsonify({"success": False, "error": "No project found for this leader"}), 404
+
+    # Check if project is closed
+    cur.execute("SELECT status FROM projects WHERE project_id = %s", (project[0],))
+    status = cur.fetchone()[0]
+    if status == 'closed':
+        cur.close()
+        conn.close()
+        return jsonify({"success": False, "error": "Project is closed. Cannot create tasks."}), 400
 
     cur.execute(
         """
@@ -1037,21 +1054,14 @@ def create_task():
         (project_id, title, description, priority, assigned_to, assigned_by, due_date, status)
         VALUES (%s, %s, %s, %s, %s, %s, %s, 'in_progress')
     """,
-        (
-            project[0],
-            request.form["title"],
-            request.form.get("description", ""),
-            request.form["priority"],
-            int(request.form["assigned_to"]),
-            leader_id,
-            request.form["due_date"],
-        ),
+        (project[0], request.form["title"], request.form.get("description", ""),
+         request.form["priority"], int(request.form["assigned_to"]), leader_id, request.form["due_date"]),
     )
     conn.commit()
     cur.close()
     conn.close()
 
-    return redirect("/projectleader/tasks")
+    return jsonify({"success": True, "message": "Task created successfully"})
 
 
 @project_leader_bp.route("/export_pdf")
@@ -1316,7 +1326,7 @@ def email_report():
 @project_leader_bp.route("/delete_task/<int:task_id>", methods=["POST"])
 def delete_task(task_id):
     if "user_id" not in session:
-        return "Login required"
+        return jsonify({"success": False, "error": "Login required"}), 401
 
     leader_id = session["user_id"]
     conn = get_db()
@@ -1331,19 +1341,30 @@ def delete_task(task_id):
     """,
         (task_id, leader_id),
     )
-
     if not cur.fetchone():
         cur.close()
         conn.close()
-        return "Task not found or you don't have permission to delete it", 403
-
+        return jsonify({"success": False, "error": "Task not found or you don't have permission to delete it"}), 403
+    cur.execute(
+        """
+        SELECT p.status
+        FROM tasks t
+        JOIN projects p ON t.project_id = p.project_id
+        WHERE t.task_id = %s
+    """,
+        (task_id,),
+    )
+    status = cur.fetchone()[0]
+    if status == 'closed':
+        cur.close()
+        conn.close()
+        return jsonify({"success": False, "error": "Project is closed. Cannot delete tasks."}), 400
     cur.execute("DELETE FROM tasks WHERE task_id = %s", (task_id,))
     conn.commit()
     cur.close()
     conn.close()
 
-    return redirect(url_for("project_leader.tasks"))
-
+    return jsonify({"success": True, "message": "Task deleted successfully"})
 
 @project_leader_bp.route("/get_task/<int:task_id>", methods=["GET"])
 def get_task(task_id):
@@ -1389,12 +1410,13 @@ def get_task(task_id):
 @project_leader_bp.route("/update_task/<int:task_id>", methods=["POST"])
 def update_task(task_id):
     if "user_id" not in session:
-        return "Login required"
+        return jsonify({"success": False, "error": "Login required"}), 401
 
     leader_id = session["user_id"]
     conn = get_db()
     cur = conn.cursor()
 
+    # Verify task belongs to leader
     cur.execute(
         """
         SELECT t.task_id 
@@ -1404,35 +1426,44 @@ def update_task(task_id):
     """,
         (task_id, leader_id),
     )
-
     if not cur.fetchone():
         cur.close()
         conn.close()
-        return "Task not found or you don't have permission to update it", 403
+        return jsonify({"success": False, "error": "Task not found or you don't have permission to update it"}), 403
+
+    # Check if the project is closed
+    cur.execute(
+        """
+        SELECT p.status
+        FROM tasks t
+        JOIN projects p ON t.project_id = p.project_id
+        WHERE t.task_id = %s
+    """,
+        (task_id,),
+    )
+    status = cur.fetchone()[0]
+    if status == 'closed':
+        cur.close()
+        conn.close()
+        return jsonify({"success": False, "error": "Project is closed. Cannot update tasks."}), 400
 
     cur.execute(
         """
-    UPDATE tasks 
-    SET title = %s, description = %s, assigned_to = %s, project_id = %s,
-        priority = %s, due_date = %s, updated_at = CURRENT_TIMESTAMP
-    WHERE task_id = %s
-    """,
-    (
-        request.form["title"],
-        request.form.get("description", ""),
-        int(request.form["assigned_to"]),
-        int(request.form["project_id"]),
-        request.form["priority"],
-        request.form.get("due_date"),
-        task_id,
-        ),
+        UPDATE tasks 
+        SET title = %s, description = %s, assigned_to = %s, project_id = %s,
+            priority = %s, due_date = %s, updated_at = CURRENT_TIMESTAMP
+        WHERE task_id = %s
+        """,
+        (request.form["title"], request.form.get("description", ""),
+         int(request.form["assigned_to"]), int(request.form["project_id"]),
+         request.form["priority"], request.form.get("due_date"), task_id),
     )
 
     conn.commit()
     cur.close()
     conn.close()
 
-    return redirect(url_for("project_leader.tasks"))
+    return jsonify({"success": True, "message": "Task updated successfully"})
 
 
 @project_leader_bp.route("/update_profile", methods=["POST"])
@@ -1541,7 +1572,7 @@ def change_password():
 @project_leader_bp.route("/remove_team_member", methods=["POST"])
 def remove_team_member():
     if "user_id" not in session:
-        return "Login required"
+        return jsonify({"success": False, "error": "Login required"}), 401
 
     leader_id = session["user_id"]
     user_id = request.form["user_id"]
@@ -1553,7 +1584,15 @@ def remove_team_member():
     if not project:
         cur.close()
         conn.close()
-        return "Project not found"
+        return jsonify({"success": False, "error": "Project not found"}), 404
+
+    # Check if project is closed
+    cur.execute("SELECT status FROM projects WHERE project_id = %s", (project[0],))
+    status = cur.fetchone()[0]
+    if status == 'closed':
+        cur.close()
+        conn.close()
+        return jsonify({"success": False, "error": "Project is closed. Cannot remove team members."}), 400
 
     cur.execute(
         """
@@ -1568,54 +1607,9 @@ def remove_team_member():
     cur.close()
     conn.close()
 
-    return redirect(url_for("project_leader.my_team_page"))
+    return jsonify({"success": True, "message": "Team member removed successfully"})
 
 
-@project_leader_bp.route("/member_overview/<int:member_id>")
-def member_overview(member_id):
-    conn = get_db()
-    cur = conn.cursor()
-
-    cur.execute(
-        """
-        SELECT u.name, u.email, u.role, u.designation, u.created_at,
-            COUNT(t.task_id) as total,
-            COUNT(*) FILTER (WHERE t.status = 'Completed') as completed,
-            COUNT(*) FILTER (WHERE t.status NOT IN ('Completed', 'approved')) as pending,
-            COUNT(*) FILTER (WHERE t.due_date < CURRENT_DATE AND t.status NOT IN ('Completed', 'approved')) as overdue
-        FROM users u
-        LEFT JOIN tasks t ON t.assigned_to = u.user_id
-        WHERE u.user_id = %s
-        GROUP BY u.user_id, u.name, u.email, u.role, u.designation, u.created_at
-    """,
-        (member_id,),
-    )
-
-    user = cur.fetchone()
-    cur.close()
-    conn.close()
-
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-
-    return jsonify(
-        {
-            "name": user[0],
-            "email": user[1],
-            "role": user[2],
-            "designation": user[3] or "N/A",
-            "joined_system": user[4].strftime("%b %d, %Y") if user[4] else "N/A",
-            "total": user[5],
-            "completed": user[6],
-            "pending": user[7],
-            "overdue": user[8],
-        }
-    )
-
-
-# ============================
-# APPROVE TASK
-# ============================
 @project_leader_bp.route("/approve_task/<int:task_id>", methods=["POST"])
 def approve_task(task_id):
     if "user_id" not in session:
@@ -1637,14 +1631,26 @@ def approve_task(task_id):
         """,
             (task_id, leader_id),
         )
-
         if not cur.fetchone():
             cur.close()
             conn.close()
-            return (
-                jsonify({"success": False, "error": "Task not found or not submitted"}),
-                404,
-            )
+            return jsonify({"success": False, "error": "Task not found or not submitted"}), 404
+
+        # Check if project is closed
+        cur.execute(
+            """
+            SELECT p.status
+            FROM tasks t
+            JOIN projects p ON t.project_id = p.project_id
+            WHERE t.task_id = %s
+        """,
+            (task_id,),
+        )
+        status = cur.fetchone()[0]
+        if status == 'closed':
+            cur.close()
+            conn.close()
+            return jsonify({"success": False, "error": "Project is closed. Cannot approve tasks."}), 400
 
         cur.execute(
             """
@@ -1682,7 +1688,6 @@ def reject_task(task_id):
 
     leader_id = session["user_id"]
     data = request.get_json()
-
     if not data:
         return jsonify({"success": False, "error": "Invalid request"}), 400
 
@@ -1704,14 +1709,26 @@ def reject_task(task_id):
         """,
             (task_id, leader_id),
         )
-
         if not cur.fetchone():
             cur.close()
             conn.close()
-            return (
-                jsonify({"success": False, "error": "Task not found or not submitted"}),
-                404,
-            )
+            return jsonify({"success": False, "error": "Task not found or not submitted"}), 404
+
+        # Check if project is closed
+        cur.execute(
+            """
+            SELECT p.status
+            FROM tasks t
+            JOIN projects p ON t.project_id = p.project_id
+            WHERE t.task_id = %s
+        """,
+            (task_id,),
+        )
+        status = cur.fetchone()[0]
+        if status == 'closed':
+            cur.close()
+            conn.close()
+            return jsonify({"success": False, "error": "Project is closed. Cannot reject tasks."}), 400
 
         cur.execute(
             """
@@ -1732,10 +1749,79 @@ def reject_task(task_id):
         cur.close()
         conn.close()
 
-        return jsonify(
-            {"success": True, "message": "Task rejected and sent back for revision"}
-        )
+        return jsonify({"success": True, "message": "Task rejected and sent back for revision"})
 
     except Exception as e:
         print("Error in reject_task:", str(e))
         return jsonify({"success": False, "error": "Server error occurred"}), 500
+# ============================
+# SUBMIT PROJECT (Leader marks project as complete)
+# ADD THIS ROUTE to leader/routes.py
+# ============================
+
+@project_leader_bp.route("/submit_project/<int:project_id>", methods=["POST"])
+def submit_project(project_id):
+    if "user_id" not in session:
+        return jsonify({"success": False, "error": "Login required"}), 401
+
+    leader_id = session["user_id"]
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    try:
+        # Make sure this project actually belongs to this leader
+        cur.execute(
+            """
+            SELECT project_id, project_name
+            FROM projects
+            WHERE project_id = %s AND leader_id = %s AND status = 'ongoing'
+            """,
+            (project_id, leader_id),
+        )
+        project = cur.fetchone()
+
+        if not project:
+            return jsonify({"success": False, "error": "Project not found or not in ongoing status"}), 404
+
+        # Update project status to 'completed'
+        cur.execute(
+            """
+            UPDATE projects
+            SET status = 'completed', updated_at = NOW()
+            WHERE project_id = %s
+            """,
+            (project_id,),
+        )
+
+        # Find admin user_id to send notification
+        cur.execute("SELECT user_id FROM users WHERE role = 'admin' LIMIT 1")
+        admin = cur.fetchone()
+
+        if admin:
+            admin_id = admin[0]
+            cur.execute(
+                """
+                INSERT INTO notifications (sender_id, receiver_id, title, message, type, is_read, sent_at)
+                VALUES (%s, %s, %s, %s, %s, false, NOW())
+                """,
+                (
+                    leader_id,
+                    admin_id,
+                    "Project Submitted for Review",
+                    f"Project '{project[1]}' has been marked as complete by the leader and is awaiting your review.",
+                    "project_review",
+                ),
+            )
+
+        conn.commit()
+        return jsonify({"success": True, "message": "Project submitted for review successfully!"})
+
+    except Exception as e:
+        conn.rollback()
+        print("Error in submit_project:", str(e))
+        return jsonify({"success": False, "error": "Something went wrong"}), 500
+
+    finally:
+        cur.close()
+        conn.close()
