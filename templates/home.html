@@ -1,163 +1,444 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images_videos/logo.jpeg') }}">
+  <title>CollabHub — Assign. Track. Deliver.</title>
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Home - CollabHub</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        <!--link rel="stylesheet" href="../static/css/base.css">
-        <link rel="stylesheet" href="../static/css/layout.css"-->
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
-    </head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+</head>
 
-    <body>
-        <div id="fixed-background">
-            <div class="glow-orb orb-1"></div>
-            <div class="glow-orb orb-2"></div>
+<body>
+
+  <!-- Background -->
+  <div class="orbs">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+  </div>
+  <div class="grid-lines"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="{{ url_for('home') }}" class="nav-brand">
+      <img src="{{ url_for('static', filename='images_videos/logo.jpeg') }}" class="brand-logo" alt="CollabHub Logo">
+      CollabHub
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+
+    <div class="nav-right">
+      <a href="{{ url_for('auth.login') }}" class="btn-nav-ghost">
+        <i class="bi bi-box-arrow-in-right" style="margin-right:5px;"></i>Login
+      </a>
+      <a href="{{ url_for('auth.signup') }}" class="btn-nav-fill">Get Started</a>
+    </div>
+
+    <!-- Mobile toggle + panel -->
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false">
+      <i class="bi bi-list"></i>
+    </button>
+
+    <div class="nav-mobile">
+      <a href="#hero">Home</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+
+      <div class="nav-mobile-actions">
+        <a href="{{ url_for('auth.login') }}" class="btn-nav-ghost w100">Login</a>
+        <a href="{{ url_for('auth.signup') }}" class="btn-nav-fill w100">Get Started</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wrapper">
+
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-tag"><div class="dot"></div>Project Collaboration Platform</div>
+      <h1 class="hero-headline">
+        <span class="line-white">Assign.</span>
+        <span class="line-gradient">Track. Deliver.</span>
+      </h1>
+
+      <div class="hero-body-row">
+        <div>
+          <p class="hero-sub">
+            CollabHub creates a seamless chain — Admin appoints project leaders, leaders assign tasks to employees,
+            employees mark work complete. One platform. Total clarity.
+          </p>
+
+          <div class="hero-ctas">
+            <a href="{{ url_for('auth.signup') }}" class="btn-amber">Get Started</a>
+          </div>
         </div>
 
-        <div id="main-content">
-            <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-                <div class="container-fluid px-3 px-lg-5">
-                    <a class="navbar-brand" href="{{ url_for('home') }}"><i class="fas fa-network-wired"></i>
-                        CollabHub</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav ms-auto align-items-center gap-3 pt-3 pt-lg-0">
-                            <li class="nav-item"><a class="nav-link mobile-nav-link" href="#home">Home</a></li>
-                            <li class="nav-item"><a class="nav-link mobile-nav-link" href="#features">Features</a></li>
-                            <li class="nav-item"><a class="nav-link mobile-nav-link" href="#about">About</a></li>
+        <div class="workflow-viz">
+          <div class="wf-card">
+            <div class="wf-title"><i class="bi bi-diagram-3-fill"></i> Live Workflow</div>
+            <div class="flow-steps">
+              <div class="flow-step done">
+                <div class="step-icon admin"><i class="bi bi-person-gear"></i></div>
+                <div class="step-info">
+                  <div class="step-role">Admin</div>
+                  <div class="step-action">Creates &amp; assigns project</div>
+                </div>
+                <span class="step-status status-done"><i class="bi bi-check"></i> Done</span>
+              </div>
 
-                            <li class="nav-item ms-lg-2">
-                                <a class="btn btn-outline-light px-4 mobile-nav-link"
-                                    href="{{ url_for('auth.login') }}">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-primary px-4 mobile-nav-link" href="{{ url_for('auth.signup') }}">Sign
-                                    Up</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+              <div class="flow-connector"></div>
 
-            <header id="home" class="hero-section">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-lg-6 mb-5 mb-lg-0">
-                            <h1>Work Together, Anywhere.</h1>
-                            <p class="lead my-4 text-white-50">CollabHub is the ultimate platform for teams to manage
-                                projects, share resources, and track progress effortlessly.</p>
-                            <a class="btn btn-primary btn-lg fw-bold px-5" href="auth/signup.html">Get Started Free</a>
-                        </div>
-                        <div class="col-lg-6 text-center">
-                            <img src="https://via.placeholder.com/600x400/1e293b/6366f1?text=CollabHub+Dashboard"
-                                class="img-fluid rounded-4 shadow-lg" style="border: 1px solid rgba(255,255,255,0.1);">
-                        </div>
-                    </div>
+              <div class="flow-step done">
+                <div class="step-icon leader"><i class="bi bi-person-badge"></i></div>
+                <div class="step-info">
+                  <div class="step-role">Project Leader</div>
+                  <div class="step-action">Breaks into tasks &amp; assigns</div>
                 </div>
-            </header>
+                <span class="step-status status-done"><i class="bi bi-check"></i> Done</span>
+              </div>
 
-            <section id="features" class="container py-5">
-                <div class="text-center mb-5 pt-5">
-                    <h2 class="fw-bold text-white">What We Do</h2>
-                    <p class="text-white-50">Tools tailored for modern teams</p>
-                </div>
-                <div class="row g-4 pb-5">
-                    <div class="col-md-4 text-center">
-                        <div class="p-4 feature-card rounded-4 shadow-sm h-100">
-                            <i class="fas fa-tasks feature-icon"></i>
-                            <h4 class="text-white">Task Management</h4>
-                            <p class="text-white-50">Organize your workflow with Kanban boards.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 text-center">
-                        <div class="p-4 feature-card rounded-4 shadow-sm h-100">
-                            <i class="fas fa-calendar-check feature-icon"></i>
-                            <h4 class="text-white">Project Planning</h4>
-                            <p class="text-white-50">Stay on top of deadlines and milestones.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 text-center">
-                        <div class="p-4 feature-card rounded-4 shadow-sm h-100">
-                            <i class="fas fa-shield-alt feature-icon"></i>
-                            <h4 class="text-white">Secure Data</h4>
-                            <p class="text-white-50">Your project data is encrypted and safe.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+              <div class="flow-connector"></div>
 
-            <section id="about" class="py-5">
-                <div class="container pt-4 pb-5">
-                    <div class="row align-items-center g-5">
-                        <div class="col-md-6">
-                            <h2 class="fw-bold mb-3 text-white">About CollabHub</h2>
-                            <p class="text-white-50">Founded in 2026, CollabHub was created to solve the fragmentation
-                                of remote work. We believe that distance shouldn't stop great ideas from happening.</p>
-                            <h5 class="mt-5 text-white">Contact Us</h5>
-                            <p class="text-white-50 mb-1"><i class="fas fa-envelope me-2 text-primary"></i>
-                                sharingcode14@gmail.com</p>
-                            <p class="text-white-50"><i class="fas fa-phone me-2 text-primary"></i> +91 82388 73125
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card p-4 shadow-sm contact-card">
-                                <h5 class="mb-4 text-white">Send us a message</h5>
-                                <form onsubmit="event.preventDefault(); alert('Message sent!');">
-                                    <div class="mb-3"><input type="email" class="form-control" placeholder="Your Email">
-                                    </div>
-                                    <div class="mb-3"><textarea class="form-control" rows="4"
-                                            placeholder="How can we help?"></textarea></div>
-                                    <button class="btn btn-custom w-100">Send Message</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+              <div class="flow-step active">
+                <div class="step-icon emp"><i class="bi bi-person-workspace"></i></div>
+                <div class="step-info">
+                  <div class="step-role">Employee</div>
+                  <div class="step-action">Completing tasks…</div>
                 </div>
-            </section>
+                <span class="step-status status-active">In Progress</span>
+              </div>
+            </div>
 
-            <footer class="site-footer">
-                <div class="container">
-                    <div class="footer-content">
-                        <div class="footer-brand">
-                            <h4>CollabHub</h4>
-                            <p>Empowering teams to achieve more together. The future of work is here.</p>
-                        </div>
-                        <div class="footer-links">
-                            <h5>Product</h5>
-                            <ul>
-                                <li><a href="#features">Features</a></li>
-                                <li><a href="#" onclick="alert('Pricing page coming soon!')">Pricing</a></li>
-                                <li><a href="#" onclick="alert('Integrations page coming soon!')">Integrations</a></li>
-                            </ul>
-                        </div>
-                        <div class="footer-links">
-                            <h5>Company</h5>
-                            <ul>
-                                <li><a href="about.html">About Us</a></li>
-                                <li><a href="#" onclick="alert('Careers page coming soon!')">Careers</a></li>
-                                <li><a href="#" onclick="alert('Blog coming soon!')">Blog</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="footer-bottom">
-                    <div class="container">&copy; 2026 CollabHub. All Rights Reserved.</div>
-                </div>
-            </footer>
+            <div class="wf-progress">
+              <div class="wf-prog-label">
+                <span>Overall Progress</span>
+                <strong>72% Complete</strong>
+              </div>
+              <div class="prog-bar"><div class="prog-fill"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-hint">
+        <div class="sh-line"></div>
+        <span>Scroll to explore</span>
+      </div>
+    </section>
+
+    <!-- TRUSTED -->
+    <div class="divider"></div>
+    <section id="trusted">
+      <div class="sec-inner">
+        <div class="r">
+          <div class="sec-eyebrow">Trusted By</div>
+          <div class="sec-title">Built for every<br>fast-moving team</div>
+          <p class="sec-sub">From student labs to hackathon squads — any team that moves fast belongs here.</p>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <!--script src="../static/js/main.js"></script-->
-        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        <div class="trusted-grid">
+          <div class="trust-card r d1">
+            <div class="trust-icon ti-amber"><i class="bi bi-mortarboard"></i></div>
+            <div class="trust-name">Campus Teams</div>
+            <div class="trust-desc">Student project groups, research labs, and academic organizations.</div>
+          </div>
+          <div class="trust-card r d2">
+            <div class="trust-icon ti-blue"><i class="bi bi-code-slash"></i></div>
+            <div class="trust-name">Dev Clubs</div>
+            <div class="trust-desc">Coding communities, open-source contributors, and technical event teams.</div>
+          </div>
+          <div class="trust-card r d3">
+            <div class="trust-icon ti-green"><i class="bi bi-people"></i></div>
+            <div class="trust-name">Student Groups</div>
+            <div class="trust-desc">Cross-functional teams collaborating on assignments and presentations.</div>
+          </div>
+          <div class="trust-card r d4">
+            <div class="trust-icon ti-red"><i class="bi bi-lightning"></i></div>
+            <div class="trust-name">Hackathon Crews</div>
+            <div class="trust-desc">High-speed teams executing ideas in 24–48 hour sprints with no overhead.</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    </body>
+    <!-- PROVIDE -->
+    <div class="divider"></div>
+    <section id="provide">
+      <div class="sec-inner">
+        <div class="r" style="text-align:center; max-width:700px; margin:0 auto;">
+          <div class="sec-eyebrow" style="justify-content:center;">What We Provide</div>
+          <div class="sec-title">The infrastructure<br>teams actually need</div>
+          <p class="sec-sub" style="margin:0 auto;">Every feature maps to how real teams work — no fluff, no learning curve.</p>
+        </div>
 
+        <div class="provide-grid">
+          <div class="prov-card r d1">
+            <div class="prov-icon ti-amber"><i class="bi bi-diagram-3"></i></div>
+            <div class="prov-title">Role-based Flow</div>
+            <div class="prov-desc">Admin → Leader → Employee. Everyone knows exactly what they own.</div>
+          </div>
+
+          <div class="prov-card r d2">
+            <div class="prov-icon ti-blue"><i class="bi bi-list-check"></i></div>
+            <div class="prov-title">Task Tracking</div>
+            <div class="prov-desc">Assign, monitor, and complete tasks — always knowing current status.</div>
+          </div>
+
+          <div class="prov-card r d3">
+            <div class="prov-icon ti-green"><i class="bi bi-check2-circle"></i></div>
+            <div class="prov-title">One-click Updates</div>
+            <div class="prov-desc">Employees mark tasks complete in one click — instantly updating everyone.</div>
+          </div>
+
+          <div class="prov-card r d4">
+            <div class="prov-icon ti-red"><i class="bi bi-speedometer2"></i></div>
+            <div class="prov-title">Live Dashboards</div>
+            <div class="prov-desc">Every role gets a tailored view of project health and team completion.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <div class="divider"></div>
+    <section id="features">
+      <div class="sec-inner">
+        <div class="r" style="text-align:center; max-width:700px; margin:0 auto;">
+          <div class="sec-eyebrow" style="justify-content:center;">Features</div>
+          <div class="sec-title">One action per role.<br>Zero confusion.</div>
+          <p class="sec-sub" style="margin:0 auto;">Every role sees only what they need. Clean, purposeful, frictionless.</p>
+        </div>
+
+        <div class="feature-grid">
+          <div class="feat-card c-amber r d1">
+            <div class="feat-chip chip-amber">Admin</div>
+            <div class="feat-icon-wrap iamber"><i class="bi bi-folder-plus"></i></div>
+            <div class="feat-title">Create Project</div>
+            <div class="feat-desc">Set project name, deadline, and appoint a leader — done in seconds.</div>
+          </div>
+
+          <div class="feat-card c-blue r d2">
+            <div class="feat-chip chip-blue">Leader</div>
+            <div class="feat-icon-wrap iblue"><i class="bi bi-person-badge"></i></div>
+            <div class="feat-title">Assign Tasks</div>
+            <div class="feat-desc">Break the project into tasks, assign employees, and set priority levels.</div>
+          </div>
+
+          <div class="feat-card c-green r d3">
+            <div class="feat-chip chip-green">Employee</div>
+            <div class="feat-icon-wrap igreen"><i class="bi bi-clipboard-check"></i></div>
+            <div class="feat-title">Update Progress</div>
+            <div class="feat-desc">View assigned tasks and update status with simple, clear controls.</div>
+          </div>
+
+          <div class="feat-card c-teal r d4">
+            <div class="feat-chip chip-green">All Roles</div>
+            <div class="feat-icon-wrap igreen"><i class="bi bi-check2-square"></i></div>
+            <div class="feat-title">Mark Completed</div>
+            <div class="feat-desc">One click to mark work done — dashboards update in real time across all roles.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <div class="divider"></div>
+    <section id="about">
+      <div class="sec-inner">
+        <div class="about-wrap">
+          <div class="r">
+            <div class="sec-eyebrow">About Us</div>
+            <div class="sec-title">Built to end<br>team confusion</div>
+            <p style="color:var(--muted); font-size:1rem; font-weight:300; margin-top:14px; line-height:1.75;">
+              CollabHub was designed around one idea:
+              <em style="color:var(--text); font-style:normal;">clarity at every level</em>.
+              When people know who assigns, who manages, and who delivers — teams stop guessing and start shipping.
+            </p>
+          </div>
+
+          <div class="about-bullets">
+            <div class="a-bullet r d1">
+              <div class="a-b-icon abi-amber"><i class="bi bi-bullseye"></i></div>
+              <div>
+                <div class="a-b-title">Our Mission</div>
+                <div class="a-b-desc">Make collaboration structured, simple, and completely transparent for teams of any size.</div>
+              </div>
+            </div>
+            <div class="a-bullet r d2">
+              <div class="a-b-icon abi-blue"><i class="bi bi-eye"></i></div>
+              <div>
+                <div class="a-b-title">Our Vision</div>
+                <div class="a-b-desc">A world where every team member knows their role and owns their work — fully.</div>
+              </div>
+            </div>
+            <div class="a-bullet r d3">
+              <div class="a-b-icon abi-green"><i class="bi bi-lightning-charge"></i></div>
+              <div>
+                <div class="a-b-title">Why CollabHub</div>
+                <div class="a-b-desc">Faster updates, better accountability, and cleaner execution — from first task to final delivery.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOUNDERS -->
+    <div class="divider"></div>
+    <section id="founders">
+      <div class="sec-inner">
+        <div class="r" style="text-align:center; max-width:600px; margin:0 auto;">
+          <div class="sec-eyebrow" style="justify-content:center;">The Team</div>
+          <div class="sec-title">Founders &amp;<br>Developers</div>
+          <p class="sec-sub" style="margin:0 auto;">The people who designed, built, and shipped CollabHub.</p>
+        </div>
+
+        <div class="founders-grid">
+          <div class="founder-card fc-amber r d1">
+            <div class="founder-top">
+              <div class="founder-avatar fa-amber"><i class="bi bi-person"></i></div>
+              <div>
+                <div class="founder-name">Jatin Seth</div>
+                <div class="founder-role fr-amber">Frontend Developer</div>
+              </div>
+            </div>
+            <div class="founder-desc">Designed and built the landing page, role dashboards, responsive layout, animations, and complete UX flow.
+            </div>
+               <div class="footer-social">
+ <a href="https://github.com/Jatinseth559" target="_blank" class="f-link">
+  <i class="bi bi-github"></i> GitHub
+  </a>
+  <a href="https://www.linkedin.com/in/jatin-seth-8a1774396/" target="_blank" class="f-link">
+    <i class="bi bi-linkedin"></i> LinkedIn
+  </a>
+</div>
+          </div>
+
+          <div class="founder-card fc-blue r d2">
+            <div class="founder-top">
+              <div class="founder-avatar fa-blue"><i class="bi bi-person"></i></div>
+              <div>
+                <div class="founder-name">Jaymin Panchal</div>
+                <div class="founder-role fr-blue">Backend Developer</div>
+              </div>
+            </div>
+            <div class="founder-desc">Built the authentication system, role-based dashboards, and task update logic that powers the whole platform.</div>
+              <div class="footer-social">
+ <a href="https://github.com/JP-0506" target="_blank" class="f-link">
+  <i class="bi bi-github"></i> GitHub
+  </a>
+  <a href="https://www.linkedin.com/in/JP-0506ㅤ" target="_blank" class="f-link">
+    <i class="bi bi-linkedin"></i> LinkedIn
+  </a>
+</div>
+          </div>
+
+          <div class="founder-card fc-green r d3">
+            <div class="founder-top">
+              <div class="founder-avatar fa-green"><i class="bi bi-person"></i></div>
+              <div>
+                <div class="founder-name">Dev Patel</div>
+                <div class="founder-role fr-green">Database / QA</div>
+              </div>
+            </div>
+            <div class="founder-desc">Designed the database schema, managed data flow for tasks and projects, and handled end-to-end testing.</div>
+            <div class="footer-social">
+ <a href="https://github.com/dev-174" target="_blank" class="f-link">
+  <i class="bi bi-github"></i> GitHub
+  </a>
+  <a href="https://www.linkedin.com/in/dev-patel-16144030a?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" class="f-link">
+    <i class="bi bi-linkedin"></i> LinkedIn
+  </a>
+</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <div class="divider"></div>
+    <section id="contact">
+      <div class="sec-inner">
+        <div class="r" style="text-align:center; max-width:500px; margin:0 auto;">
+          <div class="sec-eyebrow" style="justify-content:center;">Contact</div>
+          <div class="sec-title">Let's talk</div>
+          <p class="sec-sub" style="margin:0 auto;">Reach us directly — no forms, no bots, just real people.</p>
+        </div>
+
+        <div class="contact-inner">
+          <div class="contact-cards">
+            <a href="mailto:sharingcode14@gmail.com" class="con-card r d1">
+              <div class="con-icon"><i class="bi bi-envelope"></i></div>
+              <div class="con-label">Email Us</div>
+              <div class="con-val">sharingcode14@gmail.com</div>
+            </a>
+            <a href="tel:+91 82388 73125" class="con-card r d2">
+              <div class="con-icon"><i class="bi bi-telephone"></i></div>
+              <div class="con-label">Call Us</div>
+              <div class="con-val">+91 82388 73125</div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-grid">
+          <div>
+            <div class="footer-brandline">CollabHub</div>
+            <div class="footer-desc">
+              Empowering teams to achieve more together. The future of work is here.
+            </div>
+            <br>
+              <div class="founder-links">
+             <a href="https://github.com/JP-0506/CollabHub" target="_blank" class="f-link">
+            <i class="bi bi-github"></i>
+             </a>
+           <a href="#" class="f-link">
+            <i class="bi bi-facebook"></i>
+          </a>
+            </div>
+          </div>
+
+          <div>
+            <div class="footer-col-title">Product</div>
+            <ul class="footer-list">
+              <li><a href="#trusted">Trusted</a></li>
+              <li><a href="#provide">Provide</a></li>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#founders">Team</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="footer-col-title">Company</div>
+            <ul class="footer-list">
+              <li><a href="#about">About Us</a></li>
+              <li><a href="#contact">Contact Us</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-copy">© 2026 CollabHub. All Rights Reserved.</div>
+      </div>
+    </footer>
+
+  </div><!-- wrapper -->
+
+  <!-- JS like old structure -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
 </html>
