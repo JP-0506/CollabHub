@@ -1337,7 +1337,7 @@ def delete_employee(id):
           AND p.status IN ('ongoing', 'planning')
           AND p.is_deleted = FALSE
           AND t.status != 'completed'
-        """, 
+        """,
         (id,),
     )
 
@@ -1522,19 +1522,47 @@ def profile():
         # =============================
         if request.method == "POST":
 
-            name = request.form.get("name")
-            email = request.form.get("email")
-            phone = request.form.get("phone")
-            bio = request.form.get("bio")
+            name = request.form.get("name", "").strip()
+            email = request.form.get("email", "").strip()
+            username = request.form.get("username", "").strip()
+
+            if not name or not email or not username:
+                return jsonify(
+                    {
+                        "status": "error",
+                        "message": "Name, email and username are required",
+                    }
+                )
+
+            # Check username not taken by another user
+            cur.execute(
+                "SELECT user_id FROM users WHERE username = %s AND user_id != %s",
+                (username, user_id),
+            )
+            if cur.fetchone():
+                return jsonify(
+                    {"status": "error", "message": "Username already taken ❌"}
+                )
+
+            # Check email not taken by another user
+            cur.execute(
+                "SELECT user_id FROM users WHERE email = %s AND user_id != %s",
+                (email, user_id),
+            )
+            if cur.fetchone():
+                return jsonify(
+                    {"status": "error", "message": "Email already in use ❌"}
+                )
 
             cur.execute(
                 """
                 UPDATE users
                 SET name=%s,
-                    email=%s
+                    email=%s,
+                    username=%s
                 WHERE user_id=%s
                 """,
-                (name, email, user_id),
+                (name, email, username, user_id),
             )
 
             conn.commit()
@@ -1548,7 +1576,7 @@ def profile():
         # =============================
         cur.execute(
             """
-            SELECT name, email, role
+            SELECT name, email, role, username
             FROM users
             WHERE user_id=%s
             """,
@@ -1586,10 +1614,103 @@ def profile():
             cur.close()
         if conn:
             conn.close()
+
+
+# =============================
+# CHANGE PASSWORD
+# =============================
+@admin_bp.route("/change_password", methods=["POST"])
+def change_password():
+
+    if "user_id" not in session:
+        return jsonify({"status": "error", "message": "Not logged in"}), 401
+
+    if session.get("role") != "admin":
+        return jsonify({"status": "error", "message": "Access Denied ❌"}), 403
+
+    user_id = session["user_id"]
+
+    conn = None
+    cur = None
+
+    try:
+        data = request.get_json()
+
+        current_password = data.get("current_password", "").strip()
+        new_password = data.get("new_password", "").strip()
+
+        # Basic validation
+        if not current_password or not new_password:
+            return jsonify({"status": "error", "message": "All fields are required"})
+
+        if len(new_password) < 8:
+            return jsonify(
+                {
+                    "status": "error",
+                    "message": "New password must be at least 8 characters",
+                }
+            )
+
+        conn = get_db()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+
+        # Fetch current password from auth table
+        cur.execute("SELECT password_hash FROM auth WHERE user_id = %s", (user_id,))
+        row = cur.fetchone()
+
+        if not row:
+            return jsonify({"status": "error", "message": "Auth record not found"})
+
+        # Verify current password
+        if row["password_hash"] != current_password:
+            return jsonify(
+                {"status": "error", "message": "Current password is incorrect ❌"}
+            )
+
+        # Same password check
+        if current_password == new_password:
+            return jsonify(
+                {
+                    "status": "error",
+                    "message": "New password must be different from current password",
+                }
+            )
+
+        # Update password
+        cur.execute(
+            """
+            UPDATE auth
+            SET password_hash = %s,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = %s
+            """,
+            (new_password, user_id),
+        )
+
+        conn.commit()
+
+        return jsonify(
+            {"status": "success", "message": "Password updated successfully ✅"}
+        )
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print("Change Password Error:", e)
+        return jsonify({"status": "error", "message": "Something went wrong ❌"}), 500
+
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+
 # ============================
 # REVIEW PROJECT (Admin accepts or rejects)
 # ADD THIS ROUTE to admin routes.py
 # ============================
+
 
 @admin_bp.route("/review_project/<int:project_id>", methods=["POST"])
 def review_project(project_id):
@@ -1619,7 +1740,15 @@ def review_project(project_id):
         project = cur.fetchone()
 
         if not project:
-            return jsonify({"status": "error", "message": "Project not found or not in completed status"}), 404
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": "Project not found or not in completed status",
+                    }
+                ),
+                404,
+            )
 
         admin_id = session["user_id"]
 
@@ -1668,7 +1797,9 @@ def review_project(project_id):
         )
 
         conn.commit()
-        return jsonify({"status": "success", "message": f"Project {action}ed successfully!"})
+        return jsonify(
+            {"status": "success", "message": f"Project {action}ed successfully!"}
+        )
 
     except Exception as e:
         conn.rollback()
@@ -1684,6 +1815,7 @@ def review_project(project_id):
 # CLOSED PROJECTS (Admin sees all closed projects)
 # ADD THIS ROUTE to admin routes.py
 # ============================
+
 
 @admin_bp.route("/closed_projects")
 def closed_projects():
@@ -1717,6 +1849,7 @@ def closed_projects():
 # ADD THIS ROUTE to admin routes.py
 # ============================
 
+
 @admin_bp.route("/api/pending_review_projects")
 def pending_review_projects():
     if not admin_login_required():
@@ -1741,6 +1874,7 @@ def pending_review_projects():
     conn.close()
 
     return jsonify(projects)
+
 
 @admin_bp.route("/api/closed_projects")
 def api_closed_projects():
