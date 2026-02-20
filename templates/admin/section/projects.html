@@ -356,6 +356,91 @@
 </div>
 
 
+<!-- ================= PENDING REVIEW TABLE ================= -->
+
+<div class="table-card mt-4" id="pendingReviewSection">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h5 class="fw-bold mb-0">
+                <i class="fas fa-clock text-warning me-2"></i>Pending Review
+            </h5>
+            <small class="text-muted">Projects submitted by leaders awaiting your approval</small>
+        </div>
+
+        <span class="badge bg-warning text-dark fs-6" id="pendingReviewCount">0</span>
+
+    </div>
+
+    <div class="table-container">
+        <table class="custom-table">
+
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Team Leader</th>
+                    <th>Progress</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="pendingReviewBody">
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-3">Loading...</td>
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+
+<!-- ================= CLOSED PROJECTS TABLE ================= -->
+
+<div class="table-card mt-4 mb-5" id="closedProjectsSection">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h5 class="fw-bold mb-0">
+                <i class="fas fa-archive text-secondary me-2"></i>Closed Projects
+            </h5>
+            <small class="text-muted">Projects accepted and closed by admin</small>
+        </div>
+        <span class="badge bg-secondary fs-6" id="closedProjectsCount">0</span>
+    </div>
+
+    <div class="table-container">
+        <table class="custom-table">
+
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Team Leader</th>
+                    <th>Progress</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Closed On</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody id="closedProjectsBody">
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-3">Loading...</td>
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+
 <!-- ================= MODAL ================= -->
 
 <div class="modal fade" id="addProjectModal" tabindex="-1">
@@ -454,15 +539,6 @@
                         </div> -->
 
 
-                        <!-- Progress -->
-                        <div class="col-md-6">
-
-                            <label class="form-label">Progress %</label>
-
-                            <input type="number" class="form-control" name="progress" id="projectProgress" min="0"
-                                max="100">
-
-                        </div>
 
 
 
@@ -691,6 +767,40 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= REJECT REASON MODAL ================= -->
+<div class="modal fade" id="rejectProjectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-danger">
+                    <i class="fas fa-times-circle me-2"></i>Reject Project
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="text-muted mb-3">Please provide a reason for rejection. The leader will be notified.</p>
+                <input type="hidden" id="rejectProjectId">
+                <label class="form-label fw-semibold">Rejection Reason *</label>
+                <textarea class="form-control" id="rejectReason" rows="3"
+                    placeholder="e.g. Some tasks are incomplete, documentation missing..."></textarea>
+                <div id="rejectReasonError" class="text-danger small mt-1" style="display:none;">
+                    Please enter a reason.
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmRejectProjectBtn">
+                    <i class="fas fa-times me-1"></i>Reject Project
+                </button>
+            </div>
+
         </div>
     </div>
 </div>
