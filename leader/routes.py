@@ -69,13 +69,13 @@ def get_notifications(leader_id, cur):
     notifications = cur.fetchall()
 
     recent_notifications = [
-    {
-        "message": notif[0],
-        "sent_at": notif[1],          # raw datetime or None
-        "sender_name": notif[2],
-    }
-    for notif in notifications
-]
+        {
+            "message": notif[0],
+            "sent_at": notif[1],  # raw datetime or None
+            "sender_name": notif[2],
+        }
+        for notif in notifications
+    ]
     return notification_count, recent_notifications
 
 
@@ -354,6 +354,22 @@ def my_team_page():
     )
     available_employees = cur.fetchall()
 
+    # to fetch past memeber
+    cur.execute(
+        """
+        SELECT u.user_id, u.name, u.email, u.designation, pm.role_in_project, pm.joined_at
+        FROM users u
+        JOIN project_members pm ON u.user_id = pm.user_id
+        JOIN projects p ON pm.project_id = p.project_id
+        WHERE p.leader_id = %s
+        AND u.role = 'employee'
+        AND pm.is_deleted = TRUE
+        ORDER BY pm.joined_at DESC;
+    """,
+        (leader_id,),
+    )
+    past_members = cur.fetchall()
+
     cur.close()
     conn.close()
 
@@ -367,6 +383,7 @@ def my_team_page():
         avg_productivity=avg_productivity,
         on_time_rate=on_time_rate,
         active_now=0,
+        past_members=past_members,
     )
 
 
@@ -580,15 +597,26 @@ def add_team_member():
     if not project:
         cur.close()
         conn.close()
-        return jsonify({"success": False, "error": "No project found for this leader"}), 404
+        return (
+            jsonify({"success": False, "error": "No project found for this leader"}),
+            404,
+        )
 
     # Check if project is closed
     cur.execute("SELECT status FROM projects WHERE project_id = %s", (project[0],))
     status = cur.fetchone()[0]
-    if status == 'closed':
+    if status == "closed":
         cur.close()
         conn.close()
-        return jsonify({"success": False, "error": "Project is closed. Cannot add team members."}), 400
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": "Project is closed. Cannot add team members.",
+                }
+            ),
+            400,
+        )
 
     cur.execute(
         """
@@ -898,6 +926,7 @@ def dashboard():
         JOIN projects p ON pm.project_id = p.project_id
         WHERE p.leader_id = %s
         AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL);
+        AND u.role != 'project_leader';
     """,
         (leader_id,),
     )
@@ -1028,7 +1057,7 @@ def dashboard():
 @project_leader_bp.route("/create_task", methods=["POST"])
 def create_task():
     if "user_id" not in session:
-       return jsonify({"success": False, "error": "Login required"}), 401
+        return jsonify({"success": False, "error": "Login required"}), 401
 
     leader_id = session["user_id"]
     conn = get_db()
@@ -1038,15 +1067,23 @@ def create_task():
     if not project:
         cur.close()
         conn.close()
-        return jsonify({"success": False, "error": "No project found for this leader"}), 404
+        return (
+            jsonify({"success": False, "error": "No project found for this leader"}),
+            404,
+        )
 
     # Check if project is closed
     cur.execute("SELECT status FROM projects WHERE project_id = %s", (project[0],))
     status = cur.fetchone()[0]
-    if status == 'closed':
+    if status == "closed":
         cur.close()
         conn.close()
-        return jsonify({"success": False, "error": "Project is closed. Cannot create tasks."}), 400
+        return (
+            jsonify(
+                {"success": False, "error": "Project is closed. Cannot create tasks."}
+            ),
+            400,
+        )
 
     cur.execute(
         """
@@ -1054,8 +1091,15 @@ def create_task():
         (project_id, title, description, priority, assigned_to, assigned_by, due_date, status)
         VALUES (%s, %s, %s, %s, %s, %s, %s, 'in_progress')
     """,
-        (project[0], request.form["title"], request.form.get("description", ""),
-         request.form["priority"], int(request.form["assigned_to"]), leader_id, request.form["due_date"]),
+        (
+            project[0],
+            request.form["title"],
+            request.form.get("description", ""),
+            request.form["priority"].lower(),
+            int(request.form["assigned_to"]),
+            leader_id,
+            request.form["due_date"],
+        ),
     )
     conn.commit()
     cur.close()
@@ -1344,7 +1388,15 @@ def delete_task(task_id):
     if not cur.fetchone():
         cur.close()
         conn.close()
-        return jsonify({"success": False, "error": "Task not found or you don't have permission to delete it"}), 403
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": "Task not found or you don't have permission to delete it",
+                }
+            ),
+            403,
+        )
     cur.execute(
         """
         SELECT p.status
@@ -1355,16 +1407,22 @@ def delete_task(task_id):
         (task_id,),
     )
     status = cur.fetchone()[0]
-    if status == 'closed':
+    if status == "closed":
         cur.close()
         conn.close()
-        return jsonify({"success": False, "error": "Project is closed. Cannot delete tasks."}), 400
+        return (
+            jsonify(
+                {"success": False, "error": "Project is closed. Cannot delete tasks."}
+            ),
+            400,
+        )
     cur.execute("DELETE FROM tasks WHERE task_id = %s", (task_id,))
     conn.commit()
     cur.close()
     conn.close()
 
     return jsonify({"success": True, "message": "Task deleted successfully"})
+
 
 @project_leader_bp.route("/get_task/<int:task_id>", methods=["GET"])
 def get_task(task_id):
@@ -1429,7 +1487,15 @@ def update_task(task_id):
     if not cur.fetchone():
         cur.close()
         conn.close()
-        return jsonify({"success": False, "error": "Task not found or you don't have permission to update it"}), 403
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": "Task not found or you don't have permission to update it",
+                }
+            ),
+            403,
+        )
 
     # Check if the project is closed
     cur.execute(
@@ -1442,10 +1508,15 @@ def update_task(task_id):
         (task_id,),
     )
     status = cur.fetchone()[0]
-    if status == 'closed':
+    if status == "closed":
         cur.close()
         conn.close()
-        return jsonify({"success": False, "error": "Project is closed. Cannot update tasks."}), 400
+        return (
+            jsonify(
+                {"success": False, "error": "Project is closed. Cannot update tasks."}
+            ),
+            400,
+        )
 
     cur.execute(
         """
@@ -1454,9 +1525,15 @@ def update_task(task_id):
             priority = %s, due_date = %s, updated_at = CURRENT_TIMESTAMP
         WHERE task_id = %s
         """,
-        (request.form["title"], request.form.get("description", ""),
-         int(request.form["assigned_to"]), int(request.form["project_id"]),
-         request.form["priority"], request.form.get("due_date"), task_id),
+        (
+            request.form["title"],
+            request.form.get("description", ""),
+            int(request.form["assigned_to"]),
+            int(request.form["project_id"]),
+            request.form["priority"].lower(),
+            request.form.get("due_date"),
+            task_id,
+        ),
     )
 
     conn.commit()
@@ -1589,10 +1666,18 @@ def remove_team_member():
     # Check if project is closed
     cur.execute("SELECT status FROM projects WHERE project_id = %s", (project[0],))
     status = cur.fetchone()[0]
-    if status == 'closed':
+    if status == "closed":
         cur.close()
         conn.close()
-        return jsonify({"success": False, "error": "Project is closed. Cannot remove team members."}), 400
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": "Project is closed. Cannot remove team members.",
+                }
+            ),
+            400,
+        )
 
     cur.execute(
         """
@@ -1634,7 +1719,10 @@ def approve_task(task_id):
         if not cur.fetchone():
             cur.close()
             conn.close()
-            return jsonify({"success": False, "error": "Task not found or not submitted"}), 404
+            return (
+                jsonify({"success": False, "error": "Task not found or not submitted"}),
+                404,
+            )
 
         # Check if project is closed
         cur.execute(
@@ -1647,10 +1735,18 @@ def approve_task(task_id):
             (task_id,),
         )
         status = cur.fetchone()[0]
-        if status == 'closed':
+        if status == "closed":
             cur.close()
             conn.close()
-            return jsonify({"success": False, "error": "Project is closed. Cannot approve tasks."}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": "Project is closed. Cannot approve tasks.",
+                    }
+                ),
+                400,
+            )
 
         cur.execute(
             """
@@ -1712,7 +1808,10 @@ def reject_task(task_id):
         if not cur.fetchone():
             cur.close()
             conn.close()
-            return jsonify({"success": False, "error": "Task not found or not submitted"}), 404
+            return (
+                jsonify({"success": False, "error": "Task not found or not submitted"}),
+                404,
+            )
 
         # Check if project is closed
         cur.execute(
@@ -1725,10 +1824,18 @@ def reject_task(task_id):
             (task_id,),
         )
         status = cur.fetchone()[0]
-        if status == 'closed':
+        if status == "closed":
             cur.close()
             conn.close()
-            return jsonify({"success": False, "error": "Project is closed. Cannot reject tasks."}), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": "Project is closed. Cannot reject tasks.",
+                    }
+                ),
+                400,
+            )
 
         cur.execute(
             """
@@ -1749,15 +1856,19 @@ def reject_task(task_id):
         cur.close()
         conn.close()
 
-        return jsonify({"success": True, "message": "Task rejected and sent back for revision"})
+        return jsonify(
+            {"success": True, "message": "Task rejected and sent back for revision"}
+        )
 
     except Exception as e:
         print("Error in reject_task:", str(e))
         return jsonify({"success": False, "error": "Server error occurred"}), 500
+
+
 # ============================
 # SUBMIT PROJECT (Leader marks project as complete)
-# ADD THIS ROUTE to leader/routes.py
 # ============================
+
 
 @project_leader_bp.route("/submit_project/<int:project_id>", methods=["POST"])
 def submit_project(project_id):
@@ -1782,7 +1893,15 @@ def submit_project(project_id):
         project = cur.fetchone()
 
         if not project:
-            return jsonify({"success": False, "error": "Project not found or not in ongoing status"}), 404
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": "Project not found or not in ongoing status",
+                    }
+                ),
+                404,
+            )
 
         # Update project status to 'completed'
         cur.execute(
@@ -1815,7 +1934,9 @@ def submit_project(project_id):
             )
 
         conn.commit()
-        return jsonify({"success": True, "message": "Project submitted for review successfully!"})
+        return jsonify(
+            {"success": True, "message": "Project submitted for review successfully!"}
+        )
 
     except Exception as e:
         conn.rollback()
