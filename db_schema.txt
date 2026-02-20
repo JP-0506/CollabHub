@@ -43,6 +43,8 @@ project_members{
     user_id
     role_in_project
     joined_at
+    is_deleted
+    
 }
 
 tasks {
