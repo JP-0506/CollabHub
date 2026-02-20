@@ -1058,3 +1058,33 @@ body {
     font-size: 0.9rem;
     color: #4b5563;
 }
+
+/* Remove blue glow from autofill suggestions */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: #333 !important;
+    border-color: #ced4da !important;
+}
+
+/* Remove focus effects when selecting from dropdown */
+.form-control:focus,
+.form-select:focus {
+    border-color: #ced4da !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Specifically for autofill background */
+input:-webkit-autofill {
+    background-color: white !important;
+}
+
+/* For Firefox */
+input:autofill {
+    box-shadow: 0 0 0 30px white inset !important;
+    border-color: #ced4da !important;
+}
