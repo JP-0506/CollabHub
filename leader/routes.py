@@ -925,7 +925,7 @@ def dashboard():
         JOIN project_members pm ON u.user_id = pm.user_id
         JOIN projects p ON pm.project_id = p.project_id
         WHERE p.leader_id = %s
-        AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL);
+        AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
         AND u.role != 'project_leader';
     """,
         (leader_id,),
