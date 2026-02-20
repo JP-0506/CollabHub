@@ -15,10 +15,9 @@
             <h5 class="fw-bold">{{ project.project_name }}</h5>
 
             <p class="text-muted small">
-                {{ project.description if project.description else "No description available." }}
+                {{ project.features if project.features else "No description available." }}
             </p>
 
-            <!-- ✅ Progress comes from backend -->
             <div class="progress mb-2">
                 <div class="progress-bar bg-primary" role="progressbar" style="width: {{ progress }}%;"
                     aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">
@@ -43,7 +42,6 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-
         <div class="table-responsive">
             <table class="table align-middle">
                 <thead class="table-light">
@@ -57,7 +55,6 @@
                 </thead>
 
                 <tbody>
-
                     {% if tasks %}
                     {% for task in tasks %}
                     <tr>
@@ -65,12 +62,14 @@
 
                         <!-- Priority -->
                         <td>
-                            {% if task.priority == "high" %}
+                            {% if task.priority == "High" or task.priority == "high" %}
                             <span class="badge bg-danger">High</span>
-                            {% elif task.priority == "medium" %}
+                            {% elif task.priority == "Medium" or task.priority == "medium" %}
                             <span class="badge bg-warning text-dark">Medium</span>
-                            {% else %}
+                            {% elif task.priority == "Low" or task.priority == "low" %}
                             <span class="badge bg-success">Low</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ task.priority or "N/A" }}</span>
                             {% endif %}
                         </td>
 
@@ -91,11 +90,13 @@
                         <td>
                             {{ task.due_date.strftime('%d %b %Y') if task.due_date else "No Due Date" }}
                         </td>
+
                         <!-- Action -->
                         <td class="text-center">
                             {% if task.status == "in_progress" %}
                             <form method="POST" action="{{ url_for('employee.submit_task', task_id=task.task_id) }}">
-                                <button class="btn btn-warning submit-btn" data-task-id="{{ task.task_id }}">
+                                <button type="submit" class="btn btn-warning submit-btn"
+                                    data-task-id="{{ task.task_id }}">
                                     <i class="fas fa-paper-plane me-1"></i>Submit
                                 </button>
                             </form>
@@ -112,9 +113,30 @@
                                 <i class="fas fa-times-circle me-1"></i>Rejected
                             </button>
                             {% if task.rejection_reason %}
-                            <button class="btn btn-sm btn-link" onclick="showReason('{{ task.rejection_reason }}')">
-                                View
+                            <!-- Rejection Reason — Bootstrap Modal Trigger (no JS needed) -->
+                            <button type="button" class="btn btn-sm btn-link" data-bs-toggle="modal"
+                                data-bs-target="#reasonModal{{ task.task_id }}">
+                                View Reason
                             </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="reasonModal{{ task.task_id }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Rejection Reason</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {{ task.rejection_reason }}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             {% endif %}
                             {% else %}
                             <button class="btn btn-secondary" disabled>
@@ -131,45 +153,12 @@
                         </td>
                     </tr>
                     {% endif %}
-
                 </tbody>
             </table>
         </div>
-
     </div>
 </div>
-{% block extra_js %}
-<script>
-function showReason(reason) {
-    alert("Rejection reason: " + reason);
-}
 
-// Handle form submission with AJAX
-document.querySelectorAll('.submit-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const form = this.closest('form');
-        const taskId = this.dataset.taskId;
-        
-        if (confirm('Submit this task for leader review?')) {
-            fetch(form.action, {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Task submitted successfully!');
-                    location.reload();
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                alert('Error submitting task');
-            });
-        }
-    });
-});
-</script>
-{% endblock %}
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/Employee/Employee.js') }}"></script>{% endblock %}
 {% endblock %}
