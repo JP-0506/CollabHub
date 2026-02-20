@@ -120,6 +120,24 @@ def login():
             session["role"] = role
             session["username"] = email_or_username
 
+            # 📝 Log login info into login_logs table
+            try:
+                log_conn = get_db()
+                log_cur = log_conn.cursor()
+
+                log_cur.execute(
+                    """
+                    INSERT INTO login_logs (user_id, login_time)
+                    VALUES (%s, CURRENT_TIMESTAMP)
+                    """,
+                    (user_id,),
+                )
+                log_conn.commit()
+                log_cur.close()
+                log_conn.close()
+            except Exception as log_err:
+                print("LOGIN LOG ERROR:", log_err)
+
             # Redirect based on role
             if role == "admin":
                 redirect_url = url_for("admin.dashboard")
