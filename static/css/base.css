@@ -1,140 +1,289 @@
 /* =========================================
-   1. CORE VARIABLES & RESET
+   1. CORE VARIABLES & RESET (Shared)
    ========================================= */
-:root {
-    --accent: #6366f1;
-    --accent-glow: rgba(99, 102, 241, 0.4);
-    --bg: #0b0e14;
-    --card-bg: #1e222d;
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --text-main: #f8fafc;
-    --text-dim: #94a3b8;
-    --error-bg: rgba(60, 20, 20, 0.6);
-    --error-border: #7f1d1d;
-    --error-text: #fca5a5;
-    --success-bg: rgba(20, 60, 20, 0.8);
-    --success-border: #14532d;
-    --success-text: #86efac;
+:root{
+  --bg:      #0B0C0F;
+  --bg2:     #111318;
+  --border:  rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text:    #F0F2F8;
+  --muted:   rgba(200,205,225,0.52);
+
+  --amber:   #F5A623;
+  --amber2:  #FF7A3D;
+  --green:   #22D3A4;
+  --blue:    #5B8EFF;
+  --blue2:   #3B6FFF;
+  --red:     #FF5C5C;
+
+  --radius:  14px;
+  --shadow:  0 24px 80px rgba(0,0,0,0.5);
+
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body:    'Plus Jakarta Sans', sans-serif;
+
+  /* button gradient */
+  --sb-bg:  #111827;
+  --sb-bg2: #1f2937;
+
+  /* status colors */
+  --error-bg: rgba(60, 20, 20, 0.6);
+  --error-border: #7f1d1d;
+  --error-text: #fca5a5;
+  --success-bg: rgba(20, 60, 20, 0.8);
+  --success-border: #14532d;
+  --success-text: #86efac;
+
+    /* Auth card variables (ADD THESE) */
+  --card-bg: rgba(17, 19, 24, 0.88);
+  --glass-border: rgba(255,255,255,0.14);
+
+  --accent: #5B8EFF;
+  --text-dim: rgba(200,205,225,0.55);
+  --accent-glow: rgba(91,142,255,0.45);
 }
 
-html,
-body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    /* --- NEW ADDITION START --- */
-    scrollbar-width: none;
-    /* Firefox */
-    -ms-overflow-style: none;
-    /* IE/Edge */
-    /* --- NEW ADDITION END --- */
+*,*::before,*::after{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
 }
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg);
-    color: var(--text-main);
-    display: flex;
-    flex-direction: column;
+html{
+  scroll-behavior:smooth;
+}
+
+html,body{
+  height:100%;
+  overflow-x:hidden;
 }
 
 /* =========================================
-   2. FIXED BACKGROUND
+   2. GLOBAL BACKGROUND (Home Style)
    ========================================= */
-#fixed-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    overflow: hidden;
-    pointer-events: none;
+body{
+  background:
+    radial-gradient(1200px 700px at 10% 10%, rgba(245,166,35,.10), transparent 60%),
+    radial-gradient(900px 600px at 90% 30%, rgba(91,142,255,.10), transparent 60%),
+    radial-gradient(800px 500px at 50% 100%, rgba(34,211,164,.08), transparent 60%),
+    linear-gradient(180deg, #07080b 0%, #0B0C0F 45%, #07080b 100%);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.65;
+  display:flex;
+  flex-direction:column;
 }
 
-.glow-orb {
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    border-radius: 50%;
-    filter: blur(100px);
-    opacity: 0.4;
-    animation: floatBackground 15s infinite alternate ease-in-out;
-}
-
-.orb-1 {
-    background: var(--accent-glow);
-    top: -100px;
-    left: -100px;
-}
-
-.orb-2 {
-    background: rgba(79, 70, 229, 0.25);
-    bottom: -100px;
-    right: -100px;
-    animation-delay: -7s;
-}
-
-@keyframes floatBackground {
-    0% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    100% {
-        transform: translate(50px, 50px) scale(1.1);
-    }
+/* subtle noise overlay */
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:2;
+  opacity:.5;
 }
 
 /* =========================================
-   3. GLOBAL INPUT STYLES
+   3. ORBS + GRID (Shared Background Layers)
    ========================================= */
-.form-control {
-    background-color: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--glass-border);
-    color: white;
-    padding: 12px;
-    caret-color: white !important;
+.orbs{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  overflow:hidden;
 }
 
+.grid-lines{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.orb{
+  position:absolute;
+  border-radius:50%;
+  filter: blur(110px);
+  opacity:.28;
+  animation: breathe 14s ease-in-out infinite alternate;
+}
+
+.o1{
+  width:700px;
+  height:700px;
+  top:-200px;
+  left:-200px;
+  background:radial-gradient(circle, rgba(245,166,35,.35) 0%, transparent 70%);
+}
+
+.o2{
+  width:500px;
+  height:500px;
+  top:30%;
+  right:-150px;
+  background:radial-gradient(circle, rgba(91,142,255,.25) 0%, transparent 70%);
+  animation-delay:2s;
+}
+
+.o3{
+  width:400px;
+  height:400px;
+  bottom:-100px;
+  left:40%;
+  background:radial-gradient(circle, rgba(34,211,164,.18) 0%, transparent 70%);
+  animation-delay:4s;
+}
+
+@keyframes breathe{
+  from{ transform:scale(1) translate(0,0); }
+  to{ transform:scale(1.1) translate(20px,15px); }
+}
+
+/* =========================================
+   4. GLOBAL FORM & INPUT STYLES
+   ========================================= */
+.form-control, input, textarea, select{
+  font-family: var(--font-body);
+}
+
+.form-control{
+  width:100%;
+  background: rgba(0,0,0,0.30);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px;
+  border-radius: 10px;
+  outline:none;
+}
+
+.form-control::placeholder{
+  color: rgba(240,242,248,0.55);
+}
+
+.form-control:focus{
+  background: rgba(0,0,0,0.45);
+  border-color: rgba(255,255,255,0.7);   /* white border */
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.08); /* soft white glow */
+}
+
+/* autofill fix */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-    -webkit-text-fill-color: white !important;
-    transition: background-color 5000s ease-in-out 0s;
-    -webkit-box-shadow: 0 0 0 30px #1e222d inset !important;
-    caret-color: white !important;
+input:-webkit-autofill:active{
+  -webkit-text-fill-color: var(--text) !important;
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-box-shadow: 0 0 0 30px rgba(17,19,24,1) inset !important;
+  caret-color: var(--text) !important;
 }
 
-.form-control::placeholder {
-    color: rgba(255, 255, 255, 0.6) !important;
-    opacity: 1;
+/* primary form button */
+.btn-custom{
+  background: linear-gradient(135deg, var(--sb-bg) 0%, var(--sb-bg2) 100%);
+  color:#fff;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.10);
+  font-weight:700;
+  cursor:pointer;
+  transition:.25s;
+  width:100%;
 }
 
+.btn-custom:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 14px 44px rgba(17,24,39,.55);
+}
+
+/* =========================================
+   5. AUTH PAGES (Login / Signup)
+   ========================================= */
+.auth-page{
+  min-height:100vh;
+  position:relative;
+  z-index:3;
+  display:grid;
+  place-items:center;
+  padding:110px 20px 40px;
+}
+
+.auth-card{
+  width:100%;
+  max-width:460px;
+
+  /* 🔥 Make it clearly lighter than background */
+  background: #161A22;
+
+  border: 1px solid rgba(255,255,255,0.16);
+
+  border-radius: 20px;
+  padding: 34px;
+
+  box-shadow:
+    0 30px 90px rgba(0,0,0,0.65),
+    0 0 0 1px rgba(255,255,255,0.05) inset;
+
+  position:relative;
+}
+.auth-card::before{
+  content:'';
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(91,142,255,.6),
+    transparent
+  );
+}
+
+/* =========================================
+   6. ALERTS (Optional Shared)
+   ========================================= */
+.alert-error{
+  background: var(--error-bg);
+  border:1px solid var(--error-border);
+  color: var(--error-text);
+  padding:12px;
+  border-radius:12px;
+}
+
+.alert-success{
+  background: var(--success-bg);
+  border:1px solid var(--success-border);
+  color: var(--success-text);
+  padding:12px;
+  border-radius:12px;
+}
+/* Make your existing auth-container work like auth-page */
+.auth-container{
+  min-height:100vh;
+  position:relative;
+  z-index:3;
+  display:grid;
+  place-items:center;
+  padding:110px 20px 40px;
+}
+
+/* Remove blue focus everywhere */
 .form-control:focus {
-    background-color: rgba(0, 0, 0, 0.5);
-    border-color: var(--accent);
-    color: white;
-    box-shadow: none;
+  border-color: rgba(255,255,255,0.7) !important;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.08) !important;
 }
 
-/* FORM BUTTONS */
-.btn-custom {
-    background-color: var(--accent) !important;
-    color: white !important;
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: 600;
-    width: 100%;
-    border: 1px solid var(--accent) !important;
-    margin-top: 10px;
-    transition: 0.3s;
-}
-
-.btn-custom:hover {
-    background-color: #4f46e5 !important;
-    border-color: #4f46e5 !important;
-    box-shadow: 0 0 15px var(--accent-glow);
-    transform: translateY(-2px);
+/* Password input group white border */
+.input-group:focus-within {
+  border-color: rgba(255,255,255,0.7) !important;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.08) !important;
 }
