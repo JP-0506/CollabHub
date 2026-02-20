@@ -333,7 +333,8 @@ document.addEventListener("DOMContentLoaded", function () {
         loadRecentProjects();
     }
 
-
+    //for add member
+    initAddEmployeeForm();
     //for edit project detailsfrom edit modal
     initEditProjectModal();
     /*to modal on click project avtar */
@@ -945,6 +946,67 @@ function initViewProject() {
 }
 
 /****************** manage_emp.js ************************/
+
+// ============================
+// Add Employee Form Handler
+// ============================
+function initAddEmployeeForm() {
+    const addForm = document.querySelector('#addEmpModal form');
+
+    if (addForm) {
+        addForm.onsubmit = async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Adding...';
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addEmpModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+
+                    // Show success message
+                    alert(result.message);
+
+                    // Reset form
+                    this.reset();
+
+                    // Reload page to show new employee
+                    location.reload();
+
+                } else {
+                    // Show error message
+                    alert(result.message || 'Error adding employee');
+                }
+
+            } catch (error) {
+                console.error('Error adding employee:', error);
+                alert('Network error. Please check your connection and try again.');
+
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        };
+    }
+}
+
 // ============================
 // Edit Employee Modal
 // ============================
