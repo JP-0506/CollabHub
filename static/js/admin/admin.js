@@ -1253,3 +1253,250 @@ function initViewEmployee() {
         });
     });
 }
+
+// ============================
+// Pending Review - Load Projects
+// ============================
+function loadPendingReviewProjects() {
+
+    const tbody = document.getElementById("pendingReviewBody");
+    const countBadge = document.getElementById("pendingReviewCount");
+
+    if (!tbody) return;
+
+    fetch("/admin/api/pending_review_projects")
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (projects) {
+
+            if (projects.length === 0) {
+                tbody.innerHTML =
+                    '<tr><td colspan="6" class="text-center text-muted py-3">No projects pending review</td></tr>';
+                if (countBadge) countBadge.textContent = "0";
+                return;
+            }
+
+            if (countBadge) countBadge.textContent = projects.length;
+
+            let rows = "";
+
+            projects.forEach(function (p) {
+                rows += `
+                    <tr id="review-row-${p.project_id}">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="user-avatar me-3" style="background:#f59e0b; color:white;">
+                                    ${p.project_name[0].toUpperCase()}
+                                </div>
+                                <div class="fw-bold">${p.project_name}</div>
+                            </div>
+                        </td>
+                        <td>${p.leader_name || "-"}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="progress-container me-2" style="flex:1;">
+                                    <div class="progress-bar" style="width:${p.progress || 0}%;"></div>
+                                </div>
+                                <small>${p.progress || 0}%</small>
+                            </div>
+                        </td>
+                        <td>${p.start_date || "-"}</td>
+                        <td>${p.end_date || "-"}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-success"
+                                    onclick="reviewProject(${p.project_id}, 'accept')">
+                                    <i class="fas fa-check me-1"></i>Accept
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                    onclick="reviewProject(${p.project_id}, 'reject')">
+                                    <i class="fas fa-times me-1"></i>Reject
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = rows;
+        })
+        .catch(function () {
+            tbody.innerHTML =
+                '<tr><td colspan="6" class="text-center text-danger py-3">Failed to load projects</td></tr>';
+        });
+}
+
+
+// ============================
+// Pending Review - Accept or Reject
+// ============================
+function reviewProject(projectId, action) {
+
+    if (action === "accept") {
+
+        if (!confirm("Are you sure you want to ACCEPT this project? Status will be set to Closed.")) return;
+
+        sendReviewRequest(projectId, "accept", "");
+
+    } else {
+
+        // Show reject modal
+        document.getElementById("rejectProjectId").value = projectId;
+        document.getElementById("rejectReason").value = "";
+        document.getElementById("rejectReasonError").style.display = "none";
+
+        const rejectModal = new bootstrap.Modal(document.getElementById("rejectProjectModal"));
+        rejectModal.show();
+    }
+}
+
+
+function sendReviewRequest(projectId, action, reason) {
+
+    fetch(`/admin/review_project/${projectId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: action, reason: reason })
+    })
+    .then(function (response) {
+        return response.json();
+    })
+    .then(function (data) {
+
+        if (data.status === "success") {
+            alert(data.message);
+
+            // Close reject modal if open
+            const rejectModalEl = document.getElementById("rejectProjectModal");
+            if (rejectModalEl) {
+                const modalInstance = bootstrap.Modal.getInstance(rejectModalEl);
+                if (modalInstance) modalInstance.hide();
+            }
+
+            // Remove the row from pending table
+            const row = document.getElementById(`review-row-${projectId}`);
+            if (row) row.remove();
+
+            // Update pending badge count
+            const countBadge = document.getElementById("pendingReviewCount");
+            if (countBadge) {
+                const current = parseInt(countBadge.textContent) || 0;
+                countBadge.textContent = Math.max(0, current - 1);
+            }
+
+            // Show empty message if no rows left
+            const tbody = document.getElementById("pendingReviewBody");
+            if (tbody && tbody.querySelectorAll("tr").length === 0) {
+                tbody.innerHTML =
+                    '<tr><td colspan="6" class="text-center text-muted py-3">No projects pending review</td></tr>';
+            }
+
+            // Reload closed projects table
+            loadClosedProjects();
+
+        } else {
+            alert("Error: " + data.message);
+        }
+    })
+    .catch(function () {
+        alert("Something went wrong. Please try again.");
+    });
+}
+
+
+// ============================
+// Load Closed Projects
+// ============================
+function loadClosedProjects() {
+
+    const tbody = document.getElementById("closedProjectsBody");
+    const countBadge = document.getElementById("closedProjectsCount");
+
+    if (!tbody) return;
+
+    fetch("/admin/api/closed_projects")
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (projects) {
+
+            if (projects.length === 0) {
+                tbody.innerHTML =
+                    '<tr><td colspan="7" class="text-center text-muted py-3">No closed projects yet</td></tr>';
+                if (countBadge) countBadge.textContent = "0";
+                return;
+            }
+
+            if (countBadge) countBadge.textContent = projects.length;
+
+            let rows = "";
+
+            projects.forEach(function (p) {
+                rows += `
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="user-avatar me-3" style="background:#6366f1; color:white;">
+                                    ${p.project_name[0].toUpperCase()}
+                                </div>
+                                <div class="fw-bold">${p.project_name}</div>
+                            </div>
+                        </td>
+                        <td>${p.leader_name || "-"}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="progress-container me-2" style="flex:1;">
+                                    <div class="progress-bar" style="width:${p.progress || 0}%;"></div>
+                                </div>
+                                <small>${p.progress || 0}%</small>
+                            </div>
+                        </td>
+                        <td>${p.start_date || "-"}</td>
+                        <td>${p.end_date || "-"}</td>
+                        <td>${p.closed_at || "-"}</td>
+                        <td><span class="status-badge status-closed">Closed</span></td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = rows;
+        })
+        .catch(function () {
+            tbody.innerHTML =
+                '<tr><td colspan="7" class="text-center text-danger py-3">Failed to load closed projects</td></tr>';
+        });
+}
+
+
+// ============================
+// Init on Projects Page
+// ============================
+document.addEventListener("DOMContentLoaded", function () {
+
+    if (document.getElementById("pendingReviewBody")) {
+        loadPendingReviewProjects();
+    }
+
+    if (document.getElementById("closedProjectsBody")) {
+        loadClosedProjects();
+    }
+
+    // Confirm reject button inside modal
+    const confirmRejectBtn = document.getElementById("confirmRejectProjectBtn");
+    if (confirmRejectBtn) {
+        confirmRejectBtn.addEventListener("click", function () {
+
+            const projectId = document.getElementById("rejectProjectId").value;
+            const reason = document.getElementById("rejectReason").value.trim();
+
+            if (!reason) {
+                document.getElementById("rejectReasonError").style.display = "block";
+                return;
+            }
+
+            document.getElementById("rejectReasonError").style.display = "none";
+            sendReviewRequest(projectId, "reject", reason);
+        });
+    }
+});
