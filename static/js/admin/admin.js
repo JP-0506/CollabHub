@@ -333,6 +333,7 @@ document.addEventListener("DOMContentLoaded", function () {
         loadRecentProjects();
     }
 
+    initProjectDateValidation();
     //for add member
     initAddEmployeeForm();
     //for edit project detailsfrom edit modal
@@ -340,11 +341,23 @@ document.addEventListener("DOMContentLoaded", function () {
     /*to modal on click project avtar */
     initViewProject()
 
+
     //manage_emp.html
     //for edit employee detailsfrom edit modal
     initEditEmployeeModal();
     initDeleteEmployee();
     initViewEmployee();
+
+    // 🔥 Projects page dynamic tables
+    if (document.getElementById("allProjectsBody")) {
+        loadAllProjects();
+    }
+    if (document.getElementById("pendingReviewBody")) {
+        loadPendingReviewProjects();
+    }
+    if (document.getElementById("closedProjectsBody")) {
+        loadClosedProjects();
+    }
 
 
 
@@ -945,6 +958,156 @@ function initViewProject() {
     });
 }
 
+// ============================
+// Date Validation for Project Forms
+// ============================
+function initProjectDateValidation() {
+
+    // For Create Project Modal
+    const createForm = document.getElementById('projectForm');
+    if (createForm) {
+        const startDateInput = document.getElementById('projectStart');
+        const endDateInput = document.getElementById('projectEnd');
+
+        // Set min date to today for both inputs
+        const today = new Date().toISOString().split('T')[0];
+        if (startDateInput) {
+            startDateInput.min = today;
+        }
+        if (endDateInput) {
+            endDateInput.min = today;
+        }
+
+        // Override form submission
+        createForm.onsubmit = function (e) {
+            e.preventDefault();
+
+            // Basic frontend validation first
+            if (!validateProjectDates(startDateInput, endDateInput)) {
+                return false;
+            }
+
+            // Submit via AJAX
+            submitProjectForm(createForm, 'create');
+            return false;
+        };
+    }
+
+    // For Edit Project Modal
+    const editForm = document.getElementById('editProjectForm');
+    if (editForm) {
+        const startDateInput = document.getElementById('editProjectStart');
+        const endDateInput = document.getElementById('editProjectEnd');
+
+        // Set min date to today for both inputs
+        const today = new Date().toISOString().split('T')[0];
+        if (startDateInput) {
+            startDateInput.min = today;
+        }
+        if (endDateInput) {
+            endDateInput.min = today;
+        }
+
+        // Override form submission
+        editForm.onsubmit = function (e) {
+            e.preventDefault();
+
+            if (!validateProjectDates(startDateInput, endDateInput)) {
+                return false;
+            }
+
+            const projectId = document.getElementById('editProjectId').value;
+            submitProjectForm(editForm, 'edit', projectId);
+            return false;
+        };
+    }
+}
+
+// Helper function to validate dates
+function validateProjectDates(startInput, endInput) {
+
+    // If both dates are empty, it's valid (dates are optional)
+    if ((!startInput || !startInput.value) && (!endInput || !endInput.value)) {
+        return true;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+
+    // Check if start date is in the past
+    if (startInput && startInput.value && startInput.value < today) {
+        alert('Start date cannot be in the past');
+        startInput.focus();
+        return false;
+    }
+
+    // Check if end date is in the past
+    if (endInput && endInput.value && endInput.value < today) {
+        alert('End date cannot be in the past');
+        endInput.focus();
+        return false;
+    }
+
+    // Check if end date is before start date
+    if (startInput && startInput.value && endInput && endInput.value) {
+        if (endInput.value < startInput.value) {
+            alert('End date must be after or equal to start date');
+            endInput.focus();
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Submit project form via AJAX
+function submitProjectForm(form, action, projectId = null) {
+    const formData = new FormData(form);
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Saving...';
+
+    let url = '/admin/projects';
+    if (action === 'edit' && projectId) {
+        url = `/admin/projects/edit/${projectId}`;
+    }
+
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Close modal
+                const modalId = action === 'edit' ? 'editProjectModal' : 'addProjectModal';
+                const modalElement = document.getElementById(modalId);
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) modal.hide();
+
+                // Show success message
+                alert(data.message);
+
+                // Reload page to show changes
+                location.reload();
+            } else {
+                // Show error message directly from server
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Network error. Please try again.');
+        })
+        .finally(() => {
+            // Reset button state
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        });
+}
+
 /****************** manage_emp.js ************************/
 
 // ============================
@@ -1359,49 +1522,77 @@ function sendReviewRequest(projectId, action, reason) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: action, reason: reason })
     })
-    .then(function (response) {
-        return response.json();
-    })
-    .then(function (data) {
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
 
-        if (data.status === "success") {
-            alert(data.message);
+            if (data.status === "success") {
 
-            // Close reject modal if open
-            const rejectModalEl = document.getElementById("rejectProjectModal");
-            if (rejectModalEl) {
-                const modalInstance = bootstrap.Modal.getInstance(rejectModalEl);
-                if (modalInstance) modalInstance.hide();
+                // Close reject modal if open
+                const rejectModalEl = document.getElementById("rejectProjectModal");
+                if (rejectModalEl) {
+                    const modalInstance = bootstrap.Modal.getInstance(rejectModalEl);
+                    if (modalInstance) modalInstance.hide();
+                }
+
+                // Remove the row from pending table immediately
+                const row = document.getElementById(`review-row-${projectId}`);
+                if (row) row.remove();
+
+                // Update pending badge count
+                const countBadge = document.getElementById("pendingReviewCount");
+                if (countBadge) {
+                    const current = parseInt(countBadge.textContent) || 0;
+                    countBadge.textContent = Math.max(0, current - 1);
+                }
+
+                // Show empty message if no rows left
+                const tbody = document.getElementById("pendingReviewBody");
+                if (tbody && tbody.querySelectorAll("tr").length === 0) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="6" class="text-center text-muted py-3">No projects pending review</td></tr>';
+                }
+
+                // 🔥 Refresh both tables immediately (no alert blocking)
+                loadClosedProjects();
+                loadAllProjects();
+
+                // Show non-blocking toast
+                showToast(data.message, "success");
+
+            } else {
+                showToast("Error: " + data.message, "danger");
             }
+        })
+        .catch(function () {
+            showToast("Something went wrong. Please try again.", "danger");
+        });
+}
 
-            // Remove the row from pending table
-            const row = document.getElementById(`review-row-${projectId}`);
-            if (row) row.remove();
 
-            // Update pending badge count
-            const countBadge = document.getElementById("pendingReviewCount");
-            if (countBadge) {
-                const current = parseInt(countBadge.textContent) || 0;
-                countBadge.textContent = Math.max(0, current - 1);
-            }
+// ============================
+// Non-blocking Toast Notification
+// ============================
+function showToast(message, type = "success") {
+    let container = document.getElementById("toastContainer");
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "toastContainer";
+        container.style.cssText = "position:fixed;top:20px;right:20px;z-index:9999;";
+        document.body.appendChild(container);
+    }
 
-            // Show empty message if no rows left
-            const tbody = document.getElementById("pendingReviewBody");
-            if (tbody && tbody.querySelectorAll("tr").length === 0) {
-                tbody.innerHTML =
-                    '<tr><td colspan="6" class="text-center text-muted py-3">No projects pending review</td></tr>';
-            }
+    const toast = document.createElement("div");
+    toast.className = `alert alert-${type} alert-dismissible shadow`;
+    toast.style.cssText = "min-width:280px;animation:fadeIn 0.3s ease;";
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
 
-            // Reload closed projects table
-            loadClosedProjects();
-
-        } else {
-            alert("Error: " + data.message);
-        }
-    })
-    .catch(function () {
-        alert("Something went wrong. Please try again.");
-    });
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
 }
 
 
@@ -1423,7 +1614,7 @@ function loadClosedProjects() {
 
             if (projects.length === 0) {
                 tbody.innerHTML =
-                    '<tr><td colspan="7" class="text-center text-muted py-3">No closed projects yet</td></tr>';
+                    '<tr><td colspan="6" class="text-center text-muted py-3">No closed projects yet</td></tr>';
                 if (countBadge) countBadge.textContent = "0";
                 return;
             }
@@ -1431,6 +1622,8 @@ function loadClosedProjects() {
             if (countBadge) countBadge.textContent = projects.length;
 
             let rows = "";
+
+            const fmt = d => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "-";
 
             projects.forEach(function (p) {
                 rows += `
@@ -1444,17 +1637,9 @@ function loadClosedProjects() {
                             </div>
                         </td>
                         <td>${p.leader_name || "-"}</td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <div class="progress-container me-2" style="flex:1;">
-                                    <div class="progress-bar" style="width:${p.progress || 0}%;"></div>
-                                </div>
-                                <small>${p.progress || 0}%</small>
-                            </div>
-                        </td>
-                        <td>${p.start_date || "-"}</td>
-                        <td>${p.end_date || "-"}</td>
-                        <td>${p.closed_at || "-"}</td>
+                        <td>${fmt(p.start_date)}</td>
+                        <td>${fmt(p.end_date)}</td>
+                        <td>${fmt(p.closed_at)}</td>
                         <td><span class="status-badge status-closed">Closed</span></td>
                     </tr>
                 `;
@@ -1464,7 +1649,81 @@ function loadClosedProjects() {
         })
         .catch(function () {
             tbody.innerHTML =
-                '<tr><td colspan="7" class="text-center text-danger py-3">Failed to load closed projects</td></tr>';
+                '<tr><td colspan="6" class="text-center text-danger py-3">Failed to load closed projects</td></tr>';
+        });
+}
+
+
+// ============================
+// Load All Projects (for dynamic refresh)
+// ============================
+function loadAllProjects() {
+    const tbody = document.getElementById("allProjectsBody");
+    if (!tbody) return;
+
+    fetch("/admin/api/all_projects")
+        .then(response => response.json())
+        .then(function (projects) {
+            if (projects.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No projects found</td></tr>';
+                return;
+            }
+
+            let rows = "";
+            projects.forEach(function (p) {
+                const initial = p.project_name ? p.project_name[0].toUpperCase() : "P";
+                const progress = p.progress || 0;
+                const statusClass = `status-${p.status}`;
+                const statusLabel = p.status ? p.status.charAt(0).toUpperCase() + p.status.slice(1) : "-";
+                const endDate = p.end_date || "-";
+                const leaderName = p.leader_name || "-";
+                const memberCount = p.member_count || 0;
+
+                rows += `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="user-avatar me-3 view-project-btn" data-id="${p.project_id}"
+                                data-name="${p.project_name}" style="cursor:pointer; background:#3b82f6;"
+                                title="Click to view project details">
+                                ${initial}
+                            </div>
+                            <div>
+                                <div class="fw-bold">${p.project_name}</div>
+                                <small class="text-muted">Project Team</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${leaderName}</td>
+                    <td>${memberCount}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="progress-container me-2" style="flex:1;">
+                                <div class="progress-bar" style="width:${progress}%;"></div>
+                            </div>
+                            <small>${progress}%</small>
+                        </div>
+                    </td>
+                    <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+                    <td>${endDate}</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                                data-id="${p.project_id}" data-name="${p.project_name}"
+                                data-status="${p.status}" data-progress="${progress}"
+                                data-start="${p.start_date || ''}" data-end="${p.end_date || ''}"
+                                data-desc="${p.features || ''}" data-leader="${p.leader_id || ''}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+
+            tbody.innerHTML = rows;
+        })
+        .catch(function () {
+            console.error("Failed to reload All Projects table");
         });
 }
 
@@ -1472,31 +1731,21 @@ function loadClosedProjects() {
 // ============================
 // Init on Projects Page
 // ============================
-document.addEventListener("DOMContentLoaded", function () {
 
-    if (document.getElementById("pendingReviewBody")) {
-        loadPendingReviewProjects();
-    }
+// Confirm reject button inside modal
+const confirmRejectBtn = document.getElementById("confirmRejectProjectBtn");
+if (confirmRejectBtn) {
+    confirmRejectBtn.addEventListener("click", function () {
 
-    if (document.getElementById("closedProjectsBody")) {
-        loadClosedProjects();
-    }
+        const projectId = document.getElementById("rejectProjectId").value;
+        const reason = document.getElementById("rejectReason").value.trim();
 
-    // Confirm reject button inside modal
-    const confirmRejectBtn = document.getElementById("confirmRejectProjectBtn");
-    if (confirmRejectBtn) {
-        confirmRejectBtn.addEventListener("click", function () {
+        if (!reason) {
+            document.getElementById("rejectReasonError").style.display = "block";
+            return;
+        }
 
-            const projectId = document.getElementById("rejectProjectId").value;
-            const reason = document.getElementById("rejectReason").value.trim();
-
-            if (!reason) {
-                document.getElementById("rejectReasonError").style.display = "block";
-                return;
-            }
-
-            document.getElementById("rejectReasonError").style.display = "none";
-            sendReviewRequest(projectId, "reject", reason);
-        });
-    }
-});
+        document.getElementById("rejectReasonError").style.display = "none";
+        sendReviewRequest(projectId, "reject", reason);
+    });
+}

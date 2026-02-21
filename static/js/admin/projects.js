@@ -7,6 +7,7 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     initProjects();
+    initProjectDateValidation();
 
 });
 

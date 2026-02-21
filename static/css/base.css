@@ -287,3 +287,58 @@ input:-webkit-autofill:active{
   border-color: rgba(255,255,255,0.7) !important;
   box-shadow: 0 0 0 2px rgba(255,255,255,0.08) !important;
 }
+
+.edit-btn {
+    background: linear-gradient(135deg, #7c3aed, #ec4899);
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 18px rgba(124, 58, 237, 0.3);
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Hover Effect */
+.edit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(236, 72, 153, 0.4);
+}
+
+/* Click Effect */
+.edit-btn:active {
+    transform: scale(0.97);
+}
+
+/* Optional: icon animation */
+.edit-btn i {
+    transition: transform 0.3s ease;
+}
+
+.edit-btn:hover i {
+    transform: rotate(-10deg);
+}
+
+/* change */
+/* ===== Tighten Auth Card + Inputs (reduce side empty space) ===== */
+
+/* less left/right padding around the whole auth block */
+.auth-page,
+.auth-container{
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* reduce inner card padding */
+.auth-card{
+  padding: 22px;          /* was 34px */
+}
+
+/* make inputs slightly tighter horizontally */
+.form-control{
+  padding: 12px 10px;     /* was 12px (all sides); this reduces left/right */
+}

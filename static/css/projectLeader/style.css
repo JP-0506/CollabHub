@@ -1260,3 +1260,38 @@ body {
     padding: 4px 8px;
     border-radius: 6px;
 }
+
+.edit-btn {
+    background: linear-gradient(135deg, #7c3aed, #ec4899);
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 18px rgba(124, 58, 237, 0.3);
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Hover Effect */
+.edit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(236, 72, 153, 0.4);
+}
+
+/* Click Effect */
+.edit-btn:active {
+    transform: scale(0.97);
+}
+
+/* Optional: icon animation */
+.edit-btn i {
+    transition: transform 0.3s ease;
+}
+
+.edit-btn:hover i {
+    transform: rotate(-10deg);
+}

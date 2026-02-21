@@ -9,6 +9,7 @@ from flask import (
 )
 from database.db import get_db
 from psycopg2.extras import RealDictCursor
+from datetime import datetime, date
 
 
 admin_bp = Blueprint("admin", __name__, template_folder="../templates/admin")
@@ -26,18 +27,6 @@ def admin_login_required():
         return False
 
     return True
-
-
-# # ============================
-# # ADMIN HOME
-# # ============================
-# @admin_bp.route("/")
-# def admin_home():
-
-#     if not admin_login_required():
-#         return redirect(url_for("auth.login"))
-
-#     return render_template("admin.html")
 
 
 @admin_bp.route("/dashboard")
@@ -312,74 +301,124 @@ def projects():
     # =====================
     if request.method == "POST":
 
-        project_name = request.form.get("project_name")
-        leader_id = request.form.get("leader_id")
-        # status = request.form.get("status")
-        progress = request.form.get("progress") or 0
-        start_date = request.form.get("start_date")
-        end_date = request.form.get("end_date")
-        description = request.form.get("description")
+        try:
 
-        # Allow NULL leader
-        leader_id = leader_id if leader_id else None
+            project_name = request.form.get("project_name")
+            leader_id = request.form.get("leader_id")
+            progress = request.form.get("progress") or 0
+            start_date = request.form.get("start_date")
+            end_date = request.form.get("end_date")
+            description = request.form.get("description")
 
-        # 🔥 AUTO STATUS
-        if progress == 100:
-            status = "completed"
-        elif leader_id and int(progress or 0) > 0:
-            status = "ongoing"
-        else:
-            status = "planning"
+            if not project_name:
+                return jsonify(
+                    {"status": "error", "message": "Project name is required"}
+                )
 
-        # Validation
-        if not project_name:
-            return redirect(url_for("admin.projects"))
+            today = date.today().isoformat()
 
-        cur.execute(
-            """
-            INSERT INTO projects
-            (
-                project_name,
-                leader_id,
-                status,
-                progress,
-                start_date,
-                end_date,
-                features,
-                created_by,
-                created_at
-            )
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,NOW())
-            RETURNING project_id
-            """,
-            (
-                project_name,
-                leader_id,
-                status,
-                progress,
-                start_date,
-                end_date,
-                description,
-                session["user_id"],
-            ),
-        )
+            if start_date:
+                if start_date < today:
+                    return jsonify(
+                        {
+                            "status": "error",
+                            "message": "Start date cannot be in the past",
+                        }
+                    )
 
-        project_id = cur.fetchone()["project_id"]
+            if end_date:
+                if end_date < today:
+                    return jsonify(
+                        {"status": "error", "message": "End date cannot be in the past"}
+                    )
 
-        if leader_id:
+            if start_date and end_date and end_date < start_date:
+                return jsonify(
+                    {
+                        "status": "error",
+                        "message": "End date must be after or equal to start date",
+                    }
+                )
+
+            # Allow NULL leader
+            leader_id = leader_id if leader_id else None
+
+            # 🔥 AUTO STATUS
+            if progress == 100:
+                status = "completed"
+            elif leader_id:
+                status = "ongoing"
+                progress = max(int(progress or 0), 1)
+            else:
+                status = "initiated"
+
+            # Validation
+            if not project_name:
+                return redirect(url_for("admin.projects"))
+
             cur.execute(
                 """
-                INSERT INTO project_members (project_id, user_id, role_in_project)
-                VALUES (%s, %s, 'leader')
-                ON CONFLICT DO NOTHING
+                INSERT INTO projects
+                (
+                    project_name,
+                    leader_id,
+                    status,
+                    progress,
+                    start_date,
+                    end_date,
+                    features,
+                    created_by,
+                    created_at
+                )
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,NOW())
+                RETURNING project_id
                 """,
-                (project_id, leader_id),
+                (
+                    project_name,
+                    leader_id,
+                    status,
+                    progress,
+                    start_date,
+                    end_date,
+                    description,
+                    session["user_id"],
+                ),
             )
 
-        conn.commit()
+            project_id = cur.fetchone()["project_id"]
 
-        cur.close()
-        conn.close()
+            if leader_id:
+                cur.execute(
+                    """
+                    INSERT INTO project_members (project_id, user_id, role_in_project)
+                    VALUES (%s, %s, 'leader')
+                    ON CONFLICT DO NOTHING
+                    """,
+                    (project_id, leader_id),
+                )
+
+            conn.commit()
+
+            return jsonify(
+                {"status": "success", "message": "Project created successfully!"}
+            )
+
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            print("Error creating project:", str(e))
+            return jsonify(
+                {
+                    "status": "error",
+                    "message": "Something went wrong while creating project",
+                }
+            )
+
+        finally:
+            if cur:
+                cur.close()
+            if conn:
+                conn.close()
 
         return redirect(url_for("admin.projects"))
 
@@ -444,7 +483,7 @@ def projects():
             SELECT leader_id
             FROM projects
             WHERE leader_id IS NOT NULL
-                AND status IN ('ongoing','planning','on_hold')
+                AND status IN ('ongoing','initiated','on_hold')
                 AND is_deleted = FALSE
         )
 
@@ -476,7 +515,7 @@ def projects():
 
     # Planning
     cur.execute(
-        "SELECT COUNT(*) FROM projects WHERE status='planning' AND is_deleted=FALSE"
+        "SELECT COUNT(*) FROM projects WHERE status='initiated' AND is_deleted=FALSE"
     )
     planning = cur.fetchone()["count"]
 
@@ -513,7 +552,7 @@ def projects():
     SELECT COUNT(DISTINCT leader_id)
     FROM projects
     WHERE leader_id IS NOT NULL
-      AND status IN ('ongoing','planning','on_hold')
+      AND status IN ('ongoing','initiated','on_hold')
       AND is_deleted = FALSE
     """
     )
@@ -713,96 +752,136 @@ def get_project_details(project_id):
 def edit_project(project_id):
 
     if not admin_login_required():
-        return redirect(url_for("auth.login"))
+        return jsonify({"status": "error", "message": "Unauthorized"})
 
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    conn = None
+    cur = None
+    try:
+        conn = get_db()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    # =====================
-    # Fetch ACTIVE project
-    # =====================
-    cur.execute(
-        """
-        SELECT *
-        FROM projects
-        WHERE project_id = %s
-        AND is_deleted = FALSE
-    """,
-        (project_id,),
-    )
-
-    project = cur.fetchone()
-
-    if not project:
-        cur.close()
-        conn.close()
-        return redirect(url_for("admin.projects"))
-
-    # Since route only POST, no need for request.method check
-    name = request.form.get("project_name")
-    # status = request.form.get("status")
-    progress = int(request.form.get("progress") or 0)
-    end_date = request.form.get("end_date")
-    description = request.form.get("description")
-
-    leader_id = request.form.get("leader_id")
-
-    if leader_id is None or leader_id == "":
-        leader_id = project["leader_id"]
-    else:
-        leader_id = int(leader_id)
-
-    # 🔥 AUTO STATUS
-    if progress == 100:
-        status = "completed"
-    elif leader_id and progress > 0:
-        status = "ongoing"
-    else:
-        status = "planning"
-
-    cur.execute(
-        """
-        UPDATE projects
-        SET
-            project_name = %s,
-            status = %s,
-            progress = %s,
-            end_date = %s,
-            features = %s,
-            leader_id = %s,
-            updated_at = NOW()
-        WHERE project_id = %s
-        AND is_deleted = FALSE
-    """,
-        (name, status, progress, end_date, description, leader_id, project_id),
-    )
-    # Insert leader into project_members also
-    if leader_id:
+        # Fetch ACTIVE project
         cur.execute(
             """
-            INSERT INTO project_members (project_id, user_id, role_in_project)
-            VALUES (%s, %s, 'leader')
-            ON CONFLICT DO NOTHING
+            SELECT *
+            FROM projects
+            WHERE project_id = %s AND is_deleted = FALSE
             """,
-            (project_id, leader_id),
+            (project_id,),
         )
-        # If project marked as completed → free all members
-        if status == "completed":
-            cur.execute(
-                """
-                UPDATE project_members
-                SET 
-                    is_deleted = TRUE
-                WHERE project_id = %s
-            """,
-                (project_id,),
+        project = cur.fetchone()
+
+        if not project:
+            return jsonify({"status": "error", "message": "Project not found"})
+
+        name = request.form.get("project_name")
+        progress = int(request.form.get("progress") or 0)
+        start_date = request.form.get("start_date")
+        end_date = request.form.get("end_date")
+        description = request.form.get("description")
+
+        leader_id = request.form.get("leader_id")
+        if leader_id is None or leader_id == "":
+            leader_id = project["leader_id"]
+        else:
+            leader_id = int(leader_id)
+
+        # Date validation
+        from datetime import datetime, date
+
+        today = date.today().isoformat()
+
+        if start_date:
+            if start_date < today:
+                return jsonify(
+                    {"status": "error", "message": "Start date cannot be in the past"}
+                )
+
+        if end_date:
+            if end_date < today:
+                return jsonify(
+                    {"status": "error", "message": "End date cannot be in the past"}
+                )
+
+        if start_date and end_date and end_date < start_date:
+            return jsonify(
+                {
+                    "status": "error",
+                    "message": "End date must be after or equal to start date",
+                }
             )
 
-    conn.commit()
-    cur.close()
-    conn.close()
+        # AUTO STATUS
+        if progress == 100:
+            status = "completed"
+        elif leader_id:
+            status = "ongoing"
+            progress = max(int(progress or 0), 1)
+        else:
+            status = "initiated"
 
-    return redirect(url_for("admin.projects"))
+        cur.execute(
+            """
+            UPDATE projects
+            SET project_name = %s, status = %s, progress = %s, 
+                start_date = %s, end_date = %s, features = %s, leader_id = %s, updated_at = NOW()
+            WHERE project_id = %s AND is_deleted = FALSE
+            """,
+            (
+                name,
+                status,
+                progress,
+                start_date,
+                end_date,
+                description,
+                leader_id,
+                project_id,
+            ),
+        )
+
+        # Insert leader into project_members
+        if leader_id:
+            cur.execute(
+                """
+                INSERT INTO project_members (project_id, user_id, role_in_project)
+                VALUES (%s, %s, 'leader')
+                ON CONFLICT DO NOTHING
+                """,
+                (project_id, leader_id),
+            )
+
+            # If project marked as completed → free all members
+            if status == "completed":
+                cur.execute(
+                    """
+                    UPDATE project_members
+                    SET is_deleted = TRUE
+                    WHERE project_id = %s
+                    """,
+                    (project_id,),
+                )
+
+        conn.commit()
+
+        return jsonify(
+            {"status": "success", "message": "Project updated successfully!"}
+        )
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print("Error updating project:", str(e))
+        return jsonify(
+            {
+                "status": "error",
+                "message": "Something went wrong while updating project",
+            }
+        )
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 @admin_bp.route("/projects/delete/<int:project_id>", methods=["POST"])
@@ -965,7 +1044,7 @@ def employees():
             JOIN projects p
                 ON pm.project_id = p.project_id
             WHERE pm.user_id = u.user_id
-              AND p.status IN ('ongoing','planning')
+              AND p.status IN ('ongoing','initiated')
               AND p.is_deleted = FALSE
             LIMIT 1
         ) AS project_name
@@ -1184,7 +1263,7 @@ def edit_employee(id):
             SELECT COUNT(*) as count
             FROM projects
             WHERE leader_id = %s
-              AND status IN ('ongoing', 'planning')
+              AND status IN ('ongoing', 'initiated')
               AND is_deleted = FALSE
             """,
             (id,),
@@ -1200,7 +1279,7 @@ def edit_employee(id):
             FROM project_members pm
             JOIN projects p ON pm.project_id = p.project_id
             WHERE pm.user_id = %s
-              AND p.status IN ('ongoing', 'planning')
+              AND p.status IN ('ongoing', 'initiated')
               AND p.is_deleted = FALSE
             """,
             (id,),
@@ -1291,7 +1370,7 @@ def delete_employee(id):
                STRING_AGG(project_name, ', ') as project_names
         FROM projects
         WHERE leader_id = %s
-          AND status IN ('ongoing', 'planning')
+          AND status IN ('ongoing', 'initiated')
           AND is_deleted = FALSE
         """,
         (id,),
@@ -1313,7 +1392,7 @@ def delete_employee(id):
         FROM project_members pm
         JOIN projects p ON pm.project_id = p.project_id
         WHERE pm.user_id = %s
-          AND p.status IN ('ongoing', 'planning')
+          AND p.status IN ('ongoing', 'initiated')
           AND p.is_deleted = FALSE
         """,
         (id,),
@@ -1334,7 +1413,7 @@ def delete_employee(id):
         FROM tasks t
         JOIN projects p ON t.project_id = p.project_id
         WHERE t.assigned_to = %s
-          AND p.status IN ('ongoing', 'planning')
+          AND p.status IN ('ongoing', 'initiated')
           AND p.is_deleted = FALSE
           AND t.status != 'completed'
         """,
@@ -1422,7 +1501,7 @@ def get_employee_details(id):
             FROM projects p
             LEFT JOIN project_members pm ON p.project_id = pm.project_id
             WHERE (p.leader_id = %s OR pm.user_id = %s)
-              AND p.status IN ('planning', 'ongoing')
+              AND p.status IN ('initiated', 'ongoing')
               AND p.is_deleted = FALSE
             ORDER BY p.project_name
         """,
@@ -1762,6 +1841,16 @@ def review_project(project_id):
                 """,
                 (project_id,),
             )
+            # 🔥 Hide project from leader and all members
+            cur.execute(
+                """
+                UPDATE project_members
+                SET is_deleted = TRUE
+                WHERE project_id = %s
+                """,
+                (project_id,),
+            )
+
             notif_title = "Project Accepted"
             notif_message = f"Congratulations! Your project '{project['project_name']}' has been reviewed and accepted by the admin."
 

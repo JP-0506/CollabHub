@@ -96,8 +96,7 @@
                             {% if task.status == "in_progress" %}
                             <form method="POST" action="{{ url_for('employee.submit_task', task_id=task.task_id) }}">
                                 <button type="submit" class="btn btn-warning submit-btn"
-                                    data-task-id="{{ task.task_id }}">
-                                    <i class="fas fa-paper-plane me-1"></i>Submit
+                                    data-task-id="{{ task.task_id }}">Submit
                                 </button>
                             </form>
                             {% elif task.status == "submitted" %}

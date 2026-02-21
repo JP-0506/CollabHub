@@ -29,16 +29,21 @@ project_leader_bp = Blueprint("project_leader", __name__)
 
 
 def get_leader_project(leader_id, cur):
-    """Get the leader's project (id and name). Returns None if not found."""
+    """Get the leader's active project only. Returns None if closed or not found."""
     cur.execute(
         """
-        SELECT project_id, project_name 
-        FROM projects 
-        WHERE leader_id = %s
-        ORDER BY CASE WHEN status != 'closed' THEN 0 ELSE 1 END, created_at DESC
+        SELECT p.project_id, p.project_name
+        FROM projects p
+        JOIN project_members pm ON p.project_id = pm.project_id
+        WHERE p.leader_id = %s
+        AND p.status != 'closed'
+        AND p.is_deleted = FALSE
+        AND pm.user_id = %s
+        AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
+        ORDER BY p.created_at DESC
         LIMIT 1
     """,
-        (leader_id,),
+        (leader_id, leader_id),
     )
     return cur.fetchone()
 
@@ -290,7 +295,7 @@ def my_team_page():
             SELECT 
                 assigned_to,
                 COUNT(*) as total_tasks,
-                COUNT(*) FILTER (WHERE status = 'Completed') as completed_tasks
+                COUNT(*) FILTER (WHERE status = 'approved') as completed_tasks
             FROM tasks
             WHERE assigned_to IN ({placeholders})
             GROUP BY assigned_to
@@ -310,7 +315,7 @@ def my_team_page():
         """
         SELECT 
             COUNT(*) as total_tasks,
-            COUNT(*) FILTER (WHERE t.due_date >= CURRENT_DATE OR t.status = 'Completed') as on_time_tasks
+            COUNT(*) FILTER (WHERE t.due_date >= CURRENT_DATE OR t.status = 'approved') as on_time_tasks
         FROM tasks t
         JOIN projects p ON t.project_id = p.project_id
         WHERE p.leader_id = %s
@@ -326,11 +331,17 @@ def my_team_page():
 
     cur.execute(
         """
-        SELECT project_id, project_name 
-        FROM projects 
-        WHERE leader_id = %s;
+        SELECT p.project_id, p.project_name 
+        FROM projects p
+        JOIN project_members pm ON p.project_id = pm.project_id
+        WHERE p.leader_id = %s
+        AND p.status != 'closed'
+        AND p.is_deleted = FALSE
+        AND pm.user_id = %s
+        AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
+        ORDER BY p.created_at DESC;
     """,
-        (leader_id,),
+        (leader_id, leader_id),
     )
     leader_projects = cur.fetchall()
 
@@ -398,12 +409,18 @@ def my_project():
 
     cur.execute(
         """
-        SELECT project_id, project_name, features, status, start_date, end_date
-        FROM projects 
-        WHERE leader_id = %s
+        SELECT p.project_id, p.project_name, p.features, p.status, p.start_date, p.end_date
+        FROM projects p
+        JOIN project_members pm ON p.project_id = pm.project_id
+        WHERE p.leader_id = %s
+        AND p.status != 'closed'
+        AND p.is_deleted = FALSE
+        AND pm.user_id = %s
+        AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
+        ORDER BY p.created_at DESC
         LIMIT 1;
     """,
-        (leader_id,),
+        (leader_id, leader_id),
     )
     project_row = cur.fetchone()
 
@@ -546,11 +563,17 @@ def tasks():
 
     cur.execute(
         """
-        SELECT project_id, project_name 
-        FROM projects 
-        WHERE leader_id = %s;
+        SELECT p.project_id, p.project_name 
+        FROM projects p
+        JOIN project_members pm ON p.project_id = pm.project_id
+        WHERE p.leader_id = %s
+        AND p.status != 'closed'
+        AND p.is_deleted = FALSE
+        AND pm.user_id = %s
+        AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
+        ORDER BY p.created_at DESC;
     """,
-        (leader_id,),
+        (leader_id, leader_id),
     )
     projects = cur.fetchall()
 
@@ -649,12 +672,18 @@ def reports():
 
     cur.execute(
         """
-        SELECT project_id, project_name, start_date, end_date, status, progress
-        FROM projects 
-        WHERE leader_id = %s
+        SELECT p.project_id, p.project_name, p.start_date, p.end_date, p.status, p.progress
+        FROM projects p
+        JOIN project_members pm ON p.project_id = pm.project_id
+        WHERE p.leader_id = %s
+        AND p.status != 'closed'
+        AND p.is_deleted = FALSE
+        AND pm.user_id = %s
+        AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
+        ORDER BY p.created_at DESC
         LIMIT 1;
     """,
-        (leader_id,),
+        (leader_id, leader_id),
     )
     project = cur.fetchone()
 
@@ -667,10 +696,10 @@ def reports():
         """
         SELECT 
             COUNT(*) as total_tasks,
-            COUNT(*) FILTER (WHERE status = 'Completed') as completed_tasks,
+            COUNT(*) FILTER (WHERE status = 'approved') as completed_tasks,
             COUNT(*) FILTER (WHERE status = 'In Progress') as in_progress_tasks,
             COUNT(*) FILTER (WHERE status = 'Pending Review') as pending_review_tasks,
-            COUNT(*) FILTER (WHERE due_date < CURRENT_DATE AND status != 'Completed') as overdue_tasks
+            COUNT(*) FILTER (WHERE due_date < CURRENT_DATE AND status != 'approved') as overdue_tasks
         FROM tasks 
         WHERE project_id = %s;
     """,
@@ -700,8 +729,8 @@ def reports():
         SELECT 
             u.user_id, u.name, u.designation,
             COUNT(t.task_id) as total_assigned,
-            COUNT(*) FILTER (WHERE t.status = 'Completed') as tasks_completed,
-            COUNT(*) FILTER (WHERE t.due_date < CURRENT_DATE AND t.status != 'Completed') as overdue_tasks
+            COUNT(*) FILTER (WHERE t.status = 'approved') as tasks_completed,
+            COUNT(*) FILTER (WHERE t.due_date < CURRENT_DATE AND t.status != 'approved') as overdue_tasks
         FROM users u
         JOIN project_members pm ON u.user_id = pm.user_id
         LEFT JOIN tasks t ON u.user_id = t.assigned_to AND t.project_id = pm.project_id
@@ -802,14 +831,19 @@ def my_profile():
 
     cur.execute(
         """
-        SELECT project_id, project_name, status, progress, start_date, end_date
-        FROM projects 
-        WHERE leader_id = %s
+        SELECT p.project_id, p.project_name, p.status, p.progress, p.start_date, p.end_date
+        FROM projects p
+        JOIN project_members pm ON p.project_id = pm.project_id
+        WHERE p.leader_id = %s
+        AND p.status != 'closed'
+        AND p.is_deleted = FALSE
+        AND pm.user_id = %s
+        AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
         ORDER BY 
-            CASE WHEN status != 'completed' THEN 1 ELSE 2 END,
-            created_at DESC;
+            CASE WHEN p.status != 'completed' THEN 1 ELSE 2 END,
+            p.created_at DESC;
     """,
-        (leader_id,),
+        (leader_id, leader_id),
     )
     projects = cur.fetchall()
 
@@ -818,7 +852,7 @@ def my_profile():
         SELECT 
             COUNT(DISTINCT pm.user_id) as team_size,
             COUNT(DISTINCT t.task_id) as total_tasks,
-            COUNT(DISTINCT CASE WHEN t.status = 'Completed' THEN t.task_id END) as completed_tasks
+            COUNT(DISTINCT CASE WHEN t.status = 'approved' THEN t.task_id END) as completed_tasks
         FROM projects p
         LEFT JOIN project_members pm ON p.project_id = pm.project_id AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
         LEFT JOIN tasks t ON p.project_id = t.project_id
@@ -895,7 +929,7 @@ def dashboard():
         """
         SELECT COUNT(*) 
         FROM projects 
-        WHERE leader_id = %s AND status != 'completed';
+        WHERE leader_id = %s AND status NOT IN ('completed', 'closed') AND is_deleted = FALSE;
     """,
         (leader_id,),
     )
@@ -904,8 +938,8 @@ def dashboard():
     cur.execute(
         """
         SELECT 
-            COUNT(*) FILTER (WHERE t.status = 'Completed') as completed_tasks,
-            COUNT(*) FILTER (WHERE t.due_date < CURRENT_DATE AND t.status != 'Completed') as overdue_tasks,
+            COUNT(*) FILTER (WHERE t.status = 'approved') as completed_tasks,
+            COUNT(*) FILTER (WHERE t.due_date < CURRENT_DATE AND t.status != 'approved') as overdue_tasks,
             COUNT(*) as total_tasks
         FROM tasks t
         JOIN projects p ON t.project_id = p.project_id
@@ -1004,7 +1038,7 @@ def dashboard():
         FROM tasks t
         JOIN projects p ON t.project_id = p.project_id
         WHERE p.leader_id = %s 
-            AND t.status = 'Completed'
+            AND t.status = 'approved'
             AND t.completed_at >= CURRENT_DATE - INTERVAL '14 days'
             AND t.completed_at < CURRENT_DATE - INTERVAL '7 days';
     """,
@@ -1101,6 +1135,24 @@ def create_task():
             request.form["due_date"],
         ),
     )
+
+    # 🔥 AUTO-RECALCULATE project progress based on approved tasks
+    cur.execute(
+        """
+        UPDATE projects
+        SET progress = (
+            SELECT CASE
+                WHEN COUNT(*) = 0 THEN 1
+                ELSE GREATEST(1, ROUND(COUNT(*) FILTER (WHERE status = 'approved') * 100.0 / COUNT(*)))
+            END
+            FROM tasks WHERE project_id = %s
+        ),
+        updated_at = NOW()
+        WHERE project_id = %s
+        """,
+        (project[0], project[0]),
+    )
+
     conn.commit()
     cur.close()
     conn.close()
@@ -1129,10 +1181,10 @@ def export_pdf():
         """
         SELECT 
             COUNT(*) as total_tasks,
-            COUNT(*) FILTER (WHERE status = 'Completed') as completed,
+            COUNT(*) FILTER (WHERE status = 'approved') as completed,
             COUNT(*) FILTER (WHERE status = 'In Progress') as in_progress,
             COUNT(*) FILTER (WHERE status = 'Pending Review') as pending_review,
-            COUNT(*) FILTER (WHERE due_date < CURRENT_DATE AND status != 'Completed') as overdue
+            COUNT(*) FILTER (WHERE due_date < CURRENT_DATE AND status != 'approved') as overdue
         FROM tasks WHERE project_id = %s
     """,
         (project_id,),
@@ -1142,8 +1194,8 @@ def export_pdf():
     cur.execute(
         """
         SELECT u.name, u.designation, COUNT(t.task_id) as tasks,
-               COUNT(*) FILTER (WHERE t.status = 'Completed') as completed,
-               COUNT(*) FILTER (WHERE t.due_date < CURRENT_DATE AND t.status != 'Completed') as overdue
+               COUNT(*) FILTER (WHERE t.status = 'approved') as completed,
+               COUNT(*) FILTER (WHERE t.due_date < CURRENT_DATE AND t.status != 'approved') as overdue
         FROM users u
         JOIN project_members pm ON u.user_id = pm.user_id
         LEFT JOIN tasks t ON u.user_id = t.assigned_to AND t.project_id = pm.project_id
@@ -1263,10 +1315,10 @@ def email_report():
         """
         SELECT 
             COUNT(*) as total_tasks,
-            COUNT(*) FILTER (WHERE status = 'Completed') as completed,
+            COUNT(*) FILTER (WHERE status = 'approved') as completed,
             COUNT(*) FILTER (WHERE status = 'In Progress') as in_progress,
             COUNT(*) FILTER (WHERE status = 'Pending Review') as pending_review,
-            COUNT(*) FILTER (WHERE due_date < CURRENT_DATE AND status != 'Completed') as overdue
+            COUNT(*) FILTER (WHERE due_date < CURRENT_DATE AND status != 'approved') as overdue
         FROM tasks WHERE project_id = %s
     """,
         (project_id,),
@@ -1276,8 +1328,8 @@ def email_report():
     cur.execute(
         """
         SELECT u.name, u.designation, COUNT(t.task_id) as tasks,
-               COUNT(*) FILTER (WHERE t.status = 'Completed') as completed,
-               COUNT(*) FILTER (WHERE t.due_date < CURRENT_DATE AND t.status != 'Completed') as overdue
+               COUNT(*) FILTER (WHERE t.status = 'approved') as completed,
+               COUNT(*) FILTER (WHERE t.due_date < CURRENT_DATE AND t.status != 'approved') as overdue
         FROM users u
         JOIN project_members pm ON u.user_id = pm.user_id
         LEFT JOIN tasks t ON u.user_id = t.assigned_to AND t.project_id = pm.project_id
@@ -1763,6 +1815,23 @@ def approve_task(task_id):
             (leader_id, leader_id, task_id),
         )
 
+        # 🔥 AUTO-RECALCULATE project progress based on approved tasks
+        cur.execute(
+            """
+            UPDATE projects
+            SET progress = (
+                SELECT CASE
+                    WHEN COUNT(*) = 0 THEN 1
+                    ELSE GREATEST(1, ROUND(COUNT(*) FILTER (WHERE status = 'approved') * 100.0 / COUNT(*)))
+                END
+                FROM tasks WHERE project_id = projects.project_id
+            ),
+            updated_at = NOW()
+            WHERE project_id = (SELECT project_id FROM tasks WHERE task_id = %s)
+            """,
+            (task_id,),
+        )
+
         conn.commit()
         cur.close()
         conn.close()
@@ -1903,7 +1972,7 @@ def submit_project(project_id):
                 404,
             )
 
-        # Update project status to 'completed'
+        # Update project status to 'completed' — awaiting admin review
         cur.execute(
             """
             UPDATE projects
