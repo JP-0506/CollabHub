@@ -39,7 +39,7 @@
                                     {{ notif.sent_at.strftime('%I:%M %p, %b %d') }}
                                     {% else %}
                                     Recently
-                                    {% endif %} 
+                                    {% endif %}
                                 </small>
                             </div>
                         </div>
@@ -215,20 +215,14 @@
                 <h6 class="fw-bold mb-1">Schedule Meeting</h6>
                 <p class="text-muted small mb-0">Plan team meeting</p>
             </div>
-            <div class="action-card" href="reports.html">
+            <a href="{{ url_for('project_leader.reports') }}" class="action-card text-decoration-none">
                 <div class="action-icon">
                     <i class="fas fa-chart-bar"></i>
                 </div>
-                <h6 class="fw-bold mb-1">Generate Report</h6>
+                <h6 class="fw-bold mb-1" style="color: black;">Generate Report</h6>
                 <p class="text-muted small mb-0">Create progress report</p>
-            </div>
-            <div class="action-card" data-bs-toggle="modal" data-bs-target="#sendUpdate">
-                <div class="action-icon">
-                    <i class="fas fa-bullhorn"></i>
-                </div>
-                <h6 class="fw-bold mb-1">Team Update</h6>
-                <p class="text-muted small mb-0">Send update to team</p>
-            </div>
+            </a>
+
         </div>
     </div>
     {% endblock %}
@@ -346,40 +340,13 @@
         </div>
     </div>
 
-    <div class="modal fade" id="sendUpdate" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Send Team Update</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label class="form-label">Subject</label>
-                            <input type="text" class="form-control" placeholder="Update subject" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Message</label>
-                            <textarea class="form-control" rows="4" placeholder="Enter your update message"
-                                required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Recipients</label>
-                            <select class="form-select">
-                                <option selected>Entire Team</option>
-                                <option>Project Specific</option>
-                                <option>Individual Members</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2">Send Update</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
     {% endblock %}
 
     {% block extra_js %}
+    <script>
+        // Pass chart data from Flask to JavaScript
+        const chartLabels = {{ chart_labels| tojson }};
+        const chartValues = {{ chart_values| tojson }};
+    </script>
     <script src="{{ url_for('static', filename='js/projectLeader/charts.js') }}"></script>
     {% endblock %}
