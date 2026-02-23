@@ -1,10 +1,9 @@
 from flask import Flask, render_template, redirect, session, url_for
 from flask_mail import Mail, Message
-
 from auth import auth_bp
 from admin import admin_bp
-from leader.routes import project_leader_bp
-from employee.routes import employee_bp
+from leader import project_leader_bp
+from employee import employee_bp
 
 app = Flask(__name__)
 

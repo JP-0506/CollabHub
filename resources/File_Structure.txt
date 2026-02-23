@@ -1,106 +1,96 @@
-CollabHub/
-│
-├── templates/                     # ALL HTML UI SCREENS
-│   ├── home.html
-│   ├── about.html
-│   ├── contact.html
-    │
-│   ├── auth/
-│   │   ├── login.html
-│   │   ├── signup.html
-│   │   └── forgotPassword.html
-│   │
-│   ├── admin/
-│   │   ├── dashboard.html
-│   │   ├── projects.html
-│   │   ├── assign_leader.html
-│   │   ├── manage_users.html
-│   │   └── profile.html
-│   │
-│   ├── projectLeader/
-│   │   ├── dashboard.html
-│   │   ├── project_overview.html
-│   │   ├── team_members.html
-│   │   ├── task_management.html
-│   │   └── profile.html
-│   │
-│   ├── employee/
-│   │   ├── dashboard.html
-│   │   ├── my_tasks.html
-│   │   ├── task_details.html
-│   │   ├── activity.html
-│   │   └── profile.html
-│   │
-│   └── components/                # REUSABLE UI PARTS
-│       ├── navbar.html
-│       ├── sidebar.html
-│       └── footer.html
-│
-├── static/                        # FRONTEND ASSETS
-│   ├── css/
-│   │   ├── base.css               # Common styles
-│   │   ├── layout.css             # Sidebar, navbar layout
-│   │   ├── auth.css
-│   │   ├── admin.css              # Admin specific
-│   │   ├── leader.css             # Leader specific
-│   │   └── employee.css           # Employee specific
-│   │
-│   ├── js/
-│   │   ├── main.js                # Common JS
-│   │   ├── auth.js                # Login/Register logic
-│   │   ├── admin.js               # Admin interactions
-│   │   ├── leader.js              # Leader logic
-│   │   └── employee.js            # Employee logic
-│   │
-│   └── images/
-│       ├── logo/
-│       ├── icons/
-│       └── avatars/
-│
-└── README.md
+Directory structure:
 
-=> For backend
-CollabHub/
-│
-├── app.py                     # Main Flask App
-│
-├── auth/                       # Authentication Module
-│   ├── __init__.py
-│   └── routes.py
-│
-├── database/                   # Database Connection
-│   ├── __init__.py
-│   └── db.py
-│
-├── admin/                      # Admin Logic (Later)
-│   ├── __init__.py
-│   └── routes.py   (optional)
-│
-├── leader/                     # Project Leader Logic
-│   ├── __init__.py
-│   └── routes.py   (optional)
-│
-├── employee/                   # Employee Logic
-│   ├── __init__.py
-│   └── routes.py   (optional)
-│
-├── templates/                  # ALL HTML FILES
-│   │
-│   ├── home.html               # Landing Page
-│   │
-│   ├── auth/                   # Login / Signup Pages
-│   │   ├── login.html
-│   │   └── signup.html
-│   │
-│   ├── admin/                  # Admin UI
-│   │   └── dashboard.html
-│   │
-│   ├── leader/                 # Leader UI
-│   │   └── dashboard.html
-│   │
-│   └── employee/               # Employee UI
-│       └── dashboard.html
-│
-├── static/                     # Frontend Assets
-│   │
-│   ├── css
+CollabHub
+    ├── README.md
+    │
+    ├── app.py
+    │
+    ├── config.py
+    │
+    ├── admin/
+    │   ├── __init__.py
+    │   ├── routes.py
+    │
+    ├── auth/
+    │   ├── __init__.py
+    │   ├── routes.py
+    │   └── utils.py
+    │
+    ├── database/
+    │   ├── __init__.py
+    │   └── db.py
+    │
+    ├── DS/
+    │   └── TaskPriorityQueue.py
+    │
+    ├── employee/
+    │   ├── __init__.py
+    │   └── routes.py
+    │
+    ├── leader/
+    │   └── __init__.py
+    │
+    ├── resources/
+    │   ├── CollabHub(1).sql
+    │   ├── db_schema.txt
+    │   └── File_Structure.txt
+    │
+    ├── static/
+    │   ├── css/
+    │   │   ├── admin.css
+    │   │   ├── auth.css
+    │   │   ├── base.css
+    │   │   ├── layout.css
+    │   │   ├── employee/
+    │   │   │   └── Employee.css
+    │   │   └── projectLeader/
+    │   │       ├── charts.css
+    │   │       ├── reports.css
+    │   │       └── style.css
+    │   ├── images_videos/
+    │   │   ├── hero.avif
+    │   │   ├── i1.txt
+    │   │   └── image1
+    │   └── js/
+    │       ├── auth.js
+    │       ├── main.js
+    │       ├── admin/
+    │       │   ├── manage_emp.js
+    │       │   ├── profile.js
+    │       │   └── projects.js
+    │       ├── Employee/
+    │       │   └── Employee.js
+    │       └── projectLeader/
+    │           ├── charts.js
+    │           ├── main.js
+    │           └── sidebar.js
+    │
+    └── templates/
+        ├── home.html
+        ├── admin/
+        │   ├── admin.html
+        │   └── section/
+        │       ├── dashboard.html
+        │       ├── manage_emp.html
+        │       ├── profile.html
+        │       └── projects.html
+        ├── auth/
+        │   ├── forgotPassword.html
+        │   ├── login.html
+        │   ├── reset_password.html
+        │   └── signup.html
+        ├── employees/
+        │   ├── employee_dashboard.html
+        │   ├── employee_profile.html
+        │   ├── employee_team.html
+        │   ├── employee_work.html
+        │   └── sidebar.html
+        └── projectLeader/
+            ├── base.html
+            ├── dashboard.html
+            ├── my_profile.html
+            ├── my_team.html
+            ├── pdf_report.html
+            ├── projectDetails.html
+            ├── reports.html
+            └── tasks.html
