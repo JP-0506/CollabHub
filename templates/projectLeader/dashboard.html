@@ -150,7 +150,7 @@
                     <option>Last quarter</option>
                 </select>
             </div>
-            <canvas id="projectProgressChart"></canvas>
+            <canvas id="projectProgressChart" style="height: 300px; max-height: 300px;"></canvas>
         </div>
     </div>
     <div class="col-lg-4">
@@ -167,14 +167,14 @@
                     <div>
                         <p class="mb-1">
                             {% if activity.type == 'task_completed' %}
-                            <strong>Task completed</strong> by {{ activity.user_name }}
+                            <strong>Task completed by {{ activity.user_name }} in {{ activity.project_name }}</strong>
                             {% elif activity.type == 'member_joined' %}
-                            <strong>New member joined</strong> as {{ activity.description }}
+                            <strong>New member joined {{ activity.user_name }} as {{ activity.description }} in
+                                {{ activity.project_name }}</strong>
                             {% else %}
-                            <strong>Project updated</strong>
+                            <strong>Project updated in {{ activity.project_name }}</strong>
                             {% endif %}
                         </p>
-                        <small class="text-muted">{{ activity.project_name }}</small>
                         {% if activity.type == 'task_completed' and activity.description %}
                         <small class="text-muted d-block">{{ activity.description|truncate(30) }}</small>
                         {% endif %}

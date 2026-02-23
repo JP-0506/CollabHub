@@ -128,10 +128,6 @@
                     </td>
                     <td>
                         <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-outline-primary" onclick="messageMember({{ member_id }})"
-                                title="Send Message">
-                                <i class="fas fa-comment"></i>
-                            </button>
                             <button class="btn btn-sm btn-outline-secondary"
                                 onclick="openMemberOverview({{ member_id }})" title="View Details">
                                 <i class="fas fa-eye"></i>
@@ -157,27 +153,6 @@
                 {% endif %}
             </tbody>
         </table>
-    </div>
-</div>
-
-<!-- Message Modal -->
-<div class="modal fade" id="messageModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Send Message</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="messageForm">
-                    <div class="mb-3">
-                        <label class="form-label">Message</label>
-                        <textarea class="form-control" rows="4" id="messageText" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Send</button>
-                </form>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -262,7 +237,7 @@
 
 {% block modals %}
 <!-- Add Member Modal -->
-<div class="modal fade" id="addMember" tabindex="-1">
+<div class="modal fade" id="addMember" tabindex="-1" data-bs-backdrop="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -270,15 +245,61 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{{ url_for('project_leader.add_team_member') }}">
+                <form method="POST" action="{{ url_for('project_leader.add_team_member') }}" id="addMemberForm">
                     <div class="mb-3">
                         <label class="form-label">Select Employee</label>
-                        <select name="user_id" class="form-select" required>
-                            <option value="" selected hidden>Choose from company directory</option>
-                            {% for employee in available_employees %}
-                            <option value="{{ employee[0] }}">{{ employee[1] }} - {{ employee[2] }}</option>
-                            {% endfor %}
-                        </select>
+                        <input type="hidden" name="user_id" id="selectedUserId" required>
+                        <div class="custom-employee-select" id="employeeSelectWrapper">
+                            <div class="custom-select-trigger form-select d-flex align-items-center"
+                                id="employeeSelectTrigger" style="cursor:pointer;">
+                                <span id="employeeSelectLabel" class="text-muted">Choose from company directory</span>
+                            </div>
+                            <div class="custom-select-dropdown shadow border rounded bg-white" id="employeeDropdown"
+                                style="display:none; position:absolute; z-index:9999; width:100%; max-height:260px; overflow-y:auto;">
+                                {% if available_employees %}
+                                {% set has_past = available_employees | selectattr(3) | list %}
+                                {% set has_free = available_employees | rejectattr(3) | list %}
+                                {% if has_past %}
+                                <div class="px-3 pt-2 pb-1"
+                                    style="font-size:11px; font-weight:700; color:#f59e0b; text-transform:uppercase; letter-spacing:.05em;">
+                                    ↩ Past Members
+                                </div>
+                                {% for employee in available_employees if employee[3] %}
+                                <div class="employee-option past-member px-3 py-2 d-flex align-items-center gap-2"
+                                    data-value="{{ employee[0] }}"
+                                    style="cursor:pointer; background:#fffbeb; border-left:3px solid #f59e0b;">
+                                    <span class="badge rounded-pill"
+                                        style="background:#f59e0b; font-size:10px;">Past</span>
+                                    <div>
+                                        <div style="font-weight:600; font-size:14px;">{{ employee[1] }}</div>
+                                        <div style="font-size:12px; color:#6b7280;">{{ employee[2] }}</div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {% if has_free %}
+                                {% if has_past %}<div style="border-top:1px solid #e5e7eb; margin:4px 0;"></div>{% endif
+                                %}
+                                <div class="px-3 pt-2 pb-1"
+                                    style="font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.05em;">
+                                    Available Employees
+                                </div>
+                                {% for employee in available_employees if not employee[3] %}
+                                <div class="employee-option px-3 py-2 d-flex align-items-center gap-2"
+                                    data-value="{{ employee[0] }}" style="cursor:pointer;">
+                                    <div>
+                                        <div style="font-weight:600; font-size:14px;">{{ employee[1] }}</div>
+                                        <div style="font-size:12px; color:#6b7280;">{{ employee[2] }}</div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {% else %}
+                                <div class="px-3 py-3 text-muted text-center" style="font-size:13px;">No employees
+                                    available</div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Role in Project</label>
@@ -287,6 +308,65 @@
                     </div>
                     <button type="submit" class="btn btn-primary w-100 py-2">Add to Team</button>
                 </form>
+
+                <style>
+                    .employee-option:hover {
+                        background: #f3f4f6 !important;
+                    }
+
+                    .employee-option.past-member:hover {
+                        background: #fef3c7 !important;
+                    }
+
+                    .employee-option.selected {
+                        background: #eff6ff !important;
+                    }
+
+                    #employeeSelectWrapper {
+                        position: relative;
+                    }
+                </style>
+
+                <script>
+                    (function () {
+                        const trigger = document.getElementById('employeeSelectTrigger');
+                        const dropdown = document.getElementById('employeeDropdown');
+                        const label = document.getElementById('employeeSelectLabel');
+                        const hiddenInput = document.getElementById('selectedUserId');
+
+                        trigger.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                        });
+
+                        document.querySelectorAll('.employee-option').forEach(function (opt) {
+                            opt.addEventListener('click', function () {
+                                const val = this.dataset.value;
+                                const name = this.querySelector('div > div:first-child').textContent.trim();
+                                const isPast = this.classList.contains('past-member');
+                                hiddenInput.value = val;
+                                label.textContent = name + (isPast ? ' ↩ Past Member' : '');
+                                label.style.color = isPast ? '#f59e0b' : '';
+                                label.style.fontWeight = isPast ? '600' : '';
+                                document.querySelectorAll('.employee-option').forEach(o => o.classList.remove('selected'));
+                                this.classList.add('selected');
+                                dropdown.style.display = 'none';
+                            });
+                        });
+
+                        document.addEventListener('click', function () {
+                            dropdown.style.display = 'none';
+                        });
+
+                        document.getElementById('addMemberForm').addEventListener('submit', function (e) {
+                            if (!hiddenInput.value) {
+                                e.preventDefault();
+                                trigger.style.borderColor = '#dc3545';
+                                setTimeout(() => trigger.style.borderColor = '', 2000);
+                            }
+                        });
+                    })();
+                </script>
             </div>
         </div>
     </div>

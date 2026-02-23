@@ -40,7 +40,7 @@ def get_leader_project(leader_id, cur):
         AND p.is_deleted = FALSE
         AND pm.user_id = %s
         AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
-        ORDER BY p.created_at DESC
+        ORDER BY p.project_id DESC
         LIMIT 1
     """,
         (leader_id, leader_id),
@@ -271,6 +271,25 @@ def my_team_page():
     conn = get_db()
     cur = conn.cursor()
 
+    # First get the leader's current active project
+    cur.execute(
+        """
+        SELECT p.project_id
+        FROM projects p
+        JOIN project_members pm ON p.project_id = pm.project_id
+        WHERE p.leader_id = %s
+        AND p.status != 'closed'
+        AND p.is_deleted = FALSE
+        AND pm.user_id = %s
+        AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
+        ORDER BY p.created_at DESC
+        LIMIT 1
+    """,
+        (leader_id, leader_id),
+    )
+    active_project = cur.fetchone()
+    active_project_id = active_project[0] if active_project else None
+
     cur.execute(
         """
         SELECT u.user_id, u.name, u.email, u.designation, p.project_name, pm.role_in_project
@@ -278,11 +297,12 @@ def my_team_page():
         JOIN project_members pm ON u.user_id = pm.user_id
         JOIN projects p ON pm.project_id = p.project_id
         WHERE p.leader_id = %s
+        AND p.project_id = %s
         AND u.role = 'employee'
         AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
         ORDER BY u.name;
     """,
-        (leader_id,),
+        (leader_id, active_project_id),
     )
     team = cur.fetchall()
 
@@ -345,27 +365,45 @@ def my_team_page():
     )
     leader_projects = cur.fetchall()
 
+    # Show employees who are:
+    # 1. Free (not in any ongoing/planning/on_hold project), OR
+    # 2. Past members of THIS project (is_deleted=TRUE) — can be re-added
+    # In both cases: is_active=TRUE, is_registered=TRUE, not currently active in this project
     cur.execute(
         """
-        SELECT u.user_id, u.name, u.designation
+        SELECT u.user_id, u.name, u.designation,
+            CASE WHEN pm_current.user_id IS NOT NULL THEN TRUE ELSE FALSE END as is_past_member
         FROM users u
-        WHERE u.role = 'employee' 
-        AND u.user_id != %s
+        LEFT JOIN project_members pm_current
+            ON pm_current.user_id = u.user_id
+            AND pm_current.project_id = %s
+            AND pm_current.is_deleted = TRUE
+        WHERE u.role = 'employee'
+        AND u.is_active = TRUE
+        AND u.is_registered = TRUE
         AND NOT EXISTS (
-            SELECT 1
-            FROM project_members pm
-            JOIN projects p ON pm.project_id = p.project_id
+            SELECT 1 FROM project_members pm
             WHERE pm.user_id = u.user_id
-            AND p.status IN ('ongoing','planning','on_hold')
+            AND pm.project_id = %s
             AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
         )
-        ORDER BY u.name;
+        AND (
+            (pm_current.user_id IS NOT NULL AND u.is_active = TRUE AND u.is_registered = TRUE)
+            OR NOT EXISTS (
+                SELECT 1 FROM project_members pm2
+                JOIN projects p2 ON pm2.project_id = p2.project_id
+                WHERE pm2.user_id = u.user_id
+                AND p2.status IN ('ongoing', 'planning', 'on_hold')
+                AND (pm2.is_deleted = FALSE OR pm2.is_deleted IS NULL)
+            )
+        )
+        ORDER BY is_past_member DESC, u.name;
     """,
-        (leader_id,),
+        (active_project_id, active_project_id),
     )
     available_employees = cur.fetchall()
 
-    # to fetch past memeber
+    # to fetch past members (only from current active project)
     cur.execute(
         """
         SELECT u.user_id, u.name, u.email, u.designation, pm.role_in_project, pm.joined_at
@@ -373,11 +411,14 @@ def my_team_page():
         JOIN project_members pm ON u.user_id = pm.user_id
         JOIN projects p ON pm.project_id = p.project_id
         WHERE p.leader_id = %s
+        AND p.project_id = %s
         AND u.role = 'employee'
+        AND u.is_active = TRUE
+        AND u.is_registered = TRUE
         AND pm.is_deleted = TRUE
         ORDER BY pm.joined_at DESC;
     """,
-        (leader_id,),
+        (leader_id, active_project_id),
     )
     past_members = cur.fetchall()
 
@@ -417,7 +458,7 @@ def my_project():
         AND p.is_deleted = FALSE
         AND pm.user_id = %s
         AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
-        ORDER BY p.created_at DESC
+        ORDER BY p.project_id DESC
         LIMIT 1;
     """,
         (leader_id, leader_id),
@@ -514,6 +555,72 @@ def my_project():
     )
 
 
+# ============================
+# MEMBER OVERVIEW (View Details)
+# ============================
+@project_leader_bp.route("/member_overview/<int:member_id>")
+def member_overview(member_id):
+    if "user_id" not in session:
+        return jsonify({"error": "Login required"}), 401
+
+    leader_id = session["user_id"]
+    conn = get_db()
+    cur = conn.cursor()
+
+    # Fetch basic member info — only if they belong to this leader's team
+    cur.execute(
+        """
+        SELECT u.user_id, u.name, u.email, u.designation, u.role, u.created_at
+        FROM users u
+        JOIN project_members pm ON u.user_id = pm.user_id
+        JOIN projects p ON pm.project_id = p.project_id
+        WHERE u.user_id = %s
+        AND p.leader_id = %s
+        AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
+        LIMIT 1;
+    """,
+        (member_id, leader_id),
+    )
+    member = cur.fetchone()
+
+    if not member:
+        cur.close()
+        conn.close()
+        return jsonify({"error": "Member not found"}), 404
+
+    # Fetch task summary for this member
+    cur.execute(
+        """
+        SELECT
+            COUNT(*) as total,
+            COUNT(*) FILTER (WHERE status = 'approved') as completed,
+            COUNT(*) FILTER (WHERE status NOT IN ('approved') AND (due_date IS NULL OR due_date >= CURRENT_DATE)) as pending,
+            COUNT(*) FILTER (WHERE status NOT IN ('approved') AND due_date < CURRENT_DATE) as overdue
+        FROM tasks
+        WHERE assigned_to = %s;
+    """,
+        (member_id,),
+    )
+    task_stats = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    return jsonify(
+        {
+            "name": member[1],
+            "email": member[2],
+            "designation": member[3] or "—",
+            "role": member[4],
+            "joined_system": member[5].strftime("%d %b %Y") if member[5] else "—",
+            "total": task_stats[0] if task_stats else 0,
+            "completed": task_stats[1] if task_stats else 0,
+            "pending": task_stats[2] if task_stats else 0,
+            "overdue": task_stats[3] if task_stats else 0,
+        }
+    )
+
+
 @project_leader_bp.route("/tasks")
 def tasks():
     if "user_id" not in session:
@@ -522,6 +629,25 @@ def tasks():
     leader_id = session["user_id"]
     conn = get_db()
     cur = conn.cursor()
+
+    # Get the leader's current active project
+    cur.execute(
+        """
+        SELECT p.project_id
+        FROM projects p
+        JOIN project_members pm ON p.project_id = pm.project_id
+        WHERE p.leader_id = %s
+        AND p.status != 'closed'
+        AND p.is_deleted = FALSE
+        AND pm.user_id = %s
+        AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
+        ORDER BY p.project_id DESC
+        LIMIT 1;
+    """,
+        (leader_id, leader_id),
+    )
+    active_project = cur.fetchone()
+    active_project_id = active_project[0] if active_project else None
 
     cur.execute(
         """
@@ -533,6 +659,7 @@ def tasks():
         JOIN projects p ON t.project_id = p.project_id
         JOIN users u ON t.assigned_to = u.user_id
         WHERE p.leader_id = %s
+        AND t.project_id = %s
         ORDER BY 
             CASE 
                 WHEN t.status = 'submitted' THEN 1
@@ -542,7 +669,7 @@ def tasks():
             END,
             t.created_at DESC;
     """,
-        (leader_id,),
+        (leader_id, active_project_id),
     )
     tasks = cur.fetchall()
 
@@ -555,9 +682,10 @@ def tasks():
             COUNT(*) FILTER (WHERE t.status = 'submitted') as pending_review
         FROM tasks t
         JOIN projects p ON t.project_id = p.project_id
-        WHERE p.leader_id = %s;
+        WHERE p.leader_id = %s
+        AND t.project_id = %s;
     """,
-        (leader_id,),
+        (leader_id, active_project_id),
     )
     task_summary = cur.fetchone()
 
@@ -584,10 +712,12 @@ def tasks():
         JOIN project_members pm ON u.user_id = pm.user_id
         JOIN projects p ON pm.project_id = p.project_id
         WHERE p.leader_id = %s
+        AND p.project_id = %s
+        AND u.role = 'employee'
         AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
         ORDER BY u.name;
     """,
-        (leader_id,),
+        (leader_id, active_project_id),
     )
     users = cur.fetchall()
 
@@ -680,7 +810,7 @@ def reports():
         AND p.is_deleted = FALSE
         AND pm.user_id = %s
         AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
-        ORDER BY p.created_at DESC
+        ORDER BY p.project_id DESC
         LIMIT 1;
     """,
         (leader_id, leader_id),
@@ -935,6 +1065,25 @@ def dashboard():
     )
     active_projects = cur.fetchone()[0] or 0
 
+    # Get the leader's current active project first
+    cur.execute(
+        """
+        SELECT p.project_id
+        FROM projects p
+        JOIN project_members pm ON p.project_id = pm.project_id
+        WHERE p.leader_id = %s
+        AND p.status != 'closed'
+        AND p.is_deleted = FALSE
+        AND pm.user_id = %s
+        AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
+        ORDER BY p.project_id DESC
+        LIMIT 1;
+    """,
+        (leader_id, leader_id),
+    )
+    active_proj = cur.fetchone()
+    active_project_id = active_proj[0] if active_proj else None
+
     cur.execute(
         """
         SELECT 
@@ -943,9 +1092,10 @@ def dashboard():
             COUNT(*) as total_tasks
         FROM tasks t
         JOIN projects p ON t.project_id = p.project_id
-        WHERE p.leader_id = %s;
+        WHERE p.leader_id = %s
+        AND t.project_id = %s;
     """,
-        (leader_id,),
+        (leader_id, active_project_id),
     )
     task_stats = cur.fetchone()
     completed_tasks = task_stats[0] or 0
@@ -959,10 +1109,11 @@ def dashboard():
         JOIN project_members pm ON u.user_id = pm.user_id
         JOIN projects p ON pm.project_id = p.project_id
         WHERE p.leader_id = %s
+        AND p.project_id = %s
         AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
         AND u.role != 'project_leader';
     """,
-        (leader_id,),
+        (leader_id, active_project_id),
     )
     team_members = cur.fetchone()[0] or 0
 
@@ -974,12 +1125,13 @@ def dashboard():
         FROM tasks t
         JOIN projects p ON t.project_id = p.project_id
         WHERE p.leader_id = %s 
+            AND t.project_id = %s
             AND t.completed_at IS NOT NULL
             AND t.completed_at >= CURRENT_DATE - INTERVAL '7 days'
         GROUP BY date_trunc('day', t.completed_at)
         ORDER BY date_trunc('day', t.completed_at);
     """,
-        (leader_id,),
+        (leader_id, active_project_id),
     )
     weekly_data = cur.fetchall()
 
@@ -1001,7 +1153,7 @@ def dashboard():
         FROM tasks t
         JOIN users u ON t.assigned_to = u.user_id
         JOIN projects p ON t.project_id = p.project_id
-        WHERE p.leader_id = %s AND t.completed_at IS NOT NULL
+        WHERE p.leader_id = %s AND t.project_id = %s AND t.completed_at IS NOT NULL
         ORDER BY t.completed_at DESC LIMIT 4)
         UNION ALL
         (SELECT 
@@ -1011,11 +1163,12 @@ def dashboard():
         JOIN users u ON pm.user_id = u.user_id
         JOIN projects p ON pm.project_id = p.project_id
         WHERE p.leader_id = %s
+        AND p.project_id = %s
         AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
         ORDER BY pm.joined_at DESC LIMIT 4)
         ORDER BY created_at DESC LIMIT 8;
     """,
-        (leader_id, leader_id),
+        (leader_id, active_project_id, leader_id, active_project_id),
     )
     activities = cur.fetchall()
 
@@ -1038,11 +1191,12 @@ def dashboard():
         FROM tasks t
         JOIN projects p ON t.project_id = p.project_id
         WHERE p.leader_id = %s 
+            AND t.project_id = %s
             AND t.status = 'approved'
             AND t.completed_at >= CURRENT_DATE - INTERVAL '14 days'
             AND t.completed_at < CURRENT_DATE - INTERVAL '7 days';
     """,
-        (leader_id,),
+        (leader_id, active_project_id),
     )
     last_week_completed = cur.fetchone()[0] or 0
 
@@ -1060,10 +1214,11 @@ def dashboard():
         FROM project_members pm
         JOIN projects p ON pm.project_id = p.project_id
         WHERE p.leader_id = %s 
+            AND p.project_id = %s
             AND pm.joined_at >= CURRENT_DATE - INTERVAL '7 days'
             AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL);
     """,
-        (leader_id,),
+        (leader_id, active_project_id),
     )
     new_members = cur.fetchone()[0] or 0
 

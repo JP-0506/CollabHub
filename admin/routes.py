@@ -344,11 +344,12 @@ def projects():
             leader_id = leader_id if leader_id else None
 
             # 🔥 AUTO STATUS
+            progress = int(progress or 0)
             if progress == 100:
                 status = "completed"
             elif leader_id:
                 status = "ongoing"
-                progress = max(int(progress or 0), 1)
+                progress = max(progress, 1)
             else:
                 status = "initiated"
 
@@ -552,7 +553,7 @@ def projects():
     SELECT COUNT(DISTINCT leader_id)
     FROM projects
     WHERE leader_id IS NOT NULL
-      AND status IN ('ongoing','initiated','on_hold')
+      AND status IN ('ongoing','initiated','completed')
       AND is_deleted = FALSE
     """
     )
@@ -752,7 +753,8 @@ def get_project_details(project_id):
 def edit_project(project_id):
 
     if not admin_login_required():
-        return jsonify({"status": "error", "message": "Unauthorized"})
+        # return jsonify({"status": "error", "message": "Unauthorized"})
+        return redirect(url_for("auth.login"))
 
     conn = None
     cur = None
@@ -772,7 +774,8 @@ def edit_project(project_id):
         project = cur.fetchone()
 
         if not project:
-            return jsonify({"status": "error", "message": "Project not found"})
+            # return jsonify({"status": "error", "message": "Project not found"})
+            return redirect(url_for("admin.projects"))
 
         name = request.form.get("project_name")
         progress = int(request.form.get("progress") or 0)
