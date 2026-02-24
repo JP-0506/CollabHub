@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, session, url_for
 from flask_mail import Mail, Message
 from auth import auth_bp
 from admin import admin_bp
+from database.db import get_db
 from leader import project_leader_bp
 from employee import employee_bp
 

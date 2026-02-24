@@ -1291,14 +1291,16 @@ def create_task():
         ),
     )
 
-    # 🔥 AUTO-RECALCULATE project progress based on approved tasks
+    # 🔥 AUTO-RECALCULATE project progress — Smart Formula
+    # ongoing + tasks exist => 10% base + floor(approved/total * 80%), capped at 90%
+    # This prevents misleading 1/1 = 100% scenarios.
     cur.execute(
         """
         UPDATE projects
         SET progress = (
             SELECT CASE
                 WHEN COUNT(*) = 0 THEN 1
-                ELSE GREATEST(1, ROUND(COUNT(*) FILTER (WHERE status = 'approved') * 100.0 / COUNT(*)))
+                ELSE LEAST(90, 10 + FLOOR(COUNT(*) FILTER (WHERE status = 'approved') * 80.0 / COUNT(*)))
             END
             FROM tasks WHERE project_id = %s
         ),
@@ -1970,14 +1972,16 @@ def approve_task(task_id):
             (leader_id, leader_id, task_id),
         )
 
-        # 🔥 AUTO-RECALCULATE project progress based on approved tasks
+        # 🔥 AUTO-RECALCULATE project progress — Smart Formula
+        # ongoing + tasks exist => 10% base + floor(approved/total * 80%), capped at 90%
+        # Prevents misleading 1/1 = 100% and 0/0 = 100% scenarios.
         cur.execute(
             """
             UPDATE projects
             SET progress = (
                 SELECT CASE
                     WHEN COUNT(*) = 0 THEN 1
-                    ELSE GREATEST(1, ROUND(COUNT(*) FILTER (WHERE status = 'approved') * 100.0 / COUNT(*)))
+                    ELSE LEAST(90, 10 + FLOOR(COUNT(*) FILTER (WHERE status = 'approved') * 80.0 / COUNT(*)))
                 END
                 FROM tasks WHERE project_id = projects.project_id
             ),

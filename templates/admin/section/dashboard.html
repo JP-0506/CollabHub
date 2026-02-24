@@ -181,11 +181,19 @@
                     Overall Project Progress
                 </span>
 
-                <span class="stat-value">
-
+                <span class="stat-value" id="liveOverallProgress">
                     {{ Overall_project_progress }}%
-
                 </span>
+
+                <small class="text-muted d-block mt-1" style="font-size:0.72rem;">
+                    Auto-calculated from task completion
+                </small>
+
+                <button onclick="recalculateAllProgress()" class="btn btn-sm mt-2"
+                    style="background:#f59e0b;color:white;border:none;border-radius:6px;font-size:0.75rem;padding:4px 10px;"
+                    title="Recalculate progress for all projects from task completion ratio">
+                    <i class="fas fa-sync-alt me-1"></i> Recalculate
+                </button>
 
             </div>
 
@@ -446,4 +454,76 @@
 
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    /**
+     * Recalculate all project progress from task completion ratio.
+     * Formula: progress = ROUND(approved_tasks * 100.0 / total_tasks)
+     * Projects with zero tasks get 0%.
+     */
+    function recalculateAllProgress() {
+        const btn = document.querySelector('button[onclick="recalculateAllProgress()"]');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Calculating...';
+        }
+
+        fetch('/admin/api/recalculate_all_progress')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Compute new overall average to update the stat card live
+                    if (data.projects && data.projects.length > 0) {
+                        const avg = data.projects.reduce((sum, p) => sum + (p.progress || 0), 0) / data.projects.length;
+                        const el = document.getElementById('liveOverallProgress');
+                        if (el) el.textContent = Math.round(avg) + '%';
+                    }
+                    showToast('✅ ' + data.message, 'success');
+                } else {
+                    showToast('❌ ' + (data.message || 'Recalculation failed'), 'error');
+                }
+            })
+            .catch(() => showToast('❌ Server error during recalculation', 'error'))
+            .finally(() => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-sync-alt me-1"></i> Recalculate';
+                }
+            });
+    }
+
+    function showToast(message, type) {
+        const existing = document.getElementById('progressToast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'progressToast';
+        toast.style.cssText = `
+        position:fixed; bottom:24px; right:24px; z-index:9999;
+        background:${type === 'success' ? '#10b981' : '#ef4444'};
+        color:white; padding:12px 20px; border-radius:10px;
+        font-size:0.875rem; font-weight:500; box-shadow:0 4px 15px rgba(0,0,0,0.2);
+        animation: slideIn 0.3s ease;
+    `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+
+    // Auto-recalculate on page load to always show live progress
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('/admin/api/recalculate_all_progress')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success' && data.projects && data.projects.length > 0) {
+                    const avg = data.projects.reduce((sum, p) => sum + (p.progress || 0), 0) / data.projects.length;
+                    const el = document.getElementById('liveOverallProgress');
+                    if (el) el.textContent = Math.round(avg) + '%';
+                }
+            })
+            .catch(() => { }); // silent on fail
+    });
+</script>
 {% endblock %}

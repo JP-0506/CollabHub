@@ -80,20 +80,30 @@ def dashboard():
     active_projects = cur.fetchone()["total"]
 
     # -------------------------
-    # Overall Project Progress
+    # Overall Project Progress (Auto-calculated from task completion ratio)
+    # Formula: AVG( approved_tasks / total_tasks * 100 ) across all active projects
     # -------------------------
     cur.execute(
         """
     SELECT
-        ROUND(AVG(p.progress)) AS avg_progress
-    FROM projects p
-
-    JOIN users u
-        ON p.leader_id = u.user_id
-
-    WHERE
-        p.is_deleted = FALSE
-        AND u.role = 'project_leader'
+        ROUND(AVG(
+            CASE
+                WHEN task_counts.total_tasks = 0 THEN 0
+                ELSE task_counts.approved_tasks * 100.0 / task_counts.total_tasks
+            END
+        )) AS avg_progress
+    FROM (
+        SELECT
+            p.project_id,
+            COUNT(t.task_id) AS total_tasks,
+            COUNT(t.task_id) FILTER (WHERE t.status = 'approved') AS approved_tasks
+        FROM projects p
+        JOIN users u ON p.leader_id = u.user_id
+        LEFT JOIN tasks t ON t.project_id = p.project_id
+        WHERE p.is_deleted = FALSE
+          AND u.role = 'project_leader'
+        GROUP BY p.project_id
+    ) AS task_counts
     """
     )
 
@@ -305,7 +315,8 @@ def projects():
 
             project_name = request.form.get("project_name")
             leader_id = request.form.get("leader_id")
-            progress = request.form.get("progress") or 0
+            # Progress is AUTO-CALCULATED from task completion ratio — NOT set manually
+            progress = 0
             start_date = request.form.get("start_date")
             end_date = request.form.get("end_date")
             description = request.form.get("description")
@@ -778,7 +789,21 @@ def edit_project(project_id):
             return redirect(url_for("admin.projects"))
 
         name = request.form.get("project_name")
-        progress = int(request.form.get("progress") or 0)
+        # AUTO-CALCULATE progress from task completion ratio
+        # Formula: ROUND(approved_tasks * 100.0 / total_tasks)
+        cur.execute(
+            """
+            SELECT CASE
+                WHEN COUNT(*) = 0 THEN 0
+                ELSE ROUND(COUNT(*) FILTER (WHERE status = 'approved') * 100.0 / COUNT(*))
+            END AS calculated_progress
+            FROM tasks
+            WHERE project_id = %s
+            """,
+            (project_id,),
+        )
+        task_result = cur.fetchone()
+        progress = int(task_result["calculated_progress"]) if task_result else 0
         start_date = request.form.get("start_date")
         end_date = request.form.get("end_date")
         description = request.form.get("description")
@@ -814,12 +839,11 @@ def edit_project(project_id):
                 }
             )
 
-        # AUTO STATUS
+        # AUTO STATUS based on task-calculated progress
         if progress == 100:
             status = "completed"
         elif leader_id:
             status = "ongoing"
-            progress = max(int(progress or 0), 1)
         else:
             status = "initiated"
 
@@ -1966,6 +1990,173 @@ def pending_review_projects():
     conn.close()
 
     return jsonify(projects)
+
+
+def calculate_smart_progress(status, total_tasks, approved_tasks):
+    """
+    Smart progress formula based on project lifecycle + task completion.
+
+    Rules:
+      - initiated  (no leader, no tasks)  => always 0%
+      - ongoing, 0 tasks                  => 1%  (leader assigned, work not started)
+      - ongoing, tasks exist              => 10% + FLOOR(approved/total * 89%)
+                                             capped at 90% max until formally submitted
+      - completed  (leader submitted)     => 95%
+      - closed     (admin accepted)       => 100%
+
+    Also returns display_label like "45% (3/7 tasks)" to avoid 1/1=100% confusion.
+    """
+    if status == "closed":
+        progress = 100
+    elif status == "completed":
+        progress = 95
+    elif status == "initiated":
+        progress = 0
+    elif status == "ongoing":
+        if total_tasks == 0:
+            # Leader assigned but no tasks created yet
+            progress = 1
+        else:
+            # 10% base (leader working) + up to 80% from task ratio, capped at 90%
+            task_ratio = approved_tasks / total_tasks
+            progress = min(10 + int(task_ratio * 80), 90)
+    else:
+        progress = 0
+
+    return progress
+
+
+@admin_bp.route("/api/project_progress/<int:project_id>")
+def get_project_progress(project_id):
+    """
+    Returns smart-calculated progress for a single project.
+    Avoids misleading 0/0=100% and 1/1=100% scenarios.
+    """
+    if not admin_login_required():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute(
+        """
+        SELECT
+            p.status,
+            COUNT(t.task_id) AS total_tasks,
+            COUNT(t.task_id) FILTER (WHERE t.status = 'approved') AS approved_tasks
+        FROM projects p
+        LEFT JOIN tasks t ON t.project_id = p.project_id
+        WHERE p.project_id = %s
+        GROUP BY p.status
+        """,
+        (project_id,),
+    )
+    result = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if not result:
+        return jsonify({"error": "Project not found"}), 404
+
+    status = result["status"]
+    total_tasks = int(result["total_tasks"])
+    approved_tasks = int(result["approved_tasks"])
+    progress = calculate_smart_progress(status, total_tasks, approved_tasks)
+
+    # e.g. "45% (3/7 tasks)" — shows admin the real picture
+    display_label = f"{progress}% ({approved_tasks}/{total_tasks} tasks)"
+
+    return jsonify(
+        {
+            "project_id": project_id,
+            "status": status,
+            "total_tasks": total_tasks,
+            "approved_tasks": approved_tasks,
+            "progress": progress,
+            "display_label": display_label,
+        }
+    )
+
+
+@admin_bp.route("/api/recalculate_all_progress")
+def recalculate_all_progress():
+    """
+    Recalculate and UPDATE progress for ALL active projects using smart formula.
+
+    Smart Rules:
+      initiated  => 0%
+      ongoing + 0 tasks => 1%
+      ongoing + tasks   => 10% + floor(approved/total * 80%), capped at 90%
+      completed  => 95%
+      closed     => 100%
+    """
+    if not admin_login_required():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    try:
+        # Fetch all non-deleted projects with task counts
+        cur.execute(
+            """
+            SELECT
+                p.project_id,
+                p.project_name,
+                p.status,
+                COUNT(t.task_id) AS total_tasks,
+                COUNT(t.task_id) FILTER (WHERE t.status = 'approved') AS approved_tasks
+            FROM projects p
+            LEFT JOIN tasks t ON t.project_id = p.project_id
+            WHERE p.is_deleted = FALSE
+            GROUP BY p.project_id, p.project_name, p.status
+            """
+        )
+        projects = cur.fetchall()
+
+        updated = []
+        for p in projects:
+            progress = calculate_smart_progress(
+                p["status"],
+                int(p["total_tasks"]),
+                int(p["approved_tasks"]),
+            )
+            cur.execute(
+                """
+                UPDATE projects
+                SET progress = %s, updated_at = NOW()
+                WHERE project_id = %s
+                """,
+                (progress, p["project_id"]),
+            )
+            updated.append(
+                {
+                    "project_id": p["project_id"],
+                    "project_name": p["project_name"],
+                    "status": p["status"],
+                    "total_tasks": int(p["total_tasks"]),
+                    "approved_tasks": int(p["approved_tasks"]),
+                    "progress": progress,
+                    "display_label": f"{progress}% ({p['approved_tasks']}/{p['total_tasks']} tasks)",
+                }
+            )
+
+        conn.commit()
+        return jsonify(
+            {
+                "status": "success",
+                "message": f"Progress recalculated for {len(updated)} projects",
+                "projects": updated,
+            }
+        )
+
+    except Exception as e:
+        conn.rollback()
+        print("Error recalculating progress:", str(e))
+        return jsonify({"status": "error", "message": "Something went wrong"}), 500
+    finally:
+        cur.close()
+        conn.close()
 
 
 @admin_bp.route("/api/closed_projects")
