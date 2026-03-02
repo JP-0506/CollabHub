@@ -703,23 +703,24 @@ function loadRecentProjects() {
 // ============================
 function initEditProjectModal() {
 
-    const editBtns = document.querySelectorAll(".edit-btn");
-    if (!editBtns.length) return;
+    // Use event delegation on document to catch both static and dynamically rendered buttons
+    document.addEventListener("click", function (e) {
 
-    editBtns.forEach(btn => {
+        const btn = e.target.closest('[data-bs-target="#editProjectModal"]');
+        if (!btn) return;
 
-        btn.addEventListener("click", function () {
+        (function () {
 
-            const id = this.dataset.id;
-            const name = this.dataset.name;
-            const status = this.dataset.status;
-            const progress = this.dataset.progress;
-            const start = this.dataset.start;
-            const end = this.dataset.end;
-            const desc = this.dataset.desc;
-            const leaderId = this.dataset.leader;
+            const id = btn.dataset.id;
+            const name = btn.dataset.name;
+            const status = btn.dataset.status;
+            const progress = btn.dataset.progress;
+            const start = btn.dataset.start;
+            const end = btn.dataset.end;
+            const desc = btn.dataset.desc;
+            const leaderId = btn.dataset.leader;
 
-            const row = this.closest("tr");
+            const row = btn.closest("tr");
             const leaderCell = row ? row.children[1] : null;
             const leaderName = leaderCell ? leaderCell.innerText.trim() : "";
 
@@ -745,7 +746,6 @@ function initEditProjectModal() {
                 leaderSelect.appendChild(option);
 
                 document.getElementById("hiddenLeaderId").value = leaderId;
-
 
                 // 🔒 Disable dropdown
                 leaderSelect.disabled = true;
@@ -775,7 +775,6 @@ function initEditProjectModal() {
                     }
                 });
 
-                // 👇 👇 👇 YAHI PASTE KARNA HAI
                 leaderSelect.addEventListener("change", function () {
                     document.getElementById("hiddenLeaderId").value = this.value;
                 });
@@ -805,19 +804,23 @@ function initEditProjectModal() {
                 form.action = "/admin/projects/edit/" + id;
             }
 
-            /* =========================
-               OPEN MODAL
-            ========================= */
-            const modalElement =
-                document.getElementById("editProjectModal");
-
-            if (modalElement) {
-                const modal =
-                    new bootstrap.Modal(modalElement);
-                modal.show();
+            // Update progress bar after modal is fully shown
+            const editModalEl = document.getElementById('editProjectModal');
+            if (editModalEl) {
+                editModalEl.addEventListener('shown.bs.modal', function onShown() {
+                    editModalEl.removeEventListener('shown.bs.modal', onShown);
+                    const progressVal = parseInt(progress) || 0;
+                    const bar = document.getElementById('editProgressBar');
+                    const label = document.getElementById('editProgressLabel');
+                    if (bar) bar.style.width = progressVal + '%';
+                    if (label) label.textContent = progressVal + '%';
+                    const color = progressVal >= 75 ? '#10b981' : progressVal >= 40 ? '#f59e0b' : '#ef4444';
+                    if (bar) bar.style.background = `linear-gradient(90deg, ${color}, ${color}cc)`;
+                    if (label) label.style.color = color;
+                });
             }
 
-        });
+        })();
 
     });
 }
@@ -959,7 +962,7 @@ function initViewProject() {
 }
 
 // ============================
-// Date Validation for Project Forms
+// Date Validation for Project Forms - CORRECTED VERSION
 // ============================
 function initProjectDateValidation() {
 
@@ -969,13 +972,30 @@ function initProjectDateValidation() {
         const startDateInput = document.getElementById('projectStart');
         const endDateInput = document.getElementById('projectEnd');
 
-        // Set min date to today for both inputs
+        // ❌ REMOVED THESE LINES (976-981) - Start date SHOULD be editable in CREATE modal
+        // if (startDateInput) {
+        //     startDateInput.readOnly = true;
+        //     startDateInput.style.backgroundColor = '#f3f4f6';
+        //     startDateInput.style.cursor = 'not-allowed';
+        //     startDateInput.style.pointerEvents = 'none';
+        // }
+
+        // Set minimum dates to today for both fields
         const today = new Date().toISOString().split('T')[0];
         if (startDateInput) {
             startDateInput.min = today;
         }
         if (endDateInput) {
             endDateInput.min = today;
+        }
+
+        // When start date changes, update end date minimum
+        if (startDateInput && endDateInput) {
+            startDateInput.addEventListener('change', function () {
+                if (this.value) {
+                    endDateInput.min = this.value;
+                }
+            });
         }
 
         // Override form submission
@@ -999,13 +1019,26 @@ function initProjectDateValidation() {
         const startDateInput = document.getElementById('editProjectStart');
         const endDateInput = document.getElementById('editProjectEnd');
 
-        // Set min date to today for both inputs
-        const today = new Date().toISOString().split('T')[0];
+        // ✅ Start date is display-only — cannot be changed after project creation
+        // THIS IS CORRECT - Only applies to EDIT modal
         if (startDateInput) {
-            startDateInput.min = today;
+            startDateInput.readOnly = true;
+            startDateInput.style.backgroundColor = '#f3f4f6';
+            startDateInput.style.cursor = 'not-allowed';
+            startDateInput.style.pointerEvents = 'none';
         }
-        if (endDateInput) {
-            endDateInput.min = today;
+
+        // Set end date min = start date so due date can't be before start date
+        if (startDateInput && endDateInput) {
+            // Set initial min when modal opens (start date value is already set by setValue)
+            const editModal = document.getElementById('editProjectModal');
+            if (editModal) {
+                editModal.addEventListener('shown.bs.modal', function () {
+                    if (startDateInput.value) {
+                        endDateInput.min = startDateInput.value;
+                    }
+                });
+            }
         }
 
         // Override form submission
@@ -1360,10 +1393,24 @@ function initViewEmployee() {
                     let lastLoginHtml = 'Never';
                     if (data.last_login) {
                         try {
-                            const date = new Date(data.last_login);
-                            lastLoginHtml = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                            // Flask returns "Thu, 26 Feb 2026 16:14:52 GMT"
+                            // Parse time parts directly to avoid any timezone conversion
+                            const str = String(data.last_login);
+                            const months = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+                            const parts = str.replace(',', '').split(' ');
+                            // parts: ["Thu", "26", "Feb", "2026", "16:14:52", "GMT"]
+                            const day = parseInt(parts[1]);
+                            const month = months[parts[2]];
+                            const year = parseInt(parts[3]);
+                            const timeParts = parts[4].split(':');
+                            const hour = parseInt(timeParts[0]);
+                            const min = String(timeParts[1]).padStart(2, '0');
+                            const ampm = hour >= 12 ? 'PM' : 'AM';
+                            const h12 = hour % 12 || 12;
+                            const monNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                            lastLoginHtml = `${String(day).padStart(2, '0')} ${monNames[month]} ${year}, ${h12}:${min} ${ampm}`;
                         } catch (e) {
-                            lastLoginHtml = 'Invalid date';
+                            lastLoginHtml = data.last_login;
                         }
                     }
 
@@ -1708,7 +1755,8 @@ function loadAllProjects() {
                     <td>${endDate}</td>
                     <td>
                         <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                data-bs-toggle="modal" data-bs-target="#editProjectModal"
                                 data-id="${p.project_id}" data-name="${p.project_name}"
                                 data-status="${p.status}" data-progress="${progress}"
                                 data-start="${p.start_date || ''}" data-end="${p.end_date || ''}"
@@ -1748,4 +1796,4 @@ if (confirmRejectBtn) {
         document.getElementById("rejectReasonError").style.display = "none";
         sendReviewRequest(projectId, "reject", reason);
     });
-}
+}   
