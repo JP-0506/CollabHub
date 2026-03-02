@@ -125,12 +125,17 @@ def login():
                 log_conn = get_db()
                 log_cur = log_conn.cursor()
 
+                # Get client IP address (handle proxies/load balancers)
+                ip_address = request.headers.get("X-Forwarded-For", request.remote_addr)
+                if ip_address and "," in ip_address:
+                    ip_address = ip_address.split(",")[0].strip()
+
                 log_cur.execute(
                     """
-                    INSERT INTO login_logs (user_id, login_time)
-                    VALUES (%s, CURRENT_TIMESTAMP)
+                    INSERT INTO login_logs (user_id, login_time, ip_address)
+                    VALUES (%s, CURRENT_TIMESTAMP, %s)
                     """,
-                    (user_id,),
+                    (user_id, ip_address),
                 )
                 log_conn.commit()
                 log_cur.close()
