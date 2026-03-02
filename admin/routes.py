@@ -1859,11 +1859,11 @@ def review_project(project_id):
         admin_id = session["user_id"]
 
         if action == "accept":
-            # Set status to 'closed'
+            # Set status to 'closed' + progress = 100%
             cur.execute(
                 """
                 UPDATE projects
-                SET status = 'closed', updated_at = NOW()
+                SET status = 'closed', progress = 100, updated_at = NOW()
                 WHERE project_id = %s
                 """,
                 (project_id,),
