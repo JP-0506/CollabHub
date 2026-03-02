@@ -310,6 +310,7 @@ def my_team_page():
     if team:
         user_ids = [member[0] for member in team]
         placeholders = ",".join(["%s"] * len(user_ids))
+        # ✅ FIX: Only count tasks from the current active project
         cur.execute(
             f"""
             SELECT 
@@ -318,9 +319,10 @@ def my_team_page():
                 COUNT(*) FILTER (WHERE status = 'approved') as completed_tasks
             FROM tasks
             WHERE assigned_to IN ({placeholders})
+            AND project_id = %s  -- ✅ Add this filter
             GROUP BY assigned_to
         """,
-            user_ids,
+            user_ids + [active_project_id],  # Add project_id to parameters
         )
         for result in cur.fetchall():
             task_counts[result[0]] = {"total": result[1], "completed": result[2]}
@@ -567,6 +569,25 @@ def member_overview(member_id):
     conn = get_db()
     cur = conn.cursor()
 
+    # First get the leader's current active project
+    cur.execute(
+        """
+        SELECT p.project_id
+        FROM projects p
+        JOIN project_members pm ON p.project_id = pm.project_id
+        WHERE p.leader_id = %s
+        AND p.status != 'closed'
+        AND p.is_deleted = FALSE
+        AND pm.user_id = %s
+        AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
+        ORDER BY p.created_at DESC
+        LIMIT 1
+    """,
+        (leader_id, leader_id),
+    )
+    active_project = cur.fetchone()
+    active_project_id = active_project[0] if active_project else None
+
     # Fetch basic member info — only if they belong to this leader's team
     cur.execute(
         """
@@ -576,10 +597,11 @@ def member_overview(member_id):
         JOIN projects p ON pm.project_id = p.project_id
         WHERE u.user_id = %s
         AND p.leader_id = %s
+        AND p.project_id = %s  -- ✅ Only check in current active project
         AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
         LIMIT 1;
     """,
-        (member_id, leader_id),
+        (member_id, leader_id, active_project_id),
     )
     member = cur.fetchone()
 
@@ -588,7 +610,7 @@ def member_overview(member_id):
         conn.close()
         return jsonify({"error": "Member not found"}), 404
 
-    # Fetch task summary for this member
+    # ✅ FIX: Fetch task summary ONLY for the current active project
     cur.execute(
         """
         SELECT
@@ -597,9 +619,10 @@ def member_overview(member_id):
             COUNT(*) FILTER (WHERE status NOT IN ('approved') AND (due_date IS NULL OR due_date >= CURRENT_DATE)) as pending,
             COUNT(*) FILTER (WHERE status NOT IN ('approved') AND due_date < CURRENT_DATE) as overdue
         FROM tasks
-        WHERE assigned_to = %s;
+        WHERE assigned_to = %s
+        AND project_id = %s;  -- ✅ Add this filter to only count tasks from current project
     """,
-        (member_id,),
+        (member_id, active_project_id),
     )
     task_stats = cur.fetchone()
 
@@ -1252,69 +1275,139 @@ def create_task():
     conn = get_db()
     cur = conn.cursor()
 
-    project = get_leader_project(leader_id, cur)
-    if not project:
-        cur.close()
-        conn.close()
-        return (
-            jsonify({"success": False, "error": "No project found for this leader"}),
-            404,
-        )
+    try:
+        project = get_leader_project(leader_id, cur)
+        print(f"[CREATE TASK] leader_id={leader_id}, project={project}")
 
-    # Check if project is closed
-    cur.execute("SELECT status FROM projects WHERE project_id = %s", (project[0],))
-    status = cur.fetchone()[0]
-    if status == "closed":
-        cur.close()
-        conn.close()
-        return (
-            jsonify(
-                {"success": False, "error": "Project is closed. Cannot create tasks."}
-            ),
-            400,
-        )
+        if not project:
+            cur.close()
+            conn.close()
+            return (
+                jsonify(
+                    {"success": False, "error": "No project found for this leader"}
+                ),
+                404,
+            )
 
-    cur.execute(
-        """
-        INSERT INTO tasks 
-        (project_id, title, description, priority, assigned_to, assigned_by, due_date, status)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, 'in_progress')
-    """,
-        (
-            project[0],
-            request.form["title"],
-            request.form.get("description", ""),
-            request.form["priority"].lower(),
-            int(request.form["assigned_to"]),
-            leader_id,
-            request.form["due_date"],
-        ),
-    )
+        project_id = project[0]
+        print(f"[CREATE TASK] project_id={project_id}")
 
-    # 🔥 AUTO-RECALCULATE project progress — Smart Formula
-    # ongoing + tasks exist => 10% base + floor(approved/total * 80%), capped at 90%
-    # This prevents misleading 1/1 = 100% scenarios.
-    cur.execute(
-        """
-        UPDATE projects
-        SET progress = (
-            SELECT CASE
-                WHEN COUNT(*) = 0 THEN 1
-                ELSE LEAST(90, 10 + FLOOR(COUNT(*) FILTER (WHERE status = 'approved') * 80.0 / COUNT(*)))
-            END
-            FROM tasks WHERE project_id = %s
-        ),
-        updated_at = NOW()
-        WHERE project_id = %s
+        # Check if project is closed
+        cur.execute("SELECT status FROM projects WHERE project_id = %s", (project_id,))
+        status = cur.fetchone()[0]
+        if status == "closed":
+            cur.close()
+            conn.close()
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": "Project is closed. Cannot create tasks.",
+                    }
+                ),
+                400,
+            )
+
+        print(f"[CREATE TASK] form data: {dict(request.form)}")
+
+        cur.execute(
+            """
+            INSERT INTO tasks 
+            (project_id, title, description, priority, assigned_to, assigned_by, due_date, status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, 'in_progress')
         """,
-        (project[0], project[0]),
-    )
+            (
+                project_id,
+                request.form["title"],
+                request.form.get("description", ""),
+                request.form["priority"].lower(),
+                int(request.form["assigned_to"]),
+                leader_id,
+                request.form["due_date"],
+            ),
+        )
+        print(f"[CREATE TASK] INSERT done")
 
-    conn.commit()
-    cur.close()
-    conn.close()
+        # 🚀 AUTO-RECALCULATE project progress — Advanced Industry Formula
+        # Component1: Weighted Task Score (70%) | pending=0, in_progress=0.4, submitted=0.7, approved=1.0
+        # Component2: In-Progress Bonus (10%)   | rewards active work in progress
+        # Component3: Leader Approval Bonus (10%)| unlocks when leader marks project 'completed'
+        # Component4: Admin Closure Bonus (10%) | unlocks when admin closes the project
+        cur.execute(
+            """
+            UPDATE projects
+            SET progress = (
+                WITH task_score AS (
+                    -- C1 + C2: weighted task completion + in-progress bonus
+                    SELECT
+                        COALESCE(
+                            SUM(
+                                CASE t.priority WHEN 'high' THEN 3 WHEN 'medium' THEN 2 ELSE 1 END
+                                *
+                                CASE t.status
+                                    WHEN 'approved'    THEN 1.0
+                                    WHEN 'submitted'   THEN 0.7
+                                    WHEN 'in_progress' THEN 0.4
+                                    ELSE 0.0
+                                END
+                            ) * 70.0
+                            / NULLIF(SUM(
+                                CASE t.priority WHEN 'high' THEN 3 WHEN 'medium' THEN 2 ELSE 1 END
+                            ), 0)
+                        , 0) AS weighted_score,
+                        COALESCE(
+                            COUNT(*) FILTER (WHERE t.status = 'in_progress') * 10.0
+                            / NULLIF(COUNT(*), 0)
+                        , 0) AS inprogress_bonus
+                    FROM tasks t
+                    WHERE t.project_id = %s
+                    AND (
+                        t.assigned_to IS NULL
+                        OR EXISTS (
+                            SELECT 1 FROM project_members pm
+                            WHERE pm.project_id = t.project_id
+                              AND pm.user_id = t.assigned_to
+                              AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
+                        )
+                    )
+                ),
+                proj_status AS (
+                    -- C3 + C4: authority bonuses from project status
+                    SELECT
+                        CASE WHEN status IN ('completed', 'closed') THEN 10 ELSE 0 END AS leader_bonus,
+                        CASE WHEN status = 'closed'                 THEN 10 ELSE 0 END AS admin_bonus
+                    FROM projects
+                    WHERE project_id = %s
+                )
+                SELECT LEAST(100, FLOOR(
+                    ts.weighted_score + ts.inprogress_bonus + ps.leader_bonus + ps.admin_bonus
+                ))
+                FROM task_score ts, proj_status ps
+            ),
+            updated_at = NOW()
+            WHERE project_id = %s
+            """,
+            (project_id, project_id, project_id),
+        )
+        print(f"[CREATE TASK] Progress updated successfully")
 
-    return jsonify({"success": True, "message": "Task created successfully"})
+        conn.commit()
+        cur.close()
+        conn.close()
+        return jsonify({"success": True, "message": "Task created successfully"})
+
+    except Exception as e:
+        import traceback
+
+        print(f"[CREATE TASK ERROR] {e}")
+        traceback.print_exc()
+        try:
+            conn.rollback()
+            cur.close()
+            conn.close()
+        except:
+            pass
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @project_leader_bp.route("/export_pdf")
@@ -1972,23 +2065,66 @@ def approve_task(task_id):
             (leader_id, leader_id, task_id),
         )
 
-        # 🔥 AUTO-RECALCULATE project progress — Smart Formula
-        # ongoing + tasks exist => 10% base + floor(approved/total * 80%), capped at 90%
-        # Prevents misleading 1/1 = 100% and 0/0 = 100% scenarios.
+        # 🚀 AUTO-RECALCULATE project progress — Advanced Industry Formula
+        # Component1: Weighted Task Score (70%) | pending=0, in_progress=0.4, submitted=0.7, approved=1.0
+        # Component2: In-Progress Bonus (10%)   | rewards active work in progress
+        # Component3: Leader Approval Bonus (10%)| unlocks when leader marks project 'completed'
+        # Component4: Admin Closure Bonus (10%) | unlocks when admin closes the project
         cur.execute(
             """
             UPDATE projects
             SET progress = (
-                SELECT CASE
-                    WHEN COUNT(*) = 0 THEN 1
-                    ELSE LEAST(90, 10 + FLOOR(COUNT(*) FILTER (WHERE status = 'approved') * 80.0 / COUNT(*)))
-                END
-                FROM tasks WHERE project_id = projects.project_id
+                WITH task_score AS (
+                    -- C1 + C2: weighted task completion + in-progress bonus
+                    SELECT
+                        COALESCE(
+                            SUM(
+                                CASE t.priority WHEN 'high' THEN 3 WHEN 'medium' THEN 2 ELSE 1 END
+                                *
+                                CASE t.status
+                                    WHEN 'approved'    THEN 1.0
+                                    WHEN 'submitted'   THEN 0.7
+                                    WHEN 'in_progress' THEN 0.4
+                                    ELSE 0.0
+                                END
+                            ) * 70.0
+                            / NULLIF(SUM(
+                                CASE t.priority WHEN 'high' THEN 3 WHEN 'medium' THEN 2 ELSE 1 END
+                            ), 0)
+                        , 0) AS weighted_score,
+                        COALESCE(
+                            COUNT(*) FILTER (WHERE t.status = 'in_progress') * 10.0
+                            / NULLIF(COUNT(*), 0)
+                        , 0) AS inprogress_bonus
+                    FROM tasks t
+                    WHERE t.project_id = (SELECT project_id FROM tasks WHERE task_id = %s)
+                    AND (
+                        t.assigned_to IS NULL
+                        OR EXISTS (
+                            SELECT 1 FROM project_members pm
+                            WHERE pm.project_id = t.project_id
+                              AND pm.user_id = t.assigned_to
+                              AND (pm.is_deleted = FALSE OR pm.is_deleted IS NULL)
+                        )
+                    )
+                ),
+                proj_status AS (
+                    -- C3 + C4: authority bonuses from project status
+                    SELECT
+                        CASE WHEN status IN ('completed', 'closed') THEN 10 ELSE 0 END AS leader_bonus,
+                        CASE WHEN status = 'closed'                 THEN 10 ELSE 0 END AS admin_bonus
+                    FROM projects
+                    WHERE project_id = (SELECT project_id FROM tasks WHERE task_id = %s)
+                )
+                SELECT LEAST(100, FLOOR(
+                    ts.weighted_score + ts.inprogress_bonus + ps.leader_bonus + ps.admin_bonus
+                ))
+                FROM task_score ts, proj_status ps
             ),
             updated_at = NOW()
             WHERE project_id = (SELECT project_id FROM tasks WHERE task_id = %s)
             """,
-            (task_id,),
+            (task_id, task_id, task_id),
         )
 
         conn.commit()
