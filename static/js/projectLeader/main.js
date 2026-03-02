@@ -554,30 +554,30 @@ document.addEventListener("DOMContentLoaded", function () {
             method: "POST",
             headers: { "Content-Type": "application/json" }
         })
-        .then(function (response) {
-            return response.json();
-        })
-        .then(function (data) {
-            if (data.success) {
-                alert("Project submitted for admin review successfully!");
-                window.location.reload();
-            } else {
-                alert("Error: " + data.error);
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (data.success) {
+                    alert("Project submitted for admin review successfully!");
+                    window.location.reload();
+                } else {
+                    alert("Error: " + data.error);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Mark as Complete';
+                }
+            })
+            .catch(function () {
+                alert("Something went wrong. Please try again.");
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Mark as Complete';
-            }
-        })
-        .catch(function () {
-            alert("Something went wrong. Please try again.");
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Mark as Complete';
-        });
+            });
     });
 });
 // ========== ADD TEAM MEMBER FORM ==========
 const addMemberForm = document.querySelector('#addMember form');
 if (addMemberForm) {
-    addMemberForm.addEventListener('submit', async function(e) {
+    addMemberForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         const formData = new FormData(this);
         const submitBtn = this.querySelector('button[type="submit"]');
@@ -610,7 +610,7 @@ if (addMemberForm) {
 
 // ========== CREATE TASK FORM (from both dashboard and tasks page) ==========
 document.querySelectorAll('#createTask form').forEach(form => {
-    form.addEventListener('submit', async function(e) {
+    form.addEventListener('submit', async function (e) {
         e.preventDefault();
         const formData = new FormData(this);
         const submitBtn = this.querySelector('button[type="submit"]');
@@ -644,7 +644,7 @@ document.querySelectorAll('#createTask form').forEach(form => {
 // ========== DELETE TASK FORM ==========
 const deleteTaskForm = document.getElementById('deleteTaskForm');
 if (deleteTaskForm) {
-    deleteTaskForm.addEventListener('submit', async function(e) {
+    deleteTaskForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         const formData = new FormData(this);
         const submitBtn = this.querySelector('button[type="submit"]');
@@ -678,7 +678,7 @@ if (deleteTaskForm) {
 // ========== EDIT TASK FORM ==========
 const editTaskForm = document.getElementById('editTaskForm');
 if (editTaskForm) {
-    editTaskForm.addEventListener('submit', async function(e) {
+    editTaskForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         const formData = new FormData(this);
         const submitBtn = this.querySelector('button[type="submit"]');
@@ -712,7 +712,7 @@ if (editTaskForm) {
 // ========== REMOVE TEAM MEMBER FORM ==========
 const removeMemberForm = document.getElementById('removeMemberForm');
 if (removeMemberForm) {
-    removeMemberForm.addEventListener('submit', async function(e) {
+    removeMemberForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         const formData = new FormData(this);
         const submitBtn = this.querySelector('button[type="submit"]');
