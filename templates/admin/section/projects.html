@@ -15,7 +15,8 @@
             </p>
         </div>
 
-        <button class="add-project-btn px-4 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+        <button class="add-project-btn px-4 py-2 rounded-pill edit-btn" data-bs-toggle="modal"
+            data-bs-target="#addProjectModal">
 
             <i class="fas fa-plus me-2"></i>
             New Project
@@ -308,12 +309,12 @@
 
 
                                 <!-- EDIT -->
-                                <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
-                                    data-id="{{ p.project_id }}" data-name="{{ p.project_name }}"
-                                    data-status="{{ p.status }}" data-progress="{{ p.progress }}"
-                                    data-start="{{ p.start_date }}" data-end="{{ p.end_date }}"
-                                    data-desc="{{ p.features }}" data-leader="{{ p.leader_id }}">
-
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                    data-bs-target="#editProjectModal" data-id="{{ p.project_id }}"
+                                    data-name="{{ p.project_name }}" data-status="{{ p.status }}"
+                                    data-progress="{{ p.progress }}" data-start="{{ p.start_date }}"
+                                    data-end="{{ p.end_date }}" data-desc="{{ p.features }}"
+                                    data-leader="{{ p.leader_id }}">
                                     <i class="fas fa-edit"></i>
                                 </button>
 
