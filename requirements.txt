@@ -4,3 +4,4 @@ psycopg2-binary
 flask-login
 flask-bcrypt
 Flask-Mail
+reportlab
