@@ -5,64 +5,60 @@
 <div class="container-fluid">
 
     <h2 class="mb-4">
-    Welcome back, <span class="text-primary">
-        {{ session.get('username','Employee') }}
-    </span>
-</h2>
+        Welcome back, <span class="text-primary">
+            {{ session.get('username','Employee') }}
+        </span>
+    </h2>
 
     <!-- Cards Row -->
-   <!-- Stats Section -->
-<div class="row mb-4">
+    <!-- Stats Section -->
+    <div class="row mb-4">
 
-    <!-- Completed -->
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="stat-icon" 
-                 style="background: linear-gradient(135deg, #86efac, #16a34a); color:white;">
-                <i class="fas fa-check-circle"></i>
+        <!-- Completed -->
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #86efac, #16a34a); color:white;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <span class="stat-label">Completed Tasks</span>
+                <span class="stat-value">{{ completed_tasks }}</span>
             </div>
-            <span class="stat-label">Completed Tasks</span>
-            <span class="stat-value">{{ completed_tasks }}</span>
         </div>
-    </div>
 
-    <!-- In Progress -->
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="stat-icon"
-                 style="background: linear-gradient(135deg, #fde68a, #f59e0b); color:white;">
-                <i class="fas fa-hourglass-half"></i>
+        <!-- In Progress -->
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #fde68a, #f59e0b); color:white;">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <span class="stat-label">In Progress</span>
+                <span class="stat-value">{{ in_progress_tasks }}</span>
             </div>
-            <span class="stat-label">In Progress</span>
-            <span class="stat-value">{{ in_progress_tasks }}</span>
         </div>
-    </div>
 
-    <!-- To Do -->
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="stat-icon"
-                 style="background: linear-gradient(135deg, #fca5a5, #dc2626); color:white;">
-                <i class="fas fa-list-check"></i>
+        <!-- To Do -->
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #fca5a5, #dc2626); color:white;">
+                    <i class="fas fa-list-check"></i>
+                </div>
+                <span class="stat-label">To Do Tasks</span>
+                <span class="stat-value">{{ todo_tasks }}</span>
             </div>
-            <span class="stat-label">To Do Tasks</span>
-            <span class="stat-value">{{ todo_tasks }}</span>
         </div>
-    </div>
 
-    <!-- Projects -->
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="stat-icon" 
-                 style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color:white;">
-                <i class="fas fa-folder"></i>
+        <!-- Projects -->
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color:white;">
+                    <i class="fas fa-folder"></i>
+                </div>
+                <span class="stat-label">Projects</span>
+                <span class="stat-value">{{ project_count }}</span>
             </div>
-            <span class="stat-label">Projects</span>
-            <span class="stat-value">{{ project_count }}</span>
         </div>
-    </div>
 
-</div>
+    </div>
 
     <!-- Charts Row -->
     <div class="row">
@@ -109,27 +105,27 @@
             datasets: [{
                 data: [
                     {{ completed_tasks }},
-                    {{ in_progress_tasks }},
+            {{ in_progress_tasks }},
                     {{ todo_tasks }}
                 ],
-                backgroundColor: [
-                    '#14B8A6',
-                    '#FDE68A',
-                    '#A5B4FC'
-                ]
+        backgroundColor: [
+        '#14B8A6',
+        '#FDE68A',
+        '#A5B4FC'
+    ]
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
             }
         }
+    }
     });
-    
+
     // Weekly Line Chart
     const weeklyCtx = document.getElementById('weeklyChart');
 
@@ -137,32 +133,32 @@
         type: 'line',
         data: {
             labels: {{ weekly_labels | tojson }},
-            datasets: [{
-                label: 'Tasks Completed',
-                data: {{ weekly_values | tojson }},
-                borderColor: '#0d6efd',
-                backgroundColor: 'rgba(13,110,253,0.1)',
-                fill: true,
-                tension: 0.3
+        datasets: [{
+            label: 'Tasks Completed',
+            data: {{ weekly_values | tojson }},
+        borderColor: '#0d6efd',
+        backgroundColor: 'rgba(13,110,253,0.1)',
+        fill: true,
+        tension: 0.3
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
             }
         }
+    }
     });
 
-    
+
 </script>
 
 {% endblock %}
