@@ -1,0 +1,327 @@
+╔══════════════════════════════════════════════════════════════════════════════════╗
+║           COLLABHUB — PROJECT PROGRESS CALCULATION GUIDE                         ║
+║           Advanced Industry-Style Formula Documentation                          ║ 
+╚══════════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CollabHub calculates project progress using a 4-component weighted formula.
+This is similar to how professional tools like Jira, Asana, and Monday.com
+calculate sprint velocity and project completion.
+
+Progress is NOT simply (completed tasks / total tasks × 100).
+Instead, it respects task priority, task stage, team activity, and authority
+milestones — making it stable, realistic, and hard to game.
+
+FINAL FORMULA:
+──────────────
+  Progress = C1 + C2 + C3 + C4       (Maximum = 100%)
+
+  C1 = Weighted Task Score     →  max 70%
+  C2 = In-Progress Bonus       →  max 10%
+  C3 = Leader Approval Bonus   →  max 10%
+  C4 = Admin Closure Bonus     →  max 10%
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 1 — PRIORITY WEIGHT  (Wi)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Every task has a priority. Each priority maps to a weight value:
+
+  Priority     Weight (Wi)
+  ─────────    ───────────
+  high    →       3
+  medium  →       2
+  low     →       1
+
+WHY?
+  A high-priority task completing should move progress more than a low-priority
+  one. This is exactly how Jira story points work — bigger tasks = bigger impact.
+
+EXAMPLE:
+  Task A → high    → Wi = 3
+  Task B → medium  → Wi = 2
+  Task C → low     → Wi = 1
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 2 — STATUS SCORE  (Si)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Every task has a status. Each status maps to a contribution score:
+
+  Task Status    Score (Si)    Meaning
+  ───────────    ──────────    ─────────────────────────────────────
+  todo           0.0           Not started. Zero contribution.
+  in_progress    0.4           Work started. 40% of weight counts.
+  submitted      0.7           Done, waiting for review. 70% counts.
+  approved       1.0           Leader approved. 100% counts.
+
+WHY THESE VALUES?
+  - todo (0.0)       → No work done, should not affect progress at all.
+  - in_progress (0.4)→ Work has started. Team is active. Partially credited.
+  - submitted (0.7)  → Employee finished. Under leader review. Almost there.
+  - approved (1.0)   → Leader verified. Fully counted.
+
+This makes progress SMOOTH — it doesn't jump suddenly from 0% to 100%
+when a task is approved. You can watch it grow gradually.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 3 — TASK CONTRIBUTION SCORE  (Ti)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For each task, multiply its Priority Weight by its Status Score:
+
+  Ti = Wi × Si
+
+EXAMPLE:
+  Task A → high (3) × approved (1.0)    = 3.0
+  Task B → high (3) × submitted (0.7)   = 2.1
+  Task C → medium (2) × in_progress (0.4) = 0.8
+  Task D → low (1) × todo (0.0)         = 0.0
+  Task E → low (1) × todo (0.0)         = 0.0
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPONENT 1 — WEIGHTED TASK SCORE  (C1)  →  Max 70%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  C1 = [ SUM of all Ti / SUM of all Wi ] × 70
+
+  In simple words:
+    "What fraction of total possible weight has been earned?" × 70
+
+EXAMPLE (from above tasks):
+  SUM of Ti = 3.0 + 2.1 + 0.8 + 0.0 + 0.0  = 5.9
+  SUM of Wi = 3   + 3   + 2   + 1   + 1     = 10
+
+  C1 = (5.9 / 10) × 70 = 0.59 × 70 = 41.3 → FLOOR = 41%
+
+NOTE:
+  - If there are no tasks at all → C1 = 0
+  - This component auto-updates every time a task is created, updated,
+    submitted, or approved.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPONENT 2 — IN-PROGRESS BONUS  (C2)  →  Max 10%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  C2 = (Number of in_progress tasks / Total tasks) × 10
+
+WHY?
+  This rewards active teams. If half the team is currently working,
+  that active effort shows up in progress. As tasks get submitted and
+  approved, this bonus naturally fades to 0.
+
+EXAMPLE:
+  1 task is in_progress out of 5 total.
+  C2 = (1/5) × 10 = 2%
+
+ANOTHER EXAMPLE:
+  3 tasks in_progress out of 5 total.
+  C2 = (3/5) × 10 = 6%
+
+NOTE:
+  - When all tasks are approved, in_progress count = 0, so C2 = 0.
+  - This component prevents progress from feeling "stuck" while work
+    is actively happening.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPONENT 3 — LEADER APPROVAL BONUS  (C3)  →  Exactly 10% or 0%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  C3 = 10   if project status = 'completed' or 'closed'
+  C3 = 0    otherwise (planning / ongoing / on_hold)
+
+WHY?
+  The project leader has the authority to declare the project done.
+  This milestone is worth 10% of total progress. It cannot be unlocked
+  by the development team — only the leader can trigger it by formally
+  marking the project as completed.
+
+THIS MEANS:
+  No matter how many tasks are approved, the maximum a team can reach
+  through task work alone is 80% (C1 max 70% + C2 max 10%).
+  The final 20% requires human authority sign-off.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPONENT 4 — ADMIN CLOSURE BONUS  (C4)  →  Exactly 10% or 0%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  C4 = 10   if project status = 'closed'
+  C4 = 0    otherwise
+
+WHY?
+  Admin closure is the final organizational sign-off. It confirms that:
+    - The leader's completion claim has been reviewed
+    - Deliverables are accepted
+    - The project is officially archived
+
+  When admin closes a project → progress is forced to exactly 100%.
+
+THIS MEANS:
+  A project can only reach 100% when:
+    ✅ Tasks are done and approved (C1)
+    ✅ Active work happened (C2)
+    ✅ Leader declared it complete (C3)
+    ✅ Admin accepted and closed it (C4)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FULL WORKED EXAMPLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PROJECT: "E-Commerce Platform"
+STATUS:  ongoing
+
+TASKS:
+  ┌─────────────────────┬──────────┬──────────────┬──────┬────────┬──────────────┐
+  │ Task                │ Priority │ Status       │  Wi  │   Si   │  Ti = Wi×Si  │
+  ├─────────────────────┼──────────┼──────────────┼──────┼────────┼──────────────┤
+  │ User Authentication │ high     │ approved     │  3   │  1.0   │     3.0      │
+  │ Product Listing API │ high     │ approved     │  3   │  1.0   │     3.0      │
+  │ Payment Gateway     │ high     │ submitted    │  3   │  0.7   │     2.1      │
+  │ Admin Dashboard     │ medium   │ in_progress  │  2   │  0.4   │     0.8      │
+  │ Email Notifications │ medium   │ in_progress  │  2   │  0.4   │     0.8      │
+  │ Mobile Responsive   │ medium   │ todo         │  2   │  0.0   │     0.0      │
+  │ Dark Mode           │ low      │ todo         │  1   │  0.0   │     0.0      │
+  │ Fix button color    │ low      │ todo         │  1   │  0.0   │     0.0      │
+  └─────────────────────┴──────────┴──────────────┴──────┴────────┴──────────────┘
+
+CALCULATION:
+  SUM of Ti = 3.0 + 3.0 + 2.1 + 0.8 + 0.8 + 0 + 0 + 0 = 9.7
+  SUM of Wi = 3   + 3   + 3   + 2   + 2   + 2 + 1 + 1  = 17
+
+  C1 = (9.7 / 17) × 70 = 0.5706 × 70 = 39.94 → FLOOR = 39%
+  C2 = (2 in_progress / 8 total) × 10 = 0.25 × 10 = 2%
+  C3 = 0%   (project still ongoing)
+  C4 = 0%   (admin hasn't closed it)
+
+  PROGRESS = 39 + 2 + 0 + 0 = 41%
+
+───────────────────────────────────────────────────────────────────────────────
+
+SAME PROJECT — AFTER PAYMENT GATEWAY APPROVED:
+  Payment Gateway: submitted → approved  →  Ti changes from 2.1 to 3.0
+
+  SUM of Ti = 3.0 + 3.0 + 3.0 + 0.8 + 0.8 + 0 + 0 + 0 = 10.6
+  SUM of Wi = 17 (same)
+
+  C1 = (10.6 / 17) × 70 = 43%
+  C2 = (2/8) × 10 = 2%
+
+  PROGRESS = 43 + 2 + 0 + 0 = 45%   (+4% from one approval)
+
+───────────────────────────────────────────────────────────────────────────────
+
+SAME PROJECT — LEADER MARKS AS COMPLETED:
+  C3 unlocks → +10%
+
+  PROGRESS = 43 + 2 + 10 + 0 = 55%
+
+───────────────────────────────────────────────────────────────────────────────
+
+SAME PROJECT — ADMIN CLOSES IT:
+  C4 unlocks → +10%, then forced to 100%
+
+  PROGRESS = 100%
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT HAPPENS WHEN LEADER ADDS NEW LOW-PRIORITY TASKS?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This was a weakness of the old raw-count formula. Let's prove it's fixed.
+
+BEFORE adding a new low task:
+  SUM of Ti = 9.7
+  SUM of Wi = 17
+  C1 = (9.7/17) × 70 = 39%
+
+AFTER adding 1 new low-priority todo task:
+  SUM of Ti = 9.7 + 0   = 9.7   (todo = 0 contribution)
+  SUM of Wi = 17  + 1   = 18
+  C1 = (9.7/18) × 70 = 37%      (dropped by only 2%)
+
+AFTER adding 3 new low-priority todo tasks:
+  SUM of Ti = 9.7 + 0 + 0 + 0 = 9.7
+  SUM of Wi = 17 + 1 + 1 + 1  = 20
+  C1 = (9.7/20) × 70 = 33%      (dropped by only 6%)
+
+COMPARE WITH OLD FORMULA:
+  Old formula (raw count): adding 3 low tasks would drop from 50% to 31%
+  — a sudden 19% drop just for planning ahead.
+
+  New formula: only a 6% gradual shift — much more stable and professional.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROGRESS CEILING PER ROLE / AUTHORITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Who                     Max Progress They Can Unlock
+  ──────────────────────  ────────────────────────────
+  Employees (tasks)       Up to 70%   (C1 only)
+  Team activity           Up to 80%   (C1 + C2)
+  Project Leader          Up to 90%   (C1 + C2 + C3)
+  Admin                   Up to 100%  (C1 + C2 + C3 + C4)
+
+This mirrors real organizational hierarchy:
+  - Developers cannot declare their own project complete.
+  - Leaders cannot skip admin verification.
+  - Admins have final say.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPARISON: OLD vs NEW FORMULA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Scenario                       Old Formula    New Formula    Better?
+  ─────────────────────────────  ───────────    ───────────    ───────
+  Only low-priority tasks done   40%            20%            ✅ New
+  Big tasks done first           60%            80%            ✅ New
+  Tasks in review (submitted)    Not counted    Counted (70%)  ✅ New
+  Work in progress               Not counted    Counted (40%)  ✅ New
+  Add low-priority tasks         Big drop       Tiny drop      ✅ New
+  Project 100% needs admin       No             Yes            ✅ New
+  Transparent per-role ceiling   No             Yes            ✅ New
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+QUICK REFERENCE — ONE PAGE SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  PRIORITY WEIGHTS          STATUS SCORES
+  ─────────────────         ──────────────────────
+  high   = 3                todo        = 0.0
+  medium = 2                in_progress = 0.4
+  low    = 1                submitted   = 0.7
+                            approved    = 1.0
+
+  COMPONENTS
+  ───────────────────────────────────────────────────────────────
+  C1 = (SUM of Wi×Si / SUM of Wi) × 70       max 70%
+  C2 = (in_progress count / total count) × 10 max 10%
+  C3 = 10 if project = completed or closed    max 10%
+  C4 = 10 if project = closed                 max 10%
+
+  FINAL PROGRESS = FLOOR(C1 + C2 + C3 + C4)   capped at 100%
+
+  WHO UNLOCKS WHAT
+  ───────────────────────────────────────────────────────────────
+  Employees  → C1 (max 70%)
+  Team       → C1 + C2 (max 80%)
+  Leader     → C1 + C2 + C3 (max 90%)
+  Admin      → C1 + C2 + C3 + C4 = 100%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    CollabHub — System Design Documentation
+                    Formula Version 3.0 — Advanced Industry Style
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
