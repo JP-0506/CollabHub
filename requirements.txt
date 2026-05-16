@@ -5,3 +5,4 @@ flask-login
 flask-bcrypt
 Flask-Mail
 reportlab
+python-dotenv
