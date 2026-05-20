@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: production
+      name: CollabHub
       url: https://collabhub-7jj1.onrender.com
 
     steps:
